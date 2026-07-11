@@ -3,21 +3,20 @@ const app = express();
 const PORT = process.env.PORT || 7000;
 
 const BASE_URL = 'https://www.ccdko80.com/get_video.php?videos=';
-const CONAN_POSTER = 'https://image.tmdb.org/t/p/w500/oNfQZvar68KMhBuCxMJFLxHNfmu.jpg';
 const CONAN_BG = 'https://image.tmdb.org/t/p/w1280/hpGM1o8bFsOEkEVCGCBQDHRHnJH.jpg';
 
 const CONAN_SEASONS = [
-  { num: 1,  name: 'المحقق كونان الجزء الأول مدبلج',        epCount: 40  },
-  { num: 2,  name: 'المحقق كونان الجزء الثاني مدبلج',       epCount: 39  },
-  { num: 3,  name: 'المحقق كونان الجزء الثالث مدبلج',       epCount: 46  },
-  { num: 4,  name: 'المحقق كونان الجزء الرابع مدبلج',       epCount: 71  },
-  { num: 5,  name: 'المحقق كونان الجزء الخامس مدبلج',       epCount: 52  },
-  { num: 6,  name: 'المحقق كونان الجزء السادس مدبلج',       epCount: 52  },
-  { num: 7,  name: 'المحقق كونان الجزء السابع مدبلج',       epCount: 52  },
-  { num: 8,  name: 'المحقق كونان الجزء الثامن مدبلج',       epCount: 52  },
-  { num: 9,  name: 'المحقق كونان الجزء التاسع مدبلج',       epCount: 54  },
-  { num: 10, name: 'المحقق كونان الجزء العاشر مدبلج',       epCount: 50  },
-  { num: 11, name: 'المحقق كونان الجزء الحادي عشر مدبلج',  epCount: 66  },
+  { num: 1,  name: 'المحقق كونان الجزء الأول مدبلج',        epCount: 40,  poster: 'https://image.tmdb.org/t/p/w500/gG4QZ2j4v1v3z3z3z3z3z3z3z3z.jpg' },
+  { num: 2,  name: 'المحقق كونان الجزء الثاني مدبلج',       epCount: 39,  poster: 'https://image.tmdb.org/t/p/w500/gG4QZ2j4v1v3z3z3z3z3z3z3z3z.jpg' },
+  { num: 3,  name: 'المحقق كونان الجزء الثالث مدبلج',       epCount: 46,  poster: 'https://image.tmdb.org/t/p/w500/gG4QZ2j4v1v3z3z3z3z3z3z3z3z.jpg' },
+  { num: 4,  name: 'المحقق كونان الجزء الرابع مدبلج',       epCount: 71,  poster: 'https://image.tmdb.org/t/p/w500/gG4QZ2j4v1v3z3z3z3z3z3z3z3z.jpg' },
+  { num: 5,  name: 'المحقق كونان الجزء الخامس مدبلج',       epCount: 52,  poster: 'https://image.tmdb.org/t/p/w500/gG4QZ2j4v1v3z3z3z3z3z3z3z3z.jpg' },
+  { num: 6,  name: 'المحقق كونان الجزء السادس مدبلج',       epCount: 52,  poster: 'https://image.tmdb.org/t/p/w500/gG4QZ2j4v1v3z3z3z3z3z3z3z3z.jpg' },
+  { num: 7,  name: 'المحقق كونان الجزء السابع مدبلج',       epCount: 52,  poster: 'https://image.tmdb.org/t/p/w500/gG4QZ2j4v1v3z3z3z3z3z3z3z3z.jpg' },
+  { num: 8,  name: 'المحقق كونان الجزء الثامن مدبلج',       epCount: 52,  poster: 'https://image.tmdb.org/t/p/w500/oNfQZvar68KMhBuCxMJFLxHNfmu.jpg' },
+  { num: 9,  name: 'المحقق كونان الجزء التاسع مدبلج',       epCount: 54,  poster: 'https://image.tmdb.org/t/p/w500/gG4QZ2j4v1v3z3z3z3z3z3z3z3z.jpg' },
+  { num: 10, name: 'المحقق كونان الجزء العاشر مدبلج',       epCount: 50,  poster: 'https://image.tmdb.org/t/p/w500/gG4QZ2j4v1v3z3z3z3z3z3z3z3z.jpg' },
+  { num: 11, name: 'المحقق كونان الجزء الحادي عشر مدبلج',  epCount: 66,  poster: 'https://image.tmdb.org/t/p/w500/gG4QZ2j4v1v3z3z3z3z3z3z3z3z.jpg' },
 ];
 
 app.use((req, res, next) => {
@@ -54,7 +53,7 @@ app.get('/catalog/movie/:type/:id.json', (req, res) => {
         id: `conan:s<LaTex>${s.num}e$</LaTex>{i}`,
         type: 'movie',
         name: `<LaTex>${s.name} - الحلقة $</LaTex>{i}`,
-        poster: CONAN_POSTER,
+        poster: s.poster,
         posterShape: 'poster'
       });
     }
@@ -88,7 +87,7 @@ app.get('/meta/movie/:id.json', (req, res) => {
       id: id,
       type: 'movie',
       name: `<LaTex>${season.name} - الحلقة $</LaTex>{episodeNum}`,
-      poster: CONAN_POSTER,
+      poster: season.poster,
       background: CONAN_BG,
       videos: [{
         id: id + ':1',
