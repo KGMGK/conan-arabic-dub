@@ -6,20 +6,20 @@ const BASE_URL = 'https://www.ccdko80.com/get_video.php?videos=';
 const CONAN_BG = 'https://image.tmdb.org/t/p/w1280/hpGM1o8bFsOEkEVCGCBQDHRHnJH.jpg';
 
 const CONAN_SEASONS = [
-  { num: 1,  name: 'المحقق كونان الجزء الأول مدبلج',        epCount: 40,  poster: 'https://image.tmdb.org/t/p/w500/oNfQZvar68KMhBuCxMJFLxHNfmu.jpg' },
-  { num: 2,  name: 'المحقق كونان الجزء الثاني مدبلج',       epCount: 39,  poster: 'https://image.tmdb.org/t/p/w500/oNfQZvar68KMhBuCxMJFLxHNfmu.jpg' },
-  { num: 3,  name: 'المحقق كونان الجزء الثالث مدبلج',       epCount: 46,  poster: 'https://image.tmdb.org/t/p/w500/oNfQZvar68KMhBuCxMJFLxHNfmu.jpg' },
-  { num: 4,  name: 'المحقق كونان الجزء الرابع مدبلج',       epCount: 71,  poster: 'https://image.tmdb.org/t/p/w500/oNfQZvar68KMhBuCxMJFLxHNfmu.jpg' },
-  { num: 5,  name: 'المحقق كونان الجزء الخامس مدبلج',       epCount: 52,  poster: 'https://image.tmdb.org/t/p/w500/oNfQZvar68KMhBuCxMJFLxHNfmu.jpg' },
-  { num: 6,  name: 'المحقق كونان الجزء السادس مدبلج',       epCount: 52,  poster: 'https://image.tmdb.org/t/p/w500/oNfQZvar68KMhBuCxMJFLxHNfmu.jpg' },
-  { num: 7,  name: 'المحقق كونان الجزء السابع مدبلج',       epCount: 52,  poster: 'https://image.tmdb.org/t/p/w500/oNfQZvar68KMhBuCxMJFLxHNfmu.jpg' },
-  { num: 8,  name: 'المحقق كونان الجزء الثامن مدبلج',       epCount: 52,  poster: 'https://image.tmdb.org/t/p/w500/oNfQZvar68KMhBuCxMJFLxHNfmu.jpg' },
-  { num: 9,  name: 'المحقق كونان الجزء التاسع مدبلج',       epCount: 54,  poster: 'https://image.tmdb.org/t/p/w500/oNfQZvar68KMhBuCxMJFLxHNfmu.jpg' },
-  { num: 10, name: 'المحقق كونان الجزء العاشر مدبلج',       epCount: 50,  poster: 'https://image.tmdb.org/t/p/w500/oNfQZvar68KMhBuCxMJFLxHNfmu.jpg' },
-  { num: 11, name: 'المحقق كونان الجزء الحادي عشر مدبلج',  epCount: 66,  poster: 'https://image.tmdb.org/t/p/w500/oNfQZvar68KMhBuCxMJFLxHNfmu.jpg' },
+  { num: 1,  name: 'المحقق كونان الجزء الأول مدبلج',        epCount: 40  },
+  { num: 2,  name: 'المحقق كونان الجزء الثاني مدبلج',       epCount: 39  },
+  { num: 3,  name: 'المحقق كونان الجزء الثالث مدبلج',       epCount: 46  },
+  { num: 4,  name: 'المحقق كونان الجزء الرابع مدبلج',       epCount: 71  },
+  { num: 5,  name: 'المحقق كونان الجزء الخامس مدبلج',       epCount: 52  },
+  { num: 6,  name: 'المحقق كونان الجزء السادس مدبلج',       epCount: 52  },
+  { num: 7,  name: 'المحقق كونان الجزء السابع مدبلج',       epCount: 52  },
+  { num: 8,  name: 'المحقق كونان الجزء الثامن مدبلج',       epCount: 52  },
+  { num: 9,  name: 'المحقق كونان الجزء التاسع مدبلج',       epCount: 54  },
+  { num: 10, name: 'المحقق كونان الجزء العاشر مدبلج',       epCount: 50  },
+  { num: 11, name: 'المحقق كونان الجزء الحادي عشر مدبلج',  epCount: 66  },
 ];
 
-app.use((req, res, next) => {
+app.use(function(req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -31,7 +31,7 @@ const manifest = {
   id: 'local.network.conan.arabic',
   version: '1.0.0',
   name: 'Conan Arabic Dub',
-  description: 'المحقق كونان مدبلج — الأجزاء 1 إلى 11 من كونان عربي',
+  description: 'المحقق كونان مدبلج - الأجزاء 1 إلى 11 من كونان عربي',
   resources: ['catalog', 'meta', 'stream'],
   types: ['movie'],
   catalogs: [
@@ -40,86 +40,75 @@ const manifest = {
   idPrefixes: ['conan']
 };
 
-app.get('/manifest.json', (req, res) => {
+app.get('/manifest.json', function(req, res) {
   res.json(manifest);
 });
 
-app.get('/catalog/movie/:id.json', (req, res) => {
-  const metas = [];
-  
-  CONAN_SEASONS.forEach(s => {
-    for (let i = 1; i <= s.epCount; i++) {
+app.get('/catalog/movie/:id.json', function(req, res) {
+  var metas = [];
+  CONAN_SEASONS.forEach(function(s) {
+    for (var i = 1; i <= s.epCount; i++) {
       metas.push({
-        id: `conan-<LaTex>${s.num}-$</LaTex>{i}`,
+        id: 'conan-' + s.num + '-' + i,
         type: 'movie',
-        name: `<LaTex>${s.name} - الحلقة $</LaTex>{i}`,
-        poster: s.poster
+        name: s.name + ' - الحلقة ' + i,
+        poster: 'https://images.metahub.space/poster/medium/tt0806913/img'
       });
     }
   });
-
-  res.json({ metas });
+  res.json({ metas: metas });
 });
 
-app.get('/meta/movie/:id.json', (req, res) => {
-  const id = req.params.id;
-  const parts = id.split('-');
-  
+app.get('/meta/movie/:id.json', function(req, res) {
+  var id = req.params.id;
+  var parts = id.split('-');
   if (parts.length !== 3 || parts[0] !== 'conan') {
     return res.json({ meta: null });
   }
-
-  const seasonNum = parseInt(parts[1], 10);
-  const episodeNum = parseInt(parts[2], 10);
-
-  const season = CONAN_SEASONS.find(s => s.num === seasonNum);
+  var seasonNum = parseInt(parts[1], 10);
+  var episodeNum = parseInt(parts[2], 10);
+  var season = CONAN_SEASONS.find(function(s) { return s.num === seasonNum; });
   if (!season || episodeNum < 1 || episodeNum > season.epCount) {
     return res.json({ meta: null });
   }
-
   res.json({
     meta: {
       id: id,
       type: 'movie',
-      name: `<LaTex>${season.name} - الحلقة $</LaTex>{episodeNum}`,
-      poster: season.poster,
+      name: season.name + ' - الحلقة ' + episodeNum,
+      poster: 'https://images.metahub.space/poster/medium/tt0806913/img',
       background: CONAN_BG,
-      description: `المحقق كونان مدبلج - الجزء <LaTex>${seasonNum} - الحلقة $</LaTex>{episodeNum}`,
+      description: 'المحقق كونان مدبلج - الجزء ' + seasonNum + ' - الحلقة ' + episodeNum,
       year: 1997
     }
   });
 });
 
-app.get('/stream/movie/:id.json', (req, res) => {
-  const id = req.params.id;
-  const parts = id.split('-');
-  
+app.get('/stream/movie/:id.json', function(req, res) {
+  var id = req.params.id;
+  var parts = id.split('-');
   if (parts.length !== 3 || parts[0] !== 'conan') {
     return res.json({ streams: [] });
   }
-
-  const seasonNum = parseInt(parts[1], 10);
-  const episodeNum = parseInt(parts[2], 10);
-
-  const season = CONAN_SEASONS.find(s => s.num === seasonNum);
+  var seasonNum = parseInt(parts[1], 10);
+  var episodeNum = parseInt(parts[2], 10);
+  var season = CONAN_SEASONS.find(function(s) { return s.num === seasonNum; });
   if (!season || episodeNum < 1 || episodeNum > season.epCount) {
     return res.json({ streams: [] });
   }
-
-  const videoUrl = `<LaTex>${BASE_URL}c$</LaTex>{seasonNum}/EP<LaTex>${episodeNum}.mp4`;
-
+  var videoUrl = BASE_URL + 'c' + seasonNum + '/EP' + episodeNum + '.mp4';
   res.json({
     streams: [
       {
-        title: `🎬 كونان بالعربي (الجزء $</LaTex>{seasonNum} - الحلقة <LaTex>${episodeNum})`,
+        title: 'Konan Arabic Dub (الجزء ' + seasonNum + ' - الحلقة ' + episodeNum + ')',
         url: videoUrl
       }
     ]
   });
 });
 
-app.get('/ping', (req, res) => res.send('ok'));
+app.get('/ping', function(req, res) { res.send('ok'); });
 
-app.listen(PORT, () => {
-  console.log(`Conan Arabic Addon running on port $</LaTex>{PORT}`);
+app.listen(PORT, function() {
+  console.log('Conan Arabic Addon running on port ' + PORT);
 });
