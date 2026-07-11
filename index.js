@@ -3,7 +3,8 @@ const app = express();
 const PORT = process.env.PORT || 7000;
 
 const BASE_URL = 'https://www.ccdko80.com/get_video.php?videos=';
-const CONAN_BG = 'https://image.tmdb.org/t/p/w1280/hpGM1o8bFsOEkEVCGCBQDHRHnJH.jpg';
+const CONAN_POSTER = 'https://upload.wikimedia.org/wikipedia/en/5/55/Detective_Conan_Vol_1.jpg';
+const CONAN_BG = 'https://upload.wikimedia.org/wikipedia/en/5/55/Detective_Conan_Vol_1.jpg';
 
 const CONAN_SEASONS = [
   { num: 1,  name: 'المحقق كونان الجزء الأول مدبلج',        epCount: 40  },
@@ -52,7 +53,7 @@ app.get('/catalog/movie/:id.json', function(req, res) {
         id: 'conan-' + s.num + '-' + i,
         type: 'movie',
         name: s.name + ' - الحلقة ' + i,
-        poster: 'https://images.metahub.space/poster/medium/tt0806913/img'
+        poster: CONAN_POSTER
       });
     }
   });
@@ -76,7 +77,7 @@ app.get('/meta/movie/:id.json', function(req, res) {
       id: id,
       type: 'movie',
       name: season.name + ' - الحلقة ' + episodeNum,
-      poster: 'https://images.metahub.space/poster/medium/tt0806913/img',
+      poster: CONAN_POSTER,
       background: CONAN_BG,
       description: 'المحقق كونان مدبلج - الجزء ' + seasonNum + ' - الحلقة ' + episodeNum,
       year: 1997
