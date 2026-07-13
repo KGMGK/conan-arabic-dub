@@ -193,7 +193,7 @@ function buildAddon() {
   for (const key of showKeys) {
     const show = SHOWS[key];
     catalogs.push({
-      type: 'series',
+      type: 'movie',
       id: key + '-catalog',
       name: show.catalogName
     });
@@ -202,125 +202,56 @@ function buildAddon() {
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - مدبلج',
-    version: '7.0.0',
+    version: '6.0.0',
     description: `كرتون عربي مدبلج من Google Drive - ${showKeys.length} كارتون`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
-    resources: ['catalog', 'meta', 'stream'],
-    types: ['series'],
+    resources: ['catalog', 'stream'],
+    types: ['movie'],
     catalogs: catalogs,
     idPrefixes: idPrefixes
   });
   addon.defineCatalogHandler(catalogHandler);
-  addon.defineMetaHandler(metaHandler);
   addon.defineStreamHandler(streamHandler);
 }
 
-// === CATALOG HANDLER: returns series meta with videos array ===
+// === CATALOG HANDLER: each episode as a separate movie meta ===
 function catalogHandler(args) {
   if (!addon) return Promise.resolve({ metas: [] });
   for (const key of showKeys) {
     const show = SHOWS[key];
-    if (args.type === 'series' && args.id === key + '-catalog') {
-      // Build videos array
-      const videos = [];
+    if (args.type === 'movie' && args.id === key + '-catalog') {
+      const metas = [];
       for (const epNum of show.allEpisodes) {
-        videos.push({
+        metas.push({
           id: show.prefix + '-EP' + epNum,
-          title: 'الحلقة ' + epNum,
-          season: 1,
-          episode: epNum,
-          released: new Date(2024, 0, 1).toISOString()
-        });
-      }
-      // Return single meta with videos
-      const meta = {
-        id: show.prefix + '-series',
-        type: 'series',
-        name: show.name,
-        poster: show.poster,
-        description: show.metaInfo.description,
-        genres: show.metaInfo.genres,
-        year: 2024,
-        language: show.metaInfo.language,
-        country: show.metaInfo.country,
-        videos: videos
-      };
-      return Promise.resolve({ metas: [meta] });
-    }
-  }
-  return Promise.resolve({ metas: [] });
-}
-
-// === META HANDLER: returns series meta with videos for both series and episode IDs ===
-function metaHandler(args) {
-  if (!addon) return Promise.resolve({ meta: null });
-  for (const key of showKeys) {
-    const show = SHOWS[key];
-    const prefix = show.prefix;
-
-    // Handle series meta request
-    if (args.id === prefix + '-series') {
-      const videos = [];
-      for (const epNum of show.allEpisodes) {
-        videos.push({
-          id: prefix + '-EP' + epNum,
-          title: 'الحلقة ' + epNum,
-          season: 1,
-          episode: epNum,
-          released: new Date(2024, 0, 1).toISOString()
-        });
-      }
-      return Promise.resolve({
-        meta: {
-          id: prefix + '-series',
-          type: 'series',
-          name: show.name,
-          poster: show.poster,
-          description: show.metaInfo.description,
-          genres: show.metaInfo.genres,
-          year: 2024,
-          language: show.metaInfo.language,
-          country: show.metaInfo.country,
-          videos: videos
-        }
-      });
-    }
-
-    // Handle episode meta request (Vidi may request per-episode)
-    const epPrefix = prefix + '-EP';
-    if (args.id.startsWith(epPrefix)) {
-      const epNum = parseInt(args.id.replace(epPrefix, ''));
-      return Promise.resolve({
-        meta: {
-          id: prefix + '-EP' + epNum,
-          type: 'series',
+          type: 'movie',
           name: show.name + ' - الحلقة ' + epNum,
           poster: show.poster,
           description: show.metaInfo.description,
           genres: show.metaInfo.genres,
           year: 2024
-        }
-      });
+        });
+      }
+      return Promise.resolve({ metas: metas });
     }
   }
-  return Promise.resolve({ meta: null });
+  return Promise.resolve({ metas: [] });
 }
 
-// === STREAM HANDLER: receives id (series EP id) and optional videoId ===
+// === STREAM HANDLER ===
 function streamHandler(args) {
-  if (!addon || args.type !== 'series') return Promise.resolve({ streams: [] });
+  if (!addon || args.type !== 'movie') return Promise.resolve({ streams: [] });
   for (const key of showKeys) {
     const show = SHOWS[key];
-    const epPrefix = show.prefix + '-EP';
-    // args.id could be the series EP id (e.g. bokimoon-EP1)
-    if (args.id.startsWith(epPrefix)) {
-      const epNum = parseInt(args.id.replace(epPrefix, ''));
+    const prefix = show.prefix + '-EP';
+    if (args.id.startsWith(prefix)) {
+      const epNum = parseInt(args.id.replace(prefix, ''));
       if (show.episodeMap[epNum] && drive) {
         const fileId = show.episodeMap[epNum];
         return Promise.resolve({
           streams: [{
-            title: show.name + ' - الحلقة ' + epNum,
-            url: 'https://drive.google.com/uc?export=download&id=' + fileId
+            title: show.name + ' - الحلقة ' + epNum + ' (Google Drive)',
+            url: PUBLIC_URL + '/stream-proxy?id=' + fileId
           }]
         });
       }
@@ -390,15 +321,66 @@ function buildLandingPage() {
   </div>
   <div class="container">
     <div class="shows-grid">${showCards}</div>
-    <div class="stats">الإصدار: v7.0.0 | الكارتونات: ${showKeys.length}</div>
+    <div class="stats">الإصدار: v6.0.0 | الكارتونات: ${showKeys.length}</div>
   </div>
 </body>
 </html>`;
 }
 
+// Stream proxy
+app.get('/stream-proxy', async function(req, res) {
+  const fileId = req.query.id;
+  if (!fileId) return res.status(400).send('Missing file ID');
+  if (!drive) return res.status(500).send('Google Drive not configured.');
+  try {
+    const client = await driveAuth.getClient();
+    const accessToken = await client.getAccessToken();
+    const downloadUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
+    const urlObj = new URL(downloadUrl);
+    const options = {
+      hostname: urlObj.hostname,
+      port: urlObj.port || 443,
+      path: urlObj.pathname + urlObj.search,
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + accessToken.token,
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Range': req.headers.range || 'bytes=0-'
+      }
+    };
+    const proxyReq = https.get(options, (proxyRes) => {
+      if (proxyRes.statusCode === 403 || proxyRes.statusCode === 404) {
+        drive.files.get({ fileId, fields: 'webContentLink', supportsAllDrives: true }, function(err, fileResult) {
+          if (err || !fileResult.data.webContentLink) return res.status(500).send('Unable to access file');
+          const fallbackObj = new URL(fileResult.data.webContentLink);
+          https.get({
+            hostname: fallbackObj.hostname, port: fallbackObj.port || 443,
+            path: fallbackObj.pathname + fallbackObj.search, method: 'GET',
+            headers: { 'Authorization': 'Bearer ' + accessToken.token, 'User-Agent': 'Mozilla/5.0', 'Range': req.headers.range || 'bytes=0-' }
+          }, (fallbackRes) => handleStreamResponse(fallbackRes, req, res)).on('error', err => res.status(500).send(err.message));
+        });
+        return;
+      }
+      handleStreamResponse(proxyRes, req, res);
+    });
+    proxyReq.on('error', err => res.status(500).send(err.message));
+  } catch (err) { res.status(500).send(err.message); }
+});
+
+function handleStreamResponse(proxyRes, req, res) {
+  const headers = {};
+  for (const key in proxyRes.headers) {
+    if (!['transfer-encoding', 'connection', 'set-cookie', 'content-security-policy'].includes(key)) headers[key] = proxyRes.headers[key];
+  }
+  headers['Access-Control-Allow-Origin'] = '*';
+  if (proxyRes.headers['content-range']) { headers['Content-Range'] = proxyRes.headers['content-range']; headers['Accept-Ranges'] = 'bytes'; }
+  res.writeHead(proxyRes.statusCode, headers);
+  proxyRes.pipe(res);
+}
+
 // Health check
 app.get('/health', function(req, res) {
-  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, version: '7.0.0', type: 'series', shows: {} };
+  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, version: '6.0.0', type: 'movie', shows: {} };
   for (const key of showKeys) {
     const show = SHOWS[key];
     healthData.shows[key] = { name: show.name, folderId: show.folderId, episodesLoaded: show.totalEpisodes, catalogName: show.catalogName };
@@ -428,7 +410,7 @@ app.use('/', function(req, res, next) {
 
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, async () => {
-  console.log('Arabic Cartoons Addon v7.0.0 (Series with Videos) running on port ' + PORT);
+  console.log('Arabic Cartoons Addon v6.0.0 (Movie per Episode) running on port ' + PORT);
   console.log('Public URL: ' + PUBLIC_URL);
   console.log('Parent Folder: ' + PARENT_FOLDER_ID);
   console.log('Drive configured: ' + !!drive);
