@@ -1,7 +1,6 @@
 const { addonBuilder, getRouter } = require('stremio-addon-sdk');
 const express = require('express');
 const { google } = require('googleapis');
-const { URL } = require('url');
 const https = require('https');
 
 const PUBLIC_URL = process.env.PUBLIC_URL || 'https://tiger-mask-arabic.onrender.com';
@@ -149,6 +148,27 @@ async function getFilesRecursive(folderId) {
   return files;
 }
 
+function buildMeta(show) {
+  return {
+    id: show.prefix,
+    type: 'series',
+    name: show.name,
+    poster: show.poster,
+    background: show.poster,
+    logo: show.poster,
+    description: show.metaInfo.description,
+    genres: show.metaInfo.genres,
+    year: 2024,
+    videos: show.allEpisodes.map(epNum => ({
+      id: show.prefix + ':' + epNum,
+      title: show.name + ' - الحلقة ' + epNum,
+      episode: epNum,
+      season: 1,
+      released: new Date(2024, 0, 1).toISOString()
+    }))
+  };
+}
+
 async function discoverShows() {
   if (discoveryDone || !drive) return;
   discoveryDone = true;
@@ -203,7 +223,7 @@ async function discoverShows() {
       showKeys.push(key);
       console.log(`  ✅ Key: ${key}, Episodes: ${sortedEps.length}`);
     }
-    // Normalize key to conan if it's kwnan (guillemet issue)
+    // Normalize kwnan -> conan
     if ('kwnan' in SHOWS) {
       SHOWS['conan'] = SHOWS['kwnan'];
       delete SHOWS['kwnan'];
@@ -218,29 +238,27 @@ async function discoverShows() {
 
 // === BUILD ADDON ===
 let addon = null;
-let catalogs = [];
 
 function buildAddon() {
-  // Build 15 separate catalogs (one per show) - this is what v7.0.0 used
-  catalogs = [];
-  for (const key of showKeys) {
-    const show = SHOWS[key];
-    catalogs.push({
-      type: 'series',
-      id: key,
-      name: show.name + ' - مدبلج'
-    });
-  }
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'Arabic Cartoons Drive',
-    version: '9.0.0',
+    version: '10.0.0',
     description: `Arabic dubbed cartoons from Google Drive - ${showKeys.length} shows`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
     types: ['series'],
-    catalogs: catalogs,
-    idPrefixes: showKeys
+    catalogs: [
+      {
+        type: 'series',
+        id: 'cartoons',
+        name: 'كرتون عربي مدبلج',
+        extra: [
+          { name: 'skip', isRequired: false }
+        ]
+      }
+    ],
+    idPrefixes: ['cartoon-ar']
   });
   addon.defineCatalogHandler(catalogHandler);
   addon.defineMetaHandler(metaHandler);
@@ -248,74 +266,49 @@ function buildAddon() {
 }
 
 // === CATALOG HANDLER ===
-// IMPORTANT: Return ONLY lightweight meta (id, type, name, poster) WITHOUT videos
-// Vidi will call meta handler separately when user clicks on a show
 function catalogHandler(args) {
   if (!addon) return Promise.resolve({ metas: [] });
-  for (const key of showKeys) {
-    const show = SHOWS[key];
-    if (args.type === 'series' && args.id === key) {
-      // Return ONE lightweight meta per catalog - NO videos array
-      return Promise.resolve({
-        metas: [{
-          id: key,
-          type: 'series',
-          name: show.name,
-          poster: show.poster,
-          description: show.metaInfo.description,
-          genres: show.metaInfo.genres,
-          year: 2024
-        }]
-      });
-    }
-  }
-  return Promise.resolve({ metas: [] });
+  if (args.id !== 'cartoons') return Promise.resolve({ metas: [] });
+  const skip = args.extra && args.extra.skip ? parseInt(args.extra.skip) : 0;
+  const metas = showKeys.map(key => buildMeta(SHOWS[key]));
+  return Promise.resolve({ metas: metas.slice(skip, skip + 100) });
 }
 
 // === META HANDLER ===
-// Return full series details WITH videos when user clicks on a show
 function metaHandler(args) {
   if (!addon || args.type !== 'series') return Promise.resolve({ meta: null });
   for (const key of showKeys) {
     const show = SHOWS[key];
     if (args.id === key) {
-      const videos = [];
-      for (const epNum of show.allEpisodes) {
-        videos.push({
-          id: key + ':' + epNum + ':1',
-          title: show.name + ' - الحلقة ' + epNum,
-          episode: epNum,
-          season: 1,
-          released: new Date(2024, 0, 1).toISOString()
-        });
-      }
-      return Promise.resolve({
-        meta: {
-          id: key,
-          type: 'series',
-          name: show.name,
-          poster: show.poster,
-          description: show.metaInfo.description,
-          genres: show.metaInfo.genres,
-          year: 2024,
-          videos: videos
-        }
-      });
+      return Promise.resolve({ meta: buildMeta(show) });
     }
   }
   return Promise.resolve({ meta: null });
 }
 
 // === STREAM HANDLER ===
-// Video ID format: key:episode:1 (matches meta handler video IDs)
 function streamHandler(args) {
   if (!addon) return Promise.resolve({ streams: [] });
-  // Try matching key:episode:1 format
+  // Try matching cartoon-ar:key:episode format
   for (const key of showKeys) {
     const show = SHOWS[key];
+    const prefix = 'cartoon-ar:' + key + ':';
+    if (args.id && args.id.startsWith(prefix)) {
+      const epNum = parseInt(args.id.substring(prefix.length));
+      if (show.episodeMap[epNum] && drive) {
+        const fileId = show.episodeMap[epNum];
+        return Promise.resolve({
+          streams: [{
+            title: show.name + ' - الحلقة ' + epNum + ' (Google Drive)',
+            url: PUBLIC_URL + '/stream-proxy?id=' + fileId
+          }]
+        });
+      }
+    }
+    // Also try matching key:episode format (for backwards compat)
     if (args.id && args.id.startsWith(key + ':')) {
       const parts = args.id.split(':');
-      if (parts.length === 3) {
+      if (parts.length >= 2) {
         const epNum = parseInt(parts[1]);
         if (show.episodeMap[epNum] && drive) {
           const fileId = show.episodeMap[epNum];
@@ -334,6 +327,17 @@ function streamHandler(args) {
 
 // === ROUTES ===
 const app = express();
+
+// JSON suffix normalization for Vidi compatibility
+app.use(function(req, res, next) {
+  const path = req.path;
+  if (!path.endsWith('.json') && !path.endsWith('/') &&
+      (path.startsWith('/catalog/') || path.startsWith('/meta/') || path.startsWith('/stream/') ||
+       path.startsWith('/configure/') || path.startsWith('/manifest'))) {
+    req.url = path + '.json' + (req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '');
+  }
+  next();
+});
 
 app.get('/', function(req, res) {
   res.send(buildLandingPage());
@@ -386,13 +390,13 @@ function buildLandingPage() {
     <h1>🎬 كرتون دريف - مدبلج</h1>
     <p>كرتون عربي مدبلج من Google Drive - ${showKeys.length} كارتون</p>
     <div class="addon-links">
-      <a href="https://tiger-mask-arabic.onrender.com/manifest.json" target="_blank">📺 إضافة لـ Stremio</a>
-      <a href="vidi://tiger-mask-arabic.onrender.com/manifest.json" class="secondary">📱 إضافة لـ Vidi</a>
+      <a href="${PUBLIC_URL}/manifest.json" target="_blank">📺 إضافة لـ Stremio</a>
+      <a href="vidi://${PUBLIC_URL.replace('https://', '')}/manifest.json" class="secondary">📱 إضافة لـ Vidi</a>
     </div>
   </div>
   <div class="container">
     <div class="shows-grid">${showCards}</div>
-    <div class="stats">الإصدار: v9.0.0 | الكارتونات: ${showKeys.length}</div>
+    <div class="stats">الإصدار: v10.0.0 | الكارتونات: ${showKeys.length}</div>
   </div>
 </body>
 </html>`;
@@ -422,11 +426,10 @@ app.get('/stream-proxy', async function(req, res) {
     const client = await driveAuth.getClient();
     const accessToken = await client.getAccessToken();
     const downloadUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
-    const urlObj = new URL(downloadUrl);
     const options = {
-      hostname: urlObj.hostname,
-      port: urlObj.port || 443,
-      path: urlObj.pathname + urlObj.search,
+      hostname: 'www.googleapis.com',
+      port: 443,
+      path: `/drive/v3/files/${fileId}?alt=media`,
       method: 'GET',
       headers: {
         'Authorization': 'Bearer ' + accessToken.token,
@@ -438,10 +441,10 @@ app.get('/stream-proxy', async function(req, res) {
       if (proxyRes.statusCode === 403 || proxyRes.statusCode === 404) {
         drive.files.get({ fileId, fields: 'webContentLink', supportsAllDrives: true }, function(err, fileResult) {
           if (err || !fileResult.data.webContentLink) return res.status(500).send('Unable to access file');
-          const fallbackObj = new URL(fileResult.data.webContentLink);
+          const fallbackUrl = new URL(fileResult.data.webContentLink);
           https.get({
-            hostname: fallbackObj.hostname, port: fallbackObj.port || 443,
-            path: fallbackObj.pathname + fallbackObj.search, method: 'GET',
+            hostname: fallbackUrl.hostname, port: 443,
+            path: fallbackUrl.pathname + fallbackUrl.search, method: 'GET',
             headers: { 'Authorization': 'Bearer ' + accessToken.token, 'User-Agent': 'Mozilla/5.0', 'Range': req.headers.range || 'bytes=0-' }
           }, (fallbackRes) => handleStreamResponse(fallbackRes, req, res)).on('error', err => res.status(500).send(err.message));
         });
@@ -465,7 +468,7 @@ function handleStreamResponse(proxyRes, req, res) {
 }
 
 app.get('/health', function(req, res) {
-  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, version: '9.0.0', type: 'series', shows: {} };
+  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, version: '10.0.0', type: 'series', shows: {} };
   for (const key of showKeys) {
     const show = SHOWS[key];
     healthData.shows[key] = { name: show.name, folderId: show.folderId, episodesLoaded: show.totalEpisodes };
@@ -482,19 +485,6 @@ app.get('/discover', async function(req, res) {
   res.json(result);
 });
 
-// === JSON SUFFIX NORMALIZATION ===
-// Vidi may call endpoints without .json suffix. Normalize all requests.
-app.use(function(req, res, next) {
-  const path = req.path;
-  // If the path doesn't end with .json but matches addon routes, append it
-  if (!path.endsWith('.json') && !path.endsWith('/') &&
-      (path.startsWith('/catalog/') || path.startsWith('/meta/') || path.startsWith('/stream/') ||
-       path.startsWith('/configure/') || path.startsWith('/manifest'))) {
-    req.url = path + '.json' + (req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '');
-  }
-  next();
-});
-
 app.use('/', function(req, res, next) {
   if (addon) {
     const router = getRouter(addon.getInterface());
@@ -506,7 +496,7 @@ app.use('/', function(req, res, next) {
 
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, async () => {
-  console.log('Arabic Cartoons Addon v9.0.0 (Catalog without videos) running on port ' + PORT);
+  console.log('Arabic Cartoons Addon v10.0.0 (Single catalog, full metas) running on port ' + PORT);
   console.log('Public URL: ' + PUBLIC_URL);
   console.log('Parent Folder: ' + PARENT_FOLDER_ID);
   console.log('Drive configured: ' + !!drive);
