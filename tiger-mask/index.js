@@ -103,52 +103,42 @@ addon.defineStreamHandler(function(args) {
 
 const app = express();
 
-// Video proxy for Google Drive with auto-confirmation for large files
-app.get('/stream-proxy', async function(req, res) {
+app.get('/stream-proxy', function(req, res) {
   const fileId = req.query.id;
   if (!fileId) return res.status(400).send('Missing file ID');
 
   const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
-  try {
-    // 1. Get the initial page to get the confirmation token if needed
-    const driveUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-    
-    https.get(driveUrl, { headers: { 'User-Agent': userAgent } }, (driveRes) => {
-      let body = '';
-      driveRes.on('data', chunk => body += chunk);
-      driveRes.on('end', () => {
-        // If Google Drive returns a 303/302 redirect
-        if (driveRes.statusCode === 303 || driveRes.statusCode === 302) {
-          const location = driveRes.headers.location;
-          handleFinalRedirect(location, req, res, userAgent);
-          return;
-        }
+  // 1. First request to get cookies and potential confirmation token
+  const driveUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+  
+  https.get(driveUrl, { headers: { 'User-Agent': userAgent } }, (driveRes) => {
+    const cookies = driveRes.headers['set-cookie'] || [];
+    let body = '';
+    driveRes.on('data', chunk => body += chunk);
+    driveRes.on('end', () => {
+      // Check for confirmation token
+      const confirmMatch = body.match(/confirm=([a-zA-Z0-9_]+)/);
+      const confirmToken = confirmMatch ? confirmMatch[1] : '';
+      
+      let finalUrl;
+      if (confirmToken) {
+        finalUrl = `https://drive.google.com/uc?export=download&id=${fileId}&confirm=${confirmToken}`;
+      } else if (driveRes.headers.location) {
+        finalUrl = driveRes.headers.location;
+      } else {
+        finalUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=download`;
+      }
 
-        // Check for confirmation token in the HTML (for large files)
-        const confirmMatch = body.match(/confirm=([a-zA-Z0-9_]+)/);
-        const confirmToken = confirmMatch ? confirmMatch[1] : '';
-        
-        if (confirmToken) {
-          const finalUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=download&confirm=${confirmToken}`;
-          handleFinalRedirect(finalUrl, req, res, userAgent);
-        } else {
-          // If no token, maybe it's a small file or something went wrong
-          // Try direct download anyway
-          const finalUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=download`;
-          handleFinalRedirect(finalUrl, req, res, userAgent);
-        }
-      });
-    }).on('error', err => {
-      res.status(500).send('Proxy error: ' + err.message);
+      handleFinalStream(finalUrl, cookies, req, res, userAgent);
     });
-  } catch (e) {
-    res.status(500).send('Internal error: ' + e.message);
-  }
+  }).on('error', err => {
+    res.status(500).send('Initial proxy error: ' + err.message);
+  });
 });
 
-function handleFinalRedirect(url, req, res, userAgent) {
-  const urlObj = new URL(url);
+function handleFinalStream(url, cookies, req, res, userAgent) {
+  const urlObj = new URL(url.startsWith('http') ? url : 'https://drive.google.com' + url);
   const options = {
     hostname: urlObj.hostname,
     port: 443,
@@ -156,18 +146,18 @@ function handleFinalRedirect(url, req, res, userAgent) {
     method: 'GET',
     headers: {
       'User-Agent': userAgent,
+      'Cookie': cookies.join('; '),
       'Range': req.headers.range || 'bytes=0-'
     }
   };
 
   https.get(options, (proxyRes) => {
-    // If it redirects again (common for Google Drive)
     if (proxyRes.statusCode === 302 || proxyRes.statusCode === 301) {
-      handleFinalRedirect(proxyRes.headers.location, req, res, userAgent);
+      const newCookies = (proxyRes.headers['set-cookie'] || []).concat(cookies);
+      handleFinalStream(proxyRes.headers.location, newCookies, req, res, userAgent);
       return;
     }
 
-    // Set headers and pipe the video stream
     const headers = {};
     for (const key in proxyRes.headers) {
       if (!['transfer-encoding', 'connection', 'set-cookie', 'content-security-policy'].includes(key)) {
