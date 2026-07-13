@@ -208,27 +208,29 @@ async function discoverShows() {
 
 // === BUILD ADDON ===
 let addon = null;
+let catalogs = [];
 
 function buildAddon() {
+  // Build 15 separate catalogs (one per show) - this is what v7.0.0 used
+  catalogs = [];
+  for (const key of showKeys) {
+    const show = SHOWS[key];
+    catalogs.push({
+      type: 'series',
+      id: key,
+      name: show.name + ' - مدبلج'
+    });
+  }
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'Arabic Cartoons Drive',
-    version: '8.0.0',
+    version: '9.0.0',
     description: `Arabic dubbed cartoons from Google Drive - ${showKeys.length} shows`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
     types: ['series'],
-    catalogs: [
-      {
-        type: 'series',
-        id: 'top',
-        name: 'Arabic Cartoons',
-        extra: [
-          { name: 'skip', isRequired: false }
-        ]
-      }
-    ],
-    idPrefixes: ['cartoon-ar']
+    catalogs: catalogs,
+    idPrefixes: showKeys
   });
   addon.defineCatalogHandler(catalogHandler);
   addon.defineMetaHandler(metaHandler);
@@ -236,37 +238,32 @@ function buildAddon() {
 }
 
 // === CATALOG HANDLER ===
+// IMPORTANT: Return ONLY lightweight meta (id, type, name, poster) WITHOUT videos
+// Vidi will call meta handler separately when user clicks on a show
 function catalogHandler(args) {
   if (!addon) return Promise.resolve({ metas: [] });
-  const skip = args.extra && args.extra.skip ? parseInt(args.extra.skip) : 0;
-  const allMetas = [];
   for (const key of showKeys) {
     const show = SHOWS[key];
-    const videos = [];
-    for (const epNum of show.allEpisodes) {
-      videos.push({
-        id: 'cartoon-ar:' + key + ':' + epNum,
-        title: 'الحلقة ' + epNum,
-        episode: epNum,
-        season: 1,
-        released: new Date(2024, 0, 1).toISOString()
+    if (args.type === 'series' && args.id === key) {
+      // Return ONE lightweight meta per catalog - NO videos array
+      return Promise.resolve({
+        metas: [{
+          id: key,
+          type: 'series',
+          name: show.name,
+          poster: show.poster,
+          description: show.metaInfo.description,
+          genres: show.metaInfo.genres,
+          year: 2024
+        }]
       });
     }
-    allMetas.push({
-      id: key,
-      type: 'series',
-      name: show.name,
-      poster: show.poster,
-      description: show.metaInfo.description,
-      genres: show.metaInfo.genres,
-      year: 2024,
-      videos: videos
-    });
   }
-  return Promise.resolve({ metas: allMetas.slice(skip, skip + 100) });
+  return Promise.resolve({ metas: [] });
 }
 
 // === META HANDLER ===
+// Return full series details WITH videos when user clicks on a show
 function metaHandler(args) {
   if (!addon || args.type !== 'series') return Promise.resolve({ meta: null });
   for (const key of showKeys) {
@@ -275,8 +272,8 @@ function metaHandler(args) {
       const videos = [];
       for (const epNum of show.allEpisodes) {
         videos.push({
-          id: 'cartoon-ar:' + key + ':' + epNum,
-          title: 'الحلقة ' + epNum,
+          id: key + ':' + epNum + ':1',
+          title: show.name + ' - الحلقة ' + epNum,
           episode: epNum,
           season: 1,
           released: new Date(2024, 0, 1).toISOString()
@@ -300,22 +297,25 @@ function metaHandler(args) {
 }
 
 // === STREAM HANDLER ===
+// Video ID format: key:episode:1 (matches meta handler video IDs)
 function streamHandler(args) {
   if (!addon) return Promise.resolve({ streams: [] });
-  if (args.id && args.id.startsWith('cartoon-ar:')) {
-    const parts = args.id.split(':');
-    if (parts.length === 3) {
-      const key = parts[1];
-      const epNum = parseInt(parts[2]);
-      const show = SHOWS[key];
-      if (show && show.episodeMap[epNum] && drive) {
-        const fileId = show.episodeMap[epNum];
-        return Promise.resolve({
-          streams: [{
-            title: show.name + ' - الحلقة ' + epNum + ' (Google Drive)',
-            url: PUBLIC_URL + '/stream-proxy?id=' + fileId
-          }]
-        });
+  // Try matching key:episode:1 format
+  for (const key of showKeys) {
+    const show = SHOWS[key];
+    if (args.id && args.id.startsWith(key + ':')) {
+      const parts = args.id.split(':');
+      if (parts.length === 3) {
+        const epNum = parseInt(parts[1]);
+        if (show.episodeMap[epNum] && drive) {
+          const fileId = show.episodeMap[epNum];
+          return Promise.resolve({
+            streams: [{
+              title: show.name + ' - الحلقة ' + epNum + ' (Google Drive)',
+              url: PUBLIC_URL + '/stream-proxy?id=' + fileId
+            }]
+          });
+        }
       }
     }
   }
@@ -382,7 +382,7 @@ function buildLandingPage() {
   </div>
   <div class="container">
     <div class="shows-grid">${showCards}</div>
-    <div class="stats">الإصدار: v8.0.0 | الكارتونات: ${showKeys.length}</div>
+    <div class="stats">الإصدار: v9.0.0 | الكارتونات: ${showKeys.length}</div>
   </div>
 </body>
 </html>`;
@@ -455,7 +455,7 @@ function handleStreamResponse(proxyRes, req, res) {
 }
 
 app.get('/health', function(req, res) {
-  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, version: '8.0.0', type: 'series', shows: {} };
+  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, version: '9.0.0', type: 'series', shows: {} };
   for (const key of showKeys) {
     const show = SHOWS[key];
     healthData.shows[key] = { name: show.name, folderId: show.folderId, episodesLoaded: show.totalEpisodes };
@@ -483,7 +483,7 @@ app.use('/', function(req, res, next) {
 
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, async () => {
-  console.log('Arabic Cartoons Addon v8.0.0 (Single Catalog Series) running on port ' + PORT);
+  console.log('Arabic Cartoons Addon v9.0.0 (Catalog without videos) running on port ' + PORT);
   console.log('Public URL: ' + PUBLIC_URL);
   console.log('Parent Folder: ' + PARENT_FOLDER_ID);
   console.log('Drive configured: ' + !!drive);
