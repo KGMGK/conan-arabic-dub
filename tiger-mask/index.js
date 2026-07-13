@@ -205,12 +205,13 @@ function buildAddon() {
     version: '6.0.0',
     description: `كرتون عربي مدبلج من Google Drive - ${showKeys.length} كارتون`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
-    resources: ['catalog', 'stream'],
+    resources: ['catalog', 'meta', 'stream'],
     types: ['movie'],
     catalogs: catalogs,
     idPrefixes: idPrefixes
   });
   addon.defineCatalogHandler(catalogHandler);
+  addon.defineMetaHandler(metaHandler);
   addon.defineStreamHandler(streamHandler);
 }
 
@@ -236,6 +237,30 @@ function catalogHandler(args) {
     }
   }
   return Promise.resolve({ metas: [] });
+}
+
+// === META HANDLER: Vidi requests meta for each episode ID ===
+function metaHandler(args) {
+  if (!addon || args.type !== 'movie') return Promise.resolve({ meta: null });
+  for (const key of showKeys) {
+    const show = SHOWS[key];
+    const prefix = show.prefix + '-EP';
+    if (args.id.startsWith(prefix)) {
+      const epNum = parseInt(args.id.replace(prefix, ''));
+      return Promise.resolve({
+        meta: {
+          id: show.prefix + '-EP' + epNum,
+          type: 'movie',
+          name: show.name + ' - الحلقة ' + epNum,
+          poster: show.poster,
+          description: show.metaInfo.description,
+          genres: show.metaInfo.genres,
+          year: 2024
+        }
+      });
+    }
+  }
+  return Promise.resolve({ meta: null });
 }
 
 // === STREAM HANDLER ===
