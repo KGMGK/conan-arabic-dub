@@ -205,7 +205,7 @@ function buildAddon() {
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - مدبلج',
-    version: '5.1.0',
+    version: '5.3.0',
     description: `كرتون عربي مدبلج من Google Drive - ${showKeys.length} كارتون`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
@@ -218,26 +218,33 @@ function buildAddon() {
   addon.defineStreamHandler(streamHandler);
 }
 
-// === CATALOG HANDLER ===
+// === CATALOG HANDLER (per-episode metas for Vidi) ===
 function catalogHandler(args) {
   if (!addon) return Promise.resolve({ metas: [] });
   for (const key of showKeys) {
     const show = SHOWS[key];
     if (args.type === 'series' && args.id === key + '-series') {
-      // Return one series meta per catalog with full video list
-      return Promise.resolve({ metas: [{
-        id: key + '-series',
-        type: 'series',
-        name: show.name,
-        poster: show.poster,
-        background: show.poster,
-        description: show.metaInfo.description,
-        genres: show.metaInfo.genres,
-        language: show.metaInfo.language,
-        country: show.metaInfo.country,
-        releaseInfo: 'مدبلج عربي',
-        videos: buildVideos(show)
-      }] });
+      // Return each episode as a separate meta item (Vidi compatible)
+      const metas = [];
+      for (const epNum of show.allEpisodes) {
+        metas.push({
+          id: show.prefix + '-S1E' + epNum,
+          type: 'series',
+          name: show.name,
+          poster: show.poster,
+          description: show.epMetaNamePrefix + epNum,
+          genres: show.metaInfo.genres,
+          language: show.metaInfo.language,
+          videos: [{
+            id: show.prefix + '-S1E' + epNum,
+            title: show.epNamePrefix + epNum,
+            season: 1,
+            number: epNum,
+            released: new Date().toISOString()
+          }]
+        });
+      }
+      return Promise.resolve({ metas: metas });
     }
   }
   return Promise.resolve({ metas: [] });
