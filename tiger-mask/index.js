@@ -27,7 +27,7 @@ const POSTER_MAP = {
   'الفسحه': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/qgVOcbhqDJjjzZZl.png',
   'سندباد': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/yVqDPBalfuUdvGxD.jpg',
   'Tom & Jerry': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/GnURlTivfXkzZHtg.jpg',
-  '«كونان»': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/euiWIKaqfflmdaJH.png',
+  'كونان': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/euiWIKaqfflmdaJH.png',
   'اسطورة زورو': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/RHnlhRTqksDuSZrQ.jpg',
   'بوكيمون': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/MrCXyBcpoWZQDDGB.jpg',
   'تيمون و بومبا': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/GLdtyEmfYSmdYVLP.jpg',
@@ -44,21 +44,21 @@ const DEFAULT_POSTER = 'https://files.manuscdn.com/user_upload_by_module/session
 
 // === SHOW META INFO ===
 const SHOW_META = {
-  'النمر المقنع': { description: 'النمر المقنع هو مسلسل أنمي ياباني، يروي قصة شقيقين يتصارعان ضد الشر.', genres: ['Animation', 'Action', 'Adventure'], language: 'ara', country: 'JP' },
-  'الفسحه': { description: 'الفسحة هو مسلسل كرتوني كوميدي أمريكي عن مغامرات مجموعة أطفال.', genres: ['Animation', 'Comedy'], language: 'ara', country: 'US' },
-  'سندباد': { description: 'سندباد هو مسلسل كرتوني مغامرات يروي قصص البحار سندباد.', genres: ['Animation', 'Adventure'], language: 'ara', country: 'JP' },
-  'Tom & Jerry': { description: 'توم وجيري هو مسلسل كرتوني كوميدي كلاسيكي عن القط والفأر.', genres: ['Animation', 'Comedy', 'Family'], language: 'ara', country: 'US' },
-  '«كونان»': { description: 'المحقق كونان هو أنمي ياباني يتابع تحقيقات المحقق الصغير.', genres: ['Animation', 'Mystery', 'Thriller'], language: 'ara', country: 'JP' },
-  'اسطورة زورو': { description: 'اسطورة زورو هو مسلسل يروي مغامرات البطل المقنع زورو.', genres: ['Animation', 'Action', 'Adventure'], language: 'ara', country: 'JP' },
-  'بوكيمون': { description: 'بوكيمون هو أنمي شهير يتابع مغامرات أش وأصدقائه في عالم البوكيمون.', genres: ['Animation', 'Adventure', 'Fantasy'], language: 'ara', country: 'JP' },
-  'تيمون و بومبا': { description: 'تيمون وبومبا هو مسلسل كرتوني ديزني عن مغامرات الثنائي الشهير.', genres: ['Animation', 'Comedy', 'Family'], language: 'ara', country: 'US' },
-  'حكايات عالميه': { description: 'حكايات عالمية هي سلسلة قصص من الأدب العالمي بشكل كرتوني.', genres: ['Animation', 'Family', 'Fantasy'], language: 'ara', country: 'JP' },
-  'ساسوكي': { description: 'ساسوكي هو مسلسل كرتوني ياباني عن محارب شاب.', genres: ['Animation', 'Action', 'Adventure'], language: 'ara', country: 'JP' },
-  'في جعبتي حكايه': { description: 'في جعبتي حكاية هو مسلسل كرتوني يحكي قصصاً خيالية.', genres: ['Animation', 'Family', 'Fantasy'], language: 'ara', country: 'JP' },
-  'قصص بطوطية': { description: 'قصص بطوطية هي مسلسل ديزني يحكي مغامرات بطوط.', genres: ['Animation', 'Comedy', 'Family'], language: 'ara', country: 'US' },
-  'ليلو وستيتش': { description: 'ليلو وستيتش هو مسلسل ديزني عن فتاة هاوايية وصديقها ستيتش.', genres: ['Animation', 'Comedy', 'Family'], language: 'ara', country: 'US' },
-  'ماروكو': { description: 'تشيبى ماروكو-تشان هو أنمي ياباني كوميدي عن حياة الطفلة ماروكو.', genres: ['Animation', 'Comedy', 'Slice of Life'], language: 'ara', country: 'JP' },
-  'ماوكلي': { description: 'ماوكلي هو أنمي مستوحى من كتاب الأدغال عن فتى نشأ بين الحيوانات.', genres: ['Animation', 'Adventure', 'Family'], language: 'ara', country: 'JP' }
+  'النمر المقنع': { description: 'النمر المقنع هو مسلسل أنمي ياباني، يروي قصة شقيقين يتصارعان ضد الشر.', genres: ['Animation', 'Action', 'Adventure'] },
+  'الفسحه': { description: 'الفسحة هو مسلسل كرتوني كوميدي أمريكي عن مغامرات مجموعة أطفال.', genres: ['Animation', 'Comedy'] },
+  'سندباد': { description: 'سندباد هو مسلسل كرتوني مغامرات يروي قصص البحار سندباد.', genres: ['Animation', 'Adventure'] },
+  'Tom & Jerry': { description: 'توم وجيري هو مسلسل كرتوني كوميدي كلاسيكي عن القط والفأر.', genres: ['Animation', 'Comedy', 'Family'] },
+  'كونان': { description: 'المحقق كونان هو أنمي ياباني يتابع تحقيقات المحقق الصغير.', genres: ['Animation', 'Mystery', 'Thriller'] },
+  'اسطورة زورو': { description: 'اسطورة زورو هو مسلسل يروي مغامرات البطل المقنع زورو.', genres: ['Animation', 'Action', 'Adventure'] },
+  'بوكيمون': { description: 'بوكيمون هو أنمي شهير يتابع مغامرات أش وأصدقائه في عالم البوكيمون.', genres: ['Animation', 'Adventure', 'Fantasy'] },
+  'تيمون و بومبا': { description: 'تيمون وبومبا هو مسلسل كرتوني ديزني عن مغامرات الثنائي الشهير.', genres: ['Animation', 'Comedy', 'Family'] },
+  'حكايات عالميه': { description: 'حكايات عالمية هي سلسلة قصص من الأدب العالمي بشكل كرتوني.', genres: ['Animation', 'Family', 'Fantasy'] },
+  'ساسوكي': { description: 'ساسوكي هو مسلسل كرتوني ياباني عن محارب شاب.', genres: ['Animation', 'Action', 'Adventure'] },
+  'في جعبتي حكايه': { description: 'في جعبتي حكاية هو مسلسل كرتوني يحكي قصصاً خيالية.', genres: ['Animation', 'Family', 'Fantasy'] },
+  'قصص بطوطية': { description: 'قصص بطوطية هي مسلسل ديزني يحكي مغامرات بطوط.', genres: ['Animation', 'Comedy', 'Family'] },
+  'ليلو وستيتش': { description: 'ليلو وستيتش هو مسلسل ديزني عن فتاة هاوايية وصديقها ستيتش.', genres: ['Animation', 'Comedy', 'Family'] },
+  'ماروكو': { description: 'تشيبى ماروكو-تشان هو أنمي ياباني كوميدي عن حياة الطفلة ماروكو.', genres: ['Animation', 'Comedy'] },
+  'ماوكلي': { description: 'ماوكلي هو أنمي مستوحى من كتاب الأدغال عن فتى نشأ بين الحيوانات.', genres: ['Animation', 'Adventure', 'Family'] }
 };
 
 // === HELPERS ===
@@ -77,13 +77,12 @@ function extractEpisodeNumber(name) {
   return null;
 }
 
-// ASCII-only transliteration map for Arabic cartoon names
 const ARABIC_TO_ASCII = {
   'النمر المقنع': 'tiger-mask',
   'الفسحه': 'fosha',
   'سندباد': 'sinbad',
   'Tom & Jerry': 'tomjerry',
-  '«كونان»': 'conan',
+  'كونان': 'conan',
   'اسطورة زورو': 'zorro',
   'بوكيمون': 'pokemon',
   'تيمون و بومبا': 'timon-pumbaa',
@@ -186,9 +185,7 @@ async function discoverShows() {
       const poster = POSTER_MAP[folderName] || DEFAULT_POSTER;
       const metaInfo = SHOW_META[folderName] || {
         description: `كرتون ${folderName} مدبلج عربي`,
-        genres: ['Animation'],
-        language: 'ara',
-        country: 'SA'
+        genres: ['Animation']
       };
       SHOWS[key] = {
         name: folderName,
@@ -198,8 +195,7 @@ async function discoverShows() {
         metaInfo: metaInfo,
         allEpisodes: sortedEps,
         episodeMap: episodeMap,
-        totalEpisodes: sortedEps.length,
-        catalogName: folderName + ' - مدبلج'
+        totalEpisodes: sortedEps.length
       };
       showKeys.push(key);
       console.log(`  ✅ Key: ${key}, Episodes: ${sortedEps.length}`);
@@ -212,83 +208,75 @@ async function discoverShows() {
 
 // === BUILD ADDON ===
 let addon = null;
-let catalogs = [];
-let idPrefixes = [];
 
 function buildAddon() {
-  catalogs = [];
-  idPrefixes = [];
-  for (const key of showKeys) {
-    const show = SHOWS[key];
-    // Each catalog is the show itself (as a series)
-    catalogs.push({
-      type: 'series',
-      id: key,
-      name: show.catalogName
-    });
-    idPrefixes.push(key);
-  }
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'Arabic Cartoons Drive',
-    version: '7.0.0',
+    version: '8.0.0',
     description: `Arabic dubbed cartoons from Google Drive - ${showKeys.length} shows`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
     types: ['series'],
-    catalogs: catalogs,
-    idPrefixes: idPrefixes
+    catalogs: [
+      {
+        type: 'series',
+        id: 'top',
+        name: 'Arabic Cartoons',
+        extra: [
+          { name: 'skip', isRequired: false }
+        ]
+      }
+    ],
+    idPrefixes: ['cartoon-ar']
   });
   addon.defineCatalogHandler(catalogHandler);
   addon.defineMetaHandler(metaHandler);
   addon.defineStreamHandler(streamHandler);
 }
 
-// === CATALOG HANDLER: return one meta (the show/series) per catalog ===
+// === CATALOG HANDLER ===
 function catalogHandler(args) {
   if (!addon) return Promise.resolve({ metas: [] });
+  const skip = args.extra && args.extra.skip ? parseInt(args.extra.skip) : 0;
+  const allMetas = [];
   for (const key of showKeys) {
     const show = SHOWS[key];
-    if (args.type === 'series' && args.id === key) {
-      // Return one meta representing the show as a series with videos (episodes)
-      const videos = [];
-      for (const epNum of show.allEpisodes) {
-        videos.push({
-          id: key + ':' + epNum + ':1',
-          title: show.name + ' - الحلقة ' + epNum,
-          episode: epNum,
-          season: 1,
-          released: new Date(2024, 0, 1).toISOString()
-        });
-      }
-      const meta = {
-        id: key,
-        type: 'series',
-        name: show.name,
-        poster: show.poster,
-        description: show.metaInfo.description,
-        genres: show.metaInfo.genres,
-        year: 2024,
-        videos: videos
-      };
-      return Promise.resolve({ metas: [meta] });
+    const videos = [];
+    for (const epNum of show.allEpisodes) {
+      videos.push({
+        id: 'cartoon-ar:' + key + ':' + epNum,
+        title: 'الحلقة ' + epNum,
+        episode: epNum,
+        season: 1,
+        released: new Date(2024, 0, 1).toISOString()
+      });
     }
+    allMetas.push({
+      id: key,
+      type: 'series',
+      name: show.name,
+      poster: show.poster,
+      description: show.metaInfo.description,
+      genres: show.metaInfo.genres,
+      year: 2024,
+      videos: videos
+    });
   }
-  return Promise.resolve({ metas: [] });
+  return Promise.resolve({ metas: allMetas.slice(skip, skip + 100) });
 }
 
-// === META HANDLER: return the series meta with videos when Vidi requests it ===
+// === META HANDLER ===
 function metaHandler(args) {
   if (!addon || args.type !== 'series') return Promise.resolve({ meta: null });
   for (const key of showKeys) {
     const show = SHOWS[key];
     if (args.id === key) {
-      // Vidi requests meta for the series - return the series with all episodes
       const videos = [];
       for (const epNum of show.allEpisodes) {
         videos.push({
-          id: key + ':' + epNum + ':1',
-          title: show.name + ' - الحلقة ' + epNum,
+          id: 'cartoon-ar:' + key + ':' + epNum,
+          title: 'الحلقة ' + epNum,
           episode: epNum,
           season: 1,
           released: new Date(2024, 0, 1).toISOString()
@@ -307,49 +295,27 @@ function metaHandler(args) {
         }
       });
     }
-    // Check if it's a video ID request (season:episode:video format)
-    if (args.id.startsWith(key + ':')) {
-      const parts = args.id.split(':');
-      if (parts.length === 3) {
-        const epNum = parseInt(parts[1]);
-        if (show.allEpisodes.includes(epNum)) {
-          return Promise.resolve({
-            meta: {
-              id: key + ':' + epNum + ':1',
-              type: 'series',
-              name: show.name + ' - الحلقة ' + epNum,
-              poster: show.poster,
-              description: show.metaInfo.description,
-              genres: show.metaInfo.genres,
-              year: 2024
-            }
-          });
-        }
-      }
-    }
   }
   return Promise.resolve({ meta: null });
 }
 
 // === STREAM HANDLER ===
 function streamHandler(args) {
-  if (!addon || args.type !== 'series') return Promise.resolve({ streams: [] });
-  for (const key of showKeys) {
-    const show = SHOWS[key];
-    // Check for video ID format: key:episode:1
-    if (args.id.startsWith(key + ':')) {
-      const parts = args.id.split(':');
-      if (parts.length === 3) {
-        const epNum = parseInt(parts[1]);
-        if (show.episodeMap[epNum] && drive) {
-          const fileId = show.episodeMap[epNum];
-          return Promise.resolve({
-            streams: [{
-              title: show.name + ' - الحلقة ' + epNum + ' (Google Drive)',
-              url: PUBLIC_URL + '/stream-proxy?id=' + fileId
-            }]
-          });
-        }
+  if (!addon) return Promise.resolve({ streams: [] });
+  if (args.id && args.id.startsWith('cartoon-ar:')) {
+    const parts = args.id.split(':');
+    if (parts.length === 3) {
+      const key = parts[1];
+      const epNum = parseInt(parts[2]);
+      const show = SHOWS[key];
+      if (show && show.episodeMap[epNum] && drive) {
+        const fileId = show.episodeMap[epNum];
+        return Promise.resolve({
+          streams: [{
+            title: show.name + ' - الحلقة ' + epNum + ' (Google Drive)',
+            url: PUBLIC_URL + '/stream-proxy?id=' + fileId
+          }]
+        });
       }
     }
   }
@@ -359,7 +325,6 @@ function streamHandler(args) {
 // === ROUTES ===
 const app = express();
 
-// Landing page
 app.get('/', function(req, res) {
   res.send(buildLandingPage());
 });
@@ -417,13 +382,12 @@ function buildLandingPage() {
   </div>
   <div class="container">
     <div class="shows-grid">${showCards}</div>
-    <div class="stats">الإصدار: v7.0.0 | الكارتونات: ${showKeys.length}</div>
+    <div class="stats">الإصدار: v8.0.0 | الكارتونات: ${showKeys.length}</div>
   </div>
 </body>
 </html>`;
 }
 
-// CORS OPTIONS for stream-proxy (Vidi sends OPTIONS preflight)
 app.options('/stream-proxy', function(req, res) {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -433,7 +397,6 @@ app.options('/stream-proxy', function(req, res) {
   res.status(204).end();
 });
 
-// CORS OPTIONS for all addon endpoints (Vidi sends OPTIONS preflight)
 app.options('*', function(req, res) {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -441,7 +404,6 @@ app.options('*', function(req, res) {
   res.status(204).end();
 });
 
-// Stream proxy
 app.get('/stream-proxy', async function(req, res) {
   const fileId = req.query.id;
   if (!fileId) return res.status(400).send('Missing file ID');
@@ -492,17 +454,15 @@ function handleStreamResponse(proxyRes, req, res) {
   proxyRes.pipe(res);
 }
 
-// Health check
 app.get('/health', function(req, res) {
-  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, version: '7.0.0', type: 'series', shows: {} };
+  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, version: '8.0.0', type: 'series', shows: {} };
   for (const key of showKeys) {
     const show = SHOWS[key];
-    healthData.shows[key] = { name: show.name, folderId: show.folderId, episodesLoaded: show.totalEpisodes, catalogName: show.catalogName };
+    healthData.shows[key] = { name: show.name, folderId: show.folderId, episodesLoaded: show.totalEpisodes };
   }
   res.json(healthData);
 });
 
-// Discovery
 app.get('/discover', async function(req, res) {
   if (!drive) return res.status(500).send('Drive not configured');
   discoveryDone = false; showKeys = []; Object.keys(SHOWS).forEach(k => delete SHOWS[k]);
@@ -512,7 +472,6 @@ app.get('/discover', async function(req, res) {
   res.json(result);
 });
 
-// Mount addon router AFTER custom routes
 app.use('/', function(req, res, next) {
   if (addon) {
     const router = getRouter(addon.getInterface());
@@ -524,7 +483,7 @@ app.use('/', function(req, res, next) {
 
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, async () => {
-  console.log('Arabic Cartoons Addon v7.0.0 (Series Format) running on port ' + PORT);
+  console.log('Arabic Cartoons Addon v8.0.0 (Single Catalog Series) running on port ' + PORT);
   console.log('Public URL: ' + PUBLIC_URL);
   console.log('Parent Folder: ' + PARENT_FOLDER_ID);
   console.log('Drive configured: ' + !!drive);
