@@ -7,12 +7,10 @@ const https = require('https');
 const PUBLIC_URL = process.env.PUBLIC_URL || 'https://tiger-mask-arabic.onrender.com';
 const PARENT_FOLDER_ID = process.env.PARENT_FOLDER_ID || '12GroFa_NyHSsJIqsCWcJEcGdCcZrkfvB';
 
-// Google Drive credentials from environment variable
 const GDRIVE_CREDENTIALS = process.env.GDRIVE_CREDENTIALS
   ? JSON.parse(process.env.GDRIVE_CREDENTIALS)
   : null;
 
-// Initialize Google Drive API client
 let drive;
 let driveAuth;
 if (GDRIVE_CREDENTIALS) {
@@ -46,131 +44,36 @@ const DEFAULT_POSTER = 'https://files.manuscdn.com/user_upload_by_module/session
 
 // === SHOW META INFO ===
 const SHOW_META = {
-  'النمر المقنع': {
-    description: 'النمر المقنع هو مسلسل أنمي ياباني، يروي قصة شقيقين يتصارعان ضد الشر تحت أقنعة.',
-    genres: ['Animation', 'Action', 'Adventure'],
-    language: 'ara',
-    country: 'JP'
-  },
-  'الفسحه': {
-    description: 'الفسحة هو مسلسل كرتوني كوميدي أمريكي يتابع مغامرات مجموعة أطفال في أوقات الاستراحة المدرسية.',
-    genres: ['Animation', 'Comedy'],
-    language: 'ara',
-    country: 'US'
-  },
-  'سندباد': {
-    description: 'سندباد هو مسلسل كرتوني مغامرات يروي قصص البحار سندباد وقصصه الأسطورية.',
-    genres: ['Animation', 'Adventure'],
-    language: 'ara',
-    country: 'JP'
-  },
-  'Tom & Jerry': {
-    description: 'توم وجيري هو مسلسل كرتوني كوميدي كلاسيكي عن القط والفأر.',
-    genres: ['Animation', 'Comedy', 'Family'],
-    language: 'ara',
-    country: 'US'
-  },
-  '«كونان»': {
-    description: 'المحقق كونان هو أنمي ياباني يتابع تحقيقات المحقق الصغير شينيتشي كودو.',
-    genres: ['Animation', 'Mystery', 'Thriller'],
-    language: 'ara',
-    country: 'JP'
-  },
-  'اسطورة زورو': {
-    description: 'اسطورة زورو هو مسلسل يروي مغامرات البطل المقنع زورو.',
-    genres: ['Animation', 'Action', 'Adventure'],
-    language: 'ara',
-    country: 'JP'
-  },
-  'بوكيمون': {
-    description: 'بوكيمون هو أنمي شهير يتابع مغامرات أش وأصدقائه في عالم البوكيمون.',
-    genres: ['Animation', 'Adventure', 'Fantasy'],
-    language: 'ara',
-    country: 'JP'
-  },
-  'تيمون و بومبا': {
-    description: 'تيمون وبومبا هو مسلسل كرتوني ديزني عن مغامرات الثنائي الشهير من الأسد الملك.',
-    genres: ['Animation', 'Comedy', 'Family'],
-    language: 'ara',
-    country: 'US'
-  },
-  'حكايات عالميه': {
-    description: 'حكايات عالمية هي سلسلة قصص من الأدب العالمي مترجمة ومقدمة بشكل كرتوني.',
-    genres: ['Animation', 'Family', 'Fantasy'],
-    language: 'ara',
-    country: 'JP'
-  },
-  'ساسوكي': {
-    description: 'ساسوكي هو مسلسل كرتوني ياباني عن محارب شاب يقاتل من أجل العدالة.',
-    genres: ['Animation', 'Action', 'Adventure'],
-    language: 'ara',
-    country: 'JP'
-  },
-  'في جعبتي حكايه': {
-    description: 'في جعبتي حكاية هو مسلسل كرتوني يحكي قصصاً خيالية وتعليمية للأطفال.',
-    genres: ['Animation', 'Family', 'Fantasy'],
-    language: 'ara',
-    country: 'JP'
-  },
-  'قصص بطوطية': {
-    description: 'قصص بطوطية هي مسلسل ديزني يحكي مغامرات بطوط وعائلته.',
-    genres: ['Animation', 'Comedy', 'Family'],
-    language: 'ara',
-    country: 'US'
-  },
-  'ليلو وستيتش': {
-    description: 'ليلو وستيتش هو مسلسل كرتوني ديزني عن فتاة هاوايية وصديقها الغريب ستيتش.',
-    genres: ['Animation', 'Comedy', 'Family'],
-    language: 'ara',
-    country: 'US'
-  },
-  'ماروكو': {
-    description: 'تشيبى ماروكو-تشان هو أنمي ياباني كوميدي عن حياة الطفلة ماروكو.',
-    genres: ['Animation', 'Comedy', 'Slice of Life'],
-    language: 'ara',
-    country: 'JP'
-  },
-  'ماوكلي': {
-    description: 'ماوكلي هو أنمي ياباني مستوحى من كتاب الأدغال، يروي قصة فتى نشأ بين الحيوانات.',
-    genres: ['Animation', 'Adventure', 'Family'],
-    language: 'ara',
-    country: 'JP'
-  }
+  'النمر المقنع': { description: 'النمر المقنع هو مسلسل أنمي ياباني، يروي قصة شقيقين يتصارعان ضد الشر.', genres: ['Animation', 'Action', 'Adventure'], language: 'ara', country: 'JP' },
+  'الفسحه': { description: 'الفسحة هو مسلسل كرتوني كوميدي أمريكي عن مغامرات مجموعة أطفال.', genres: ['Animation', 'Comedy'], language: 'ara', country: 'US' },
+  'سندباد': { description: 'سندباد هو مسلسل كرتوني مغامرات يروي قصص البحار سندباد.', genres: ['Animation', 'Adventure'], language: 'ara', country: 'JP' },
+  'Tom & Jerry': { description: 'توم وجيري هو مسلسل كرتوني كوميدي كلاسيكي عن القط والفأر.', genres: ['Animation', 'Comedy', 'Family'], language: 'ara', country: 'US' },
+  '«كونان»': { description: 'المحقق كونان هو أنمي ياباني يتابع تحقيقات المحقق الصغير.', genres: ['Animation', 'Mystery', 'Thriller'], language: 'ara', country: 'JP' },
+  'اسطورة زورو': { description: 'اسطورة زورو هو مسلسل يروي مغامرات البطل المقنع زورو.', genres: ['Animation', 'Action', 'Adventure'], language: 'ara', country: 'JP' },
+  'بوكيمون': { description: 'بوكيمون هو أنمي شهير يتابع مغامرات أش وأصدقائه في عالم البوكيمون.', genres: ['Animation', 'Adventure', 'Fantasy'], language: 'ara', country: 'JP' },
+  'تيمون و بومبا': { description: 'تيمون وبومبا هو مسلسل كرتوني ديزني عن مغامرات الثنائي الشهير.', genres: ['Animation', 'Comedy', 'Family'], language: 'ara', country: 'US' },
+  'حكايات عالميه': { description: 'حكايات عالمية هي سلسلة قصص من الأدب العالمي بشكل كرتوني.', genres: ['Animation', 'Family', 'Fantasy'], language: 'ara', country: 'JP' },
+  'ساسوكي': { description: 'ساسوكي هو مسلسل كرتوني ياباني عن محارب شاب.', genres: ['Animation', 'Action', 'Adventure'], language: 'ara', country: 'JP' },
+  'في جعبتي حكايه': { description: 'في جعبتي حكاية هو مسلسل كرتوني يحكي قصصاً خيالية.', genres: ['Animation', 'Family', 'Fantasy'], language: 'ara', country: 'JP' },
+  'قصص بطوطية': { description: 'قصص بطوطية هي مسلسل ديزني يحكي مغامرات بطوط.', genres: ['Animation', 'Comedy', 'Family'], language: 'ara', country: 'US' },
+  'ليلو وستيتش': { description: 'ليلو وستيتش هو مسلسل ديزني عن فتاة هاوايية وصديقها ستيتش.', genres: ['Animation', 'Comedy', 'Family'], language: 'ara', country: 'US' },
+  'ماروكو': { description: 'تشيبى ماروكو-تشان هو أنمي ياباني كوميدي عن حياة الطفلة ماروكو.', genres: ['Animation', 'Comedy', 'Slice of Life'], language: 'ara', country: 'JP' },
+  'ماوكلي': { description: 'ماوكلي هو أنمي مستوحى من كتاب الأدغال عن فتى نشأ بين الحيوانات.', genres: ['Animation', 'Adventure', 'Family'], language: 'ara', country: 'JP' }
 };
 
-// === HELPER FUNCTIONS ===
+// === HELPERS ===
 function extractEpisodeNumber(name) {
   const arabicMap = {'١':1,'٢':2,'٣':3,'٤':4,'٥':5,'٦':6,'٧':7,'٨':8,'٩':9,'٠':0};
-  
   const halqaMatch = name.match(/الحلق[هة]\s*([٠-٩]+)/);
   if (halqaMatch) {
     let num = '';
     for (const ch of halqaMatch[1]) num += arabicMap[ch] || ch;
     return parseInt(num);
   }
-
   const prefixMatch = name.match(/^(\d+)[\s-]/);
   if (prefixMatch) return parseInt(prefixMatch[1]);
-
   const pureMatch = name.match(/^(\d+)(?:\.mp4)?$/);
   if (pureMatch) return parseInt(pureMatch[1]);
-
-  return null;
-}
-
-function extractSeasonNumber(name) {
-  // Try patterns like "الموسم X" or "season X" or "S0X" or "S1"
-  const seasonArabic = name.match(/الموسم\s*([٠-٩]+)/);
-  if (seasonArabic) {
-    const arabicMap = {'١':1,'٢':2,'٣':3,'٤':4,'٥':5,'٦':6,'٧':7,'٨':8,'٩':9,'٠':0};
-    let num = '';
-    for (const ch of seasonArabic[1]) num += arabicMap[ch] || ch;
-    return parseInt(num);
-  }
-  
-  const seasonEng = name.match(/(?:season|s)\s*(\d+)/i);
-  if (seasonEng) return parseInt(seasonEng[1]);
-  
   return null;
 }
 
@@ -180,14 +83,10 @@ function createShowKey(name) {
     .replace(/[^a-z0-9\u0600-\u06FF]/g, '');
 }
 
-// === DYNAMIC SHOWS (now with series + seasons) ===
+// === DYNAMIC SHOWS ===
 const SHOWS = {};
 let showKeys = [];
 let discoveryDone = false;
-
-// Cache: Store discovery results in memory, refresh every 24h
-const DISCOVERY_CACHE_KEY = 'cartoon_discovery';
-const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in ms
 
 async function getFilesRecursive(folderId) {
   let files = [];
@@ -203,7 +102,6 @@ async function getFilesRecursive(folderId) {
   } catch (err) {
     console.error(`  Error getting files from ${folderId}:`, err.message);
   }
-
   try {
     const folderResponse = await drive.files.list({
       q: `'${folderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
@@ -218,16 +116,13 @@ async function getFilesRecursive(folderId) {
   } catch (err) {
     console.error(`  Error getting subfolders from ${folderId}:`, err.message);
   }
-
   return files;
 }
 
 async function discoverShows() {
   if (discoveryDone || !drive) return;
   discoveryDone = true;
-
   console.log(`=== Auto-discovering shows from parent folder: ${PARENT_FOLDER_ID} ===`);
-
   try {
     const response = await drive.files.list({
       q: `'${PARENT_FOLDER_ID}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
@@ -235,24 +130,18 @@ async function discoverShows() {
       orderBy: 'name',
       supportsAllDrives: true
     });
-
     const folders = response.data.files || [];
     console.log(`Found ${folders.length} subfolders`);
-
     for (const folder of folders) {
       const folderName = folder.name.trim();
       if (!folderName) continue;
-
       console.log(`\n📁 Discovering: ${folderName}`);
       const files = await getFilesRecursive(folder.id);
       console.log(`  Total files found: ${files.length}`);
-
       if (files.length === 0) {
         console.log(`  Skipping empty folder`);
         continue;
       }
-
-      // Build episode map (season 1 by default)
       const episodeMap = {};
       for (const file of files) {
         const epNum = extractEpisodeNumber(file.name);
@@ -264,10 +153,8 @@ async function discoverShows() {
           episodeMap[epNum] = file.id;
         }
       }
-
       const sortedEps = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
       const maxEp = sortedEps.length > 0 ? sortedEps[sortedEps.length - 1] : 0;
-
       const key = createShowKey(folderName);
       const poster = POSTER_MAP[folderName] || DEFAULT_POSTER;
       const metaInfo = SHOW_META[folderName] || {
@@ -276,34 +163,22 @@ async function discoverShows() {
         language: 'ara',
         country: 'SA'
       };
-
-      // Build season structure (default: 1 season with all episodes)
-      const seasons = {};
-      seasons[1] = {
-        episodes: sortedEps,
-        episodeMap: episodeMap,
-        totalEpisodes: sortedEps.length
-      };
-
       SHOWS[key] = {
         name: folderName,
         folderId: folder.id,
         poster: poster,
         prefix: key,
-        posterUrl: poster,
         metaInfo: metaInfo,
-        seasons: seasons,
+        allEpisodes: sortedEps,
+        episodeMap: episodeMap,
         totalEpisodes: sortedEps.length,
         catalogName: folderName + ' - مدبلج',
         epNamePrefix: folderName + ' - الحلقة ',
         epMetaNamePrefix: `كرتون ${folderName} مدبلج عربي - الحلقة `
       };
-
       showKeys.push(key);
-
       console.log(`  ✅ Key: ${key}, Episodes: ${sortedEps.length}, Max: ${maxEp}`);
     }
-
     console.log(`\n=== Discovery complete: ${showKeys.length} shows found ===`);
   } catch (err) {
     console.error('Discovery error:', err.message);
@@ -320,7 +195,6 @@ function buildAddon() {
   idPrefixes = [];
   for (const key of showKeys) {
     const show = SHOWS[key];
-    // Each show is a SERIES catalog
     catalogs.push({
       type: 'series',
       id: key + '-series',
@@ -328,46 +202,42 @@ function buildAddon() {
     });
     idPrefixes.push(key);
   }
-
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - مدبلج',
-    version: '5.0.0',
-    description: `كرتون عربي مدبلج من Google Drive - ${showKeys.length} كارتون - مسلسلات مع مواسم`,
+    version: '5.1.0',
+    description: `كرتون عربي مدبلج من Google Drive - ${showKeys.length} كارتون`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
     types: ['series'],
     catalogs: catalogs,
     idPrefixes: idPrefixes
   });
-
   addon.defineCatalogHandler(catalogHandler);
   addon.defineMetaHandler(metaHandler);
   addon.defineStreamHandler(streamHandler);
 }
 
-// === CATALOG HANDLER (Series-based) ===
+// === CATALOG HANDLER ===
 function catalogHandler(args) {
   if (!addon) return Promise.resolve({ metas: [] });
-
   for (const key of showKeys) {
     const show = SHOWS[key];
     if (args.type === 'series' && args.id === key + '-series') {
-      // Return the show as a series with all seasons
-      const metas = [];
-      metas.push({
+      // Return one series meta per catalog with full video list
+      return Promise.resolve({ metas: [{
         id: key + '-series',
         type: 'series',
         name: show.name,
         poster: show.poster,
+        background: show.poster,
         description: show.metaInfo.description,
         genres: show.metaInfo.genres,
         language: show.metaInfo.language,
         country: show.metaInfo.country,
         releaseInfo: 'مدبلج عربي',
         videos: buildVideos(show)
-      });
-      return Promise.resolve({ metas: metas });
+      }] });
     }
   }
   return Promise.resolve({ metas: [] });
@@ -375,24 +245,21 @@ function catalogHandler(args) {
 
 function buildVideos(show) {
   const videos = [];
-  for (const [seasonNum, seasonData] of Object.entries(show.seasons)) {
-    for (const epNum of seasonData.episodes) {
-      videos.push({
-        id: show.prefix + '-S' + seasonNum + 'E' + epNum,
-        title: show.epNamePrefix + epNum,
-        season: parseInt(seasonNum),
-        number: epNum,
-        released: new Date().toISOString()
-      });
-    }
+  for (const epNum of show.allEpisodes) {
+    videos.push({
+      id: show.prefix + '-S1E' + epNum,
+      title: show.epNamePrefix + epNum,
+      season: 1,
+      number: epNum,
+      released: new Date().toISOString()
+    });
   }
   return videos;
 }
 
-// === META HANDLER (Series) ===
+// === META HANDLER ===
 function metaHandler(args) {
   if (!addon || args.type !== 'series') return Promise.resolve({ meta: null });
-
   for (const key of showKeys) {
     const show = SHOWS[key];
     if (args.id === key + '-series') {
@@ -417,30 +284,24 @@ function metaHandler(args) {
   return Promise.resolve({ meta: null });
 }
 
-// === STREAM HANDLER (Series) ===
+// === STREAM HANDLER ===
 function streamHandler(args) {
   if (!addon || args.type !== 'series') return Promise.resolve({ streams: [] });
-
   for (const key of showKeys) {
     const show = SHOWS[key];
     const prefix = show.prefix + '-S';
     if (args.id.startsWith(prefix)) {
-      // Parse S1E5 format
       const match = args.id.match(/S(\d+)E(\d+)/);
       if (match) {
         const seasonNum = parseInt(match[1]);
         const epNum = parseInt(match[2]);
-        const seasonData = show.seasons[seasonNum];
-        
-        if (seasonData && seasonData.episodeMap[epNum] && drive) {
-          const fileId = seasonData.episodeMap[epNum];
+        if (seasonNum === 1 && show.episodeMap[epNum] && drive) {
+          const fileId = show.episodeMap[epNum];
           return Promise.resolve({
-            streams: [
-              {
-                title: show.epNamePrefix + epNum + ' (Google Drive)',
-                url: PUBLIC_URL + '/stream-proxy?id=' + fileId
-              }
-            ]
+            streams: [{
+              title: show.epNamePrefix + epNum + ' (Google Drive)',
+              url: PUBLIC_URL + '/stream-proxy?id=' + fileId
+            }]
           });
         }
       }
@@ -471,7 +332,6 @@ function buildLandingPage() {
         </div>
       </div>`;
   }
-
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -511,7 +371,7 @@ function buildLandingPage() {
   </div>
   <div class="container">
     <div class="shows-grid">${showCards}</div>
-    <div class="stats">الإصدار: v5.0.0 | الكارتونات: ${showKeys.length}</div>
+    <div class="stats">الإصدار: v5.1.0 | الكارتونات: ${showKeys.length}</div>
   </div>
 </body>
 </html>`;
@@ -521,13 +381,10 @@ function buildLandingPage() {
 app.get('/stream-proxy', async function(req, res) {
   const fileId = req.query.id;
   if (!fileId) return res.status(400).send('Missing file ID');
-
   if (!drive) return res.status(500).send('Google Drive not configured.');
-
   try {
     const client = await driveAuth.getClient();
     const accessToken = await client.getAccessToken();
-
     const downloadUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
     const urlObj = new URL(downloadUrl);
     const options = {
@@ -541,105 +398,53 @@ app.get('/stream-proxy', async function(req, res) {
         'Range': req.headers.range || 'bytes=0-'
       }
     };
-
     const proxyReq = https.get(options, (proxyRes) => {
       if (proxyRes.statusCode === 403 || proxyRes.statusCode === 404) {
-        drive.files.get({
-          fileId: fileId,
-          fields: 'webContentLink',
-          supportsAllDrives: true
-        }, function(err, fileResult) {
-          if (err || !fileResult.data.webContentLink) {
-            return res.status(500).send('Unable to access file via Google Drive API');
-          }
-          const fallbackUrl = fileResult.data.webContentLink;
-          const fallbackObj = new URL(fallbackUrl);
-          const fallbackOptions = {
-            hostname: fallbackObj.hostname,
-            port: fallbackObj.port || 443,
-            path: fallbackObj.pathname + fallbackObj.search,
-            method: 'GET',
-            headers: {
-              'Authorization': 'Bearer ' + accessToken.token,
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-              'Range': req.headers.range || 'bytes=0-'
-            }
-          };
-          https.get(fallbackOptions, (fallbackRes) => {
-            handleStreamResponse(fallbackRes, req, res);
-          }).on('error', err => {
-            res.status(500).send('Fallback stream error: ' + err.message);
-          });
+        drive.files.get({ fileId, fields: 'webContentLink', supportsAllDrives: true }, function(err, fileResult) {
+          if (err || !fileResult.data.webContentLink) return res.status(500).send('Unable to access file');
+          const fallbackObj = new URL(fileResult.data.webContentLink);
+          https.get({
+            hostname: fallbackObj.hostname, port: fallbackObj.port || 443,
+            path: fallbackObj.pathname + fallbackObj.search, method: 'GET',
+            headers: { 'Authorization': 'Bearer ' + accessToken.token, 'User-Agent': 'Mozilla/5.0', 'Range': req.headers.range || 'bytes=0-' }
+          }, (fallbackRes) => handleStreamResponse(fallbackRes, req, res)).on('error', err => res.status(500).send(err.message));
         });
         return;
       }
       handleStreamResponse(proxyRes, req, res);
     });
-
-    proxyReq.on('error', err => {
-      res.status(500).send('Stream proxy error: ' + err.message);
-    });
-  } catch (err) {
-    res.status(500).send('Auth error: ' + err.message);
-  }
+    proxyReq.on('error', err => res.status(500).send(err.message));
+  } catch (err) { res.status(500).send(err.message); }
 });
 
 function handleStreamResponse(proxyRes, req, res) {
   const headers = {};
   for (const key in proxyRes.headers) {
-    if (!['transfer-encoding', 'connection', 'set-cookie', 'content-security-policy'].includes(key)) {
-      headers[key] = proxyRes.headers[key];
-    }
+    if (!['transfer-encoding', 'connection', 'set-cookie', 'content-security-policy'].includes(key)) headers[key] = proxyRes.headers[key];
   }
   headers['Access-Control-Allow-Origin'] = '*';
-  if (proxyRes.headers['content-range']) {
-    headers['Content-Range'] = proxyRes.headers['content-range'];
-    headers['Accept-Ranges'] = 'bytes';
-  }
+  if (proxyRes.headers['content-range']) { headers['Content-Range'] = proxyRes.headers['content-range']; headers['Accept-Ranges'] = 'bytes'; }
   res.writeHead(proxyRes.statusCode, headers);
   proxyRes.pipe(res);
 }
 
 // Health check
 app.get('/health', function(req, res) {
-  const healthData = {
-    status: 'ok',
-    driveConfigured: !!drive,
-    parentFolderId: PARENT_FOLDER_ID,
-    version: '5.0.0',
-    type: 'series',
-    shows: {}
-  };
+  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, version: '5.1.0', type: 'series', shows: {} };
   for (const key of showKeys) {
     const show = SHOWS[key];
-    healthData.shows[key] = {
-      name: show.name,
-      folderId: show.folderId,
-      episodesLoaded: show.totalEpisodes,
-      catalogName: show.catalogName
-    };
+    healthData.shows[key] = { name: show.name, folderId: show.folderId, episodesLoaded: show.totalEpisodes, catalogName: show.catalogName };
   }
   res.json(healthData);
 });
 
-// Discovery endpoint
+// Discovery
 app.get('/discover', async function(req, res) {
   if (!drive) return res.status(500).send('Drive not configured');
-  discoveryDone = false;
-  showKeys = [];
-  Object.keys(SHOWS).forEach(k => delete SHOWS[k]);
-  await discoverShows();
-  buildAddon();
+  discoveryDone = false; showKeys = []; Object.keys(SHOWS).forEach(k => delete SHOWS[k]);
+  await discoverShows(); buildAddon();
   const result = {};
-  for (const key of showKeys) {
-    const show = SHOWS[key];
-    result[key] = {
-      name: show.name,
-      folderId: show.folderId,
-      episodes: show.totalEpisodes,
-      catalogName: show.catalogName
-    };
-  }
+  for (const key of showKeys) { const show = SHOWS[key]; result[key] = { name: show.name, episodes: show.totalEpisodes }; }
   res.json(result);
 });
 
@@ -655,14 +460,13 @@ app.use('/', function(req, res, next) {
 
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, async () => {
-  console.log('Arabic Cartoons Addon v5.0.0 (Series) running on port ' + PORT);
+  console.log('Arabic Cartoons Addon v5.1.0 (Series) running on port ' + PORT);
   console.log('Public URL: ' + PUBLIC_URL);
   console.log('Parent Folder: ' + PARENT_FOLDER_ID);
   console.log('Drive configured: ' + !!drive);
-
   if (drive) {
     await discoverShows();
     buildAddon();
-    console.log(`Addon ready with ${showKeys.length} cartoons (series format)!`);
+    console.log(`Addon ready with ${showKeys.length} cartoons!`);
   }
 });
