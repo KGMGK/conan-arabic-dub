@@ -154,7 +154,6 @@ async function discoverShows() {
         }
       }
       const sortedEps = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
-      const maxEp = sortedEps.length > 0 ? sortedEps[sortedEps.length - 1] : 0;
       const key = createShowKey(folderName);
       const poster = POSTER_MAP[folderName] || DEFAULT_POSTER;
       const metaInfo = SHOW_META[folderName] || {
@@ -172,12 +171,10 @@ async function discoverShows() {
         allEpisodes: sortedEps,
         episodeMap: episodeMap,
         totalEpisodes: sortedEps.length,
-        catalogName: folderName + ' - مدبلج',
-        epNamePrefix: folderName + ' - الحلقة ',
-        epMetaNamePrefix: `كرتون ${folderName} مدبلج عربي - الحلقة `
+        catalogName: folderName + ' - مدبلج'
       };
       showKeys.push(key);
-      console.log(`  ✅ Key: ${key}, Episodes: ${sortedEps.length}, Max: ${maxEp}`);
+      console.log(`  ✅ Key: ${key}, Episodes: ${sortedEps.length}`);
     }
     console.log(`\n=== Discovery complete: ${showKeys.length} shows found ===`);
   } catch (err) {
@@ -196,8 +193,8 @@ function buildAddon() {
   for (const key of showKeys) {
     const show = SHOWS[key];
     catalogs.push({
-      type: 'series',
-      id: key + '-series',
+      type: 'movie',
+      id: key + '-catalog',
       name: show.catalogName
     });
     idPrefixes.push(key);
@@ -205,141 +202,58 @@ function buildAddon() {
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - مدبلج',
-    version: '5.4.0',
+    version: '6.0.0',
     description: `كرتون عربي مدبلج من Google Drive - ${showKeys.length} كارتون`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
-    resources: ['catalog', 'meta', 'stream'],
-    types: ['series'],
+    resources: ['catalog', 'stream'],
+    types: ['movie'],
     catalogs: catalogs,
     idPrefixes: idPrefixes
   });
   addon.defineCatalogHandler(catalogHandler);
-  addon.defineMetaHandler(metaHandler);
   addon.defineStreamHandler(streamHandler);
 }
 
-// Helper: find show by any ID pattern
-function findShowById(id) {
-  for (const key of showKeys) {
-    const show = SHOWS[key];
-    if (id === key + '-series') return { show, matchType: 'series' };
-    const epMatch = id.match(new RegExp('^' + key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '-S(\\d+)E(\\d+)$'));
-    if (epMatch) return { show, matchType: 'episode', season: parseInt(epMatch[1]), epNum: parseInt(epMatch[2]) };
-  }
-  return null;
-}
-
-// === CATALOG HANDLER: returns single meta per show with videos ===
+// === CATALOG HANDLER: each episode as a separate movie meta ===
 function catalogHandler(args) {
   if (!addon) return Promise.resolve({ metas: [] });
   for (const key of showKeys) {
     const show = SHOWS[key];
-    if (args.type === 'series' && args.id === key + '-series') {
-      const meta = {
-        id: key + '-series',
-        type: 'series',
-        name: show.name,
-        poster: show.poster,
-        background: show.poster,
-        description: show.metaInfo.description,
-        genres: show.metaInfo.genres,
-        language: show.metaInfo.language,
-        country: show.metaInfo.country,
-        releaseInfo: 'مدبلج عربي',
-        videos: buildVideos(show)
-      };
-      return Promise.resolve({ metas: [meta] });
+    if (args.type === 'movie' && args.id === key + '-catalog') {
+      const metas = [];
+      for (const epNum of show.allEpisodes) {
+        metas.push({
+          id: show.prefix + '-EP' + epNum,
+          type: 'movie',
+          name: show.name + ' - الحلقة ' + epNum,
+          poster: show.poster,
+          description: show.metaInfo.description,
+          genres: show.metaInfo.genres,
+          year: 2024
+        });
+      }
+      return Promise.resolve({ metas: metas });
     }
   }
   return Promise.resolve({ metas: [] });
 }
 
-function buildVideos(show) {
-  const videos = [];
-  for (const epNum of show.allEpisodes) {
-    videos.push({
-      id: show.prefix + '-S1E' + epNum,
-      title: show.epNamePrefix + epNum,
-      season: 1,
-      number: epNum,
-      released: new Date().toISOString()
-    });
-  }
-  return videos;
-}
-
-// === META HANDLER: catches ALL ID formats (series + episode) ===
-function metaHandler(args) {
-  if (!addon || args.type !== 'series') return Promise.resolve({ meta: null });
-
-  const result = findShowById(args.id);
-  if (!result) return Promise.resolve({ meta: null });
-
-  const { show, matchType } = result;
-
-  if (matchType === 'series') {
-    return Promise.resolve({
-      meta: {
-        id: show.prefix + '-series',
-        type: 'series',
-        name: show.name,
-        poster: show.poster,
-        background: show.poster,
-        description: show.metaInfo.description,
-        genres: show.metaInfo.genres,
-        language: show.metaInfo.language,
-        country: show.metaInfo.country,
-        releaseInfo: 'مدبلج عربي',
-        imdbRating: null,
-        videos: buildVideos(show)
-      }
-    });
-  } else if (matchType === 'episode') {
-    const { season, epNum } = result;
-    if (show.allEpisodes.includes(epNum)) {
-      return Promise.resolve({
-        meta: {
-          id: args.id,
-          type: 'series',
-          name: show.name,
-          poster: show.poster,
-          description: show.epMetaNamePrefix + epNum,
-          genres: show.metaInfo.genres,
-          language: show.metaInfo.language,
-          videos: [{
-            id: args.id,
-            title: show.epNamePrefix + epNum,
-            season: season,
-            number: epNum,
-            released: new Date().toISOString()
-          }]
-        }
-      });
-    }
-  }
-  return Promise.resolve({ meta: null });
-}
-
 // === STREAM HANDLER ===
 function streamHandler(args) {
-  if (!addon || args.type !== 'series') return Promise.resolve({ streams: [] });
+  if (!addon || args.type !== 'movie') return Promise.resolve({ streams: [] });
   for (const key of showKeys) {
     const show = SHOWS[key];
-    const prefix = show.prefix + '-S';
+    const prefix = show.prefix + '-EP';
     if (args.id.startsWith(prefix)) {
-      const match = args.id.match(/S(\d+)E(\d+)/);
-      if (match) {
-        const seasonNum = parseInt(match[1]);
-        const epNum = parseInt(match[2]);
-        if (seasonNum === 1 && show.episodeMap[epNum] && drive) {
-          const fileId = show.episodeMap[epNum];
-          return Promise.resolve({
-            streams: [{
-              title: show.epNamePrefix + epNum + ' (Google Drive)',
-              url: PUBLIC_URL + '/stream-proxy?id=' + fileId
-            }]
-          });
-        }
+      const epNum = parseInt(args.id.replace(prefix, ''));
+      if (show.episodeMap[epNum] && drive) {
+        const fileId = show.episodeMap[epNum];
+        return Promise.resolve({
+          streams: [{
+            title: show.name + ' - الحلقة ' + epNum + ' (Google Drive)',
+            url: PUBLIC_URL + '/stream-proxy?id=' + fileId
+          }]
+        });
       }
     }
   }
@@ -407,7 +321,7 @@ function buildLandingPage() {
   </div>
   <div class="container">
     <div class="shows-grid">${showCards}</div>
-    <div class="stats">الإصدار: v5.4.0 | الكارتونات: ${showKeys.length}</div>
+    <div class="stats">الإصدار: v6.0.0 | الكارتونات: ${showKeys.length}</div>
   </div>
 </body>
 </html>`;
@@ -466,7 +380,7 @@ function handleStreamResponse(proxyRes, req, res) {
 
 // Health check
 app.get('/health', function(req, res) {
-  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, version: '5.4.0', type: 'series', shows: {} };
+  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, version: '6.0.0', type: 'movie', shows: {} };
   for (const key of showKeys) {
     const show = SHOWS[key];
     healthData.shows[key] = { name: show.name, folderId: show.folderId, episodesLoaded: show.totalEpisodes, catalogName: show.catalogName };
@@ -496,7 +410,7 @@ app.use('/', function(req, res, next) {
 
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, async () => {
-  console.log('Arabic Cartoons Addon v5.4.0 (Series) running on port ' + PORT);
+  console.log('Arabic Cartoons Addon v6.0.0 (Movie per Episode) running on port ' + PORT);
   console.log('Public URL: ' + PUBLIC_URL);
   console.log('Parent Folder: ' + PARENT_FOLDER_ID);
   console.log('Drive configured: ' + !!drive);
