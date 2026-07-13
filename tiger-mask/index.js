@@ -55,7 +55,7 @@ const SHOWS = {
     name: 'سنداد - مدبلج',
     description: 'كرتون سنداد (Sinbad) مدبلج عربي - 52 حلقة',
     folderId: process.env.SANDAD_FOLDER_ID || '12wjLgmnu6yu9ZK9uF7pRouDetNTH6AK1',
-    poster: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/TbPxKCZFtilIHbto.jpg',
+    poster: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/HFoIUSVnyKHKLYxY.jpeg',
     prefix: 'sandad',
     catalogId: 'sandad-season-1',
     catalogName: 'سنداد - مدبلج',
