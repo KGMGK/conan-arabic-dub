@@ -205,12 +205,13 @@ function buildAddon() {
     version: '6.0.0',
     description: `كرتون عربي مدبلج من Google Drive - ${showKeys.length} كارتون`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
-    resources: ['catalog', 'stream'],
+    resources: ['catalog', 'meta', 'stream'],
     types: ['movie'],
     catalogs: catalogs,
     idPrefixes: idPrefixes
   });
   addon.defineCatalogHandler(catalogHandler);
+  addon.defineMetaHandler(metaHandler);
   addon.defineStreamHandler(streamHandler);
 }
 
@@ -236,6 +237,32 @@ function catalogHandler(args) {
     }
   }
   return Promise.resolve({ metas: [] });
+}
+
+// === META HANDLER: Vidi requests meta for each episode ID ===
+function metaHandler(args) {
+  if (!addon || args.type !== 'movie') return Promise.resolve({ meta: null });
+  for (const key of showKeys) {
+    const show = SHOWS[key];
+    const prefix = show.prefix + '-EP';
+    if (args.id.startsWith(prefix)) {
+      const epNum = parseInt(args.id.replace(prefix, ''));
+      if (show.allEpisodes.includes(epNum)) {
+        return Promise.resolve({
+          meta: {
+            id: show.prefix + '-EP' + epNum,
+            type: 'movie',
+            name: show.name + ' - الحلقة ' + epNum,
+            poster: show.poster,
+            description: show.metaInfo.description,
+            genres: show.metaInfo.genres,
+            year: 2024
+          }
+        });
+      }
+    }
+  }
+  return Promise.resolve({ meta: null });
 }
 
 // === STREAM HANDLER ===
@@ -326,6 +353,24 @@ function buildLandingPage() {
 </body>
 </html>`;
 }
+
+// CORS OPTIONS for stream-proxy (Vidi sends OPTIONS preflight)
+app.options('/stream-proxy', function(req, res) {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Range, Accept, Content-Type, Authorization');
+  res.set('Access-Control-Expose-Headers', 'Content-Range, Content-Length, Accept-Ranges, Content-Type');
+  res.set('Accept-Ranges', 'bytes');
+  res.status(204).end();
+});
+
+// CORS OPTIONS for all addon endpoints (Vidi sends OPTIONS preflight)
+app.options('*', function(req, res) {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Range, Accept, Content-Type, Authorization');
+  res.status(204).end();
+});
 
 // Stream proxy
 app.get('/stream-proxy', async function(req, res) {
