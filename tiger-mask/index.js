@@ -231,9 +231,9 @@ function buildAddon() {
   }
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
-    name: 'كرتون دريف - مدبلج',
+    name: 'Arabic Cartoons Drive',
     version: '6.0.0',
-    description: `كرتون عربي مدبلج من Google Drive - ${showKeys.length} كارتون`,
+    description: `Arabic dubbed cartoons from Google Drive - ${showKeys.length} shows`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
     types: ['movie'],
