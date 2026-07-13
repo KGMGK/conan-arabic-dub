@@ -482,6 +482,19 @@ app.get('/discover', async function(req, res) {
   res.json(result);
 });
 
+// === JSON SUFFIX NORMALIZATION ===
+// Vidi may call endpoints without .json suffix. Normalize all requests.
+app.use(function(req, res, next) {
+  const path = req.path;
+  // If the path doesn't end with .json but matches addon routes, append it
+  if (!path.endsWith('.json') && !path.endsWith('/') &&
+      (path.startsWith('/catalog/') || path.startsWith('/meta/') || path.startsWith('/stream/') ||
+       path.startsWith('/configure/') || path.startsWith('/manifest'))) {
+    req.url = path + '.json' + (req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '');
+  }
+  next();
+});
+
 app.use('/', function(req, res, next) {
   if (addon) {
     const router = getRouter(addon.getInterface());
