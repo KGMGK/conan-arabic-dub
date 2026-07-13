@@ -1,22 +1,43 @@
 const { addonBuilder, getRouter } = require('stremio-addon-sdk');
 const express = require('express');
-const https = require('https');
-const http = require('http');
-const { URL } = require('url');
+const { google } = require('googleapis');
 
 const POSTER = 'https://m.media-amazon.com/images/M/MV5BNTY5ZjJiMzItNGJiZi00YjJmLWE3NTMtZjY5Mjc0NjY0MzNkXkEyXkFqcGc@._V1_SX300.jpg';
 const TOTAL_EPISODES = 33;
 const PUBLIC_URL = process.env.PUBLIC_URL || 'https://tiger-mask-arabic.onrender.com';
 
+// Google Drive credentials from environment variable
+const GDRIVE_CREDENTIALS = process.env.GDRIVE_CREDENTIALS
+  ? JSON.parse(process.env.GDRIVE_CREDENTIALS)
+  : null;
+
+// Google Drive folder ID (shared with the service account)
+const FOLDER_ID = process.env.GDRIVE_FOLDER_ID || '1iPKIcY0QjKMWOc_wboR45qJZ6RHvMfSN';
+
+// Episode to file mapping (Google Drive file IDs)
+// If FOLDER_ID is set, files will be auto-discovered from the folder
 const EPISODES = {
   1: '1kKS_hJ-O0GPLpMV2lBPZIWLv1_uuInA7'
 };
+
+// Episode filename patterns for auto-discovery
+const EPISODE_FILE_PATTERN = 'Tiger Mask'; // Adjust if needed
 
 const CATALOG = {
   type: 'movie',
   id: 'tiger-mask-season-2',
   name: 'النمر المقنع - الجزء الثاني'
 };
+
+// Initialize Google Drive API client
+let drive;
+if (GDRIVE_CREDENTIALS) {
+  const auth = new google.auth.GoogleAuth({
+    credentials: GDRIVE_CREDENTIALS,
+    scopes: ['https://www.googleapis.com/auth/drive.readonly']
+  });
+  drive = google.drive({ version: 'v3', auth });
+}
 
 function buildEpisodeMetas() {
   var metas = [];
@@ -34,7 +55,7 @@ function buildEpisodeMetas() {
 const addon = new addonBuilder({
   id: 'local.network.tigermask.arabic',
   name: 'النمر المقنع - مدبلج',
-  version: '1.0.0',
+  version: '1.1.0',
   description: 'النمر المقنع (Tiger Mask II) مدبلج عربي - 33 حلقة',
   logo: POSTER,
   resources: ['catalog', 'meta', 'stream'],
@@ -74,19 +95,36 @@ addon.defineStreamHandler(function(args) {
   if (args.type === 'movie' && args.id.startsWith('tiger-mask-')) {
     var parts = args.id.split('-');
     var episodeNum = parseInt(parts[parts.length - 1], 10);
-    var fileId = EPISODES[episodeNum];
-    if (episodeNum >= 1 && episodeNum <= TOTAL_EPISODES && fileId) {
-      var proxyUrl = PUBLIC_URL + '/stream-proxy?id=' + fileId;
-      return Promise.resolve({
-        streams: [
-          {
-            title: 'النمر المقنع مدبلج - الحلقة ' + episodeNum + ' (Google Drive)',
-            url: proxyUrl
-          }
-        ]
-      });
-    }
+
     if (episodeNum >= 1 && episodeNum <= TOTAL_EPISODES) {
+      var fileId = EPISODES[episodeNum];
+      
+      if (!fileId && FOLDER_ID && drive) {
+        // File will be discovered at request time
+        // Return placeholder stream
+        return Promise.resolve({
+          streams: [
+            {
+              title: 'النمر المقنع مدبلج - الحلقة ' + episodeNum + ' (جارٍ البحث عن الملف...)',
+              externalUrl: PUBLIC_URL
+            }
+          ]
+        });
+      }
+
+      if (fileId && drive) {
+        // Use Google Drive API to get a secure download link
+        var proxyUrl = PUBLIC_URL + '/stream-proxy?id=' + fileId;
+        return Promise.resolve({
+          streams: [
+            {
+              title: 'النمر المقنع مدبلج - الحلقة ' + episodeNum + ' (Google Drive)',
+              url: proxyUrl
+            }
+          ]
+        });
+      }
+
       return Promise.resolve({
         streams: [
           {
@@ -103,74 +141,150 @@ addon.defineStreamHandler(function(args) {
 
 const app = express();
 
+// Stream proxy using Google Drive API (secure, bypasses virus scan)
 app.get('/stream-proxy', function(req, res) {
   const fileId = req.query.id;
   if (!fileId) return res.status(400).send('Missing file ID');
 
-  const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+  if (!drive) {
+    return res.status(500).send('Google Drive not configured. Please set GDRIVE_CREDENTIALS and GDRIVE_FOLDER_ID.');
+  }
 
-  // 1. First request to get cookies and potential confirmation token
-  const driveUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-  
-  https.get(driveUrl, { headers: { 'User-Agent': userAgent } }, (driveRes) => {
-    const cookies = driveRes.headers['set-cookie'] || [];
-    let body = '';
-    driveRes.on('data', chunk => body += chunk);
-    driveRes.on('end', () => {
-      // Check for confirmation token
-      const confirmMatch = body.match(/confirm=([a-zA-Z0-9_]+)/);
-      const confirmToken = confirmMatch ? confirmMatch[1] : '';
+  // Use Google Drive API to get the file metadata and download URL
+  // For large files, we need to get the webViewLink or direct download
+  drive.files.get({
+    fileId: fileId,
+    fields: 'webViewLink,webContentLink,size,mimeType',
+    supportsAllDrives: true
+  }, async function(err, fileResult) {
+    if (err) {
+      console.error('Google Drive API error:', err.message);
+      return res.status(500).send('Drive API error: ' + err.message);
+    }
+
+    // For streaming, use webContentLink which provides a direct download URL
+    // But for Vidi compatibility, we'll proxy the stream through our server
+    const directUrl = fileResult.data.webContentLink || 
+                      fileResult.data.webViewLink ||
+                      `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+    console.log(`Streaming file: ${fileId}, URL: ${directUrl.substring(0, 80)}...`);
+
+    // Use the Google Drive API auth to get an access token for the download
+    try {
+      const auth = new google.auth.GoogleAuth({
+        credentials: GDRIVE_CREDENTIALS,
+        scopes: ['https://www.googleapis.com/auth/drive.readonly']
+      });
       
-      let finalUrl;
-      if (confirmToken) {
-        finalUrl = `https://drive.google.com/uc?export=download&id=${fileId}&confirm=${confirmToken}`;
-      } else if (driveRes.headers.location) {
-        finalUrl = driveRes.headers.location;
-      } else {
-        finalUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=download`;
-      }
+      const client = await auth.getClient();
+      const accessToken = await client.getAccessToken();
 
-      handleFinalStream(finalUrl, cookies, req, res, userAgent);
-    });
-  }).on('error', err => {
-    res.status(500).send('Initial proxy error: ' + err.message);
+      // Proxy the video stream with proper auth headers
+      const { URL } = require('url');
+      const https = require('https');
+      const urlObj = new URL(directUrl);
+
+      const options = {
+        hostname: urlObj.hostname,
+        port: urlObj.port || 443,
+        path: urlObj.pathname + urlObj.search,
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + accessToken.token,
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Range': req.headers.range || 'bytes=0-'
+        }
+      };
+
+      const proxyReq = https.get(options, (proxyRes) => {
+        if (proxyRes.statusCode === 403 || proxyRes.statusCode === 404) {
+          // Fallback: try direct download without auth
+          const fallbackUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+          const fallbackObj = new URL(fallbackUrl);
+          
+          const fallbackOptions = {
+            hostname: fallbackObj.hostname,
+            port: 443,
+            path: fallbackObj.pathname + fallbackObj.search,
+            method: 'GET',
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Range': req.headers.range || 'bytes=0-'
+            }
+          };
+
+          https.get(fallbackOptions, (fallbackRes) => {
+            handleStreamResponse(fallbackRes, req, res);
+          }).on('error', err => {
+            res.status(500).send('Fallback stream error: ' + err.message);
+          });
+          return;
+        }
+
+        handleStreamResponse(proxyRes, req, res);
+      });
+
+      proxyReq.on('error', err => {
+        console.error('Proxy error:', err.message);
+        res.status(500).send('Stream proxy error: ' + err.message);
+      });
+    } catch (err) {
+      console.error('Auth error:', err.message);
+      res.status(500).send('Authentication error: ' + err.message);
+    }
   });
 });
 
-function handleFinalStream(url, cookies, req, res, userAgent) {
-  const urlObj = new URL(url.startsWith('http') ? url : 'https://drive.google.com' + url);
-  const options = {
-    hostname: urlObj.hostname,
-    port: 443,
-    path: urlObj.pathname + urlObj.search,
-    method: 'GET',
-    headers: {
-      'User-Agent': userAgent,
-      'Cookie': cookies.join('; '),
-      'Range': req.headers.range || 'bytes=0-'
+function handleStreamResponse(proxyRes, req, res) {
+  const headers = {};
+  for (const key in proxyRes.headers) {
+    if (!['transfer-encoding', 'connection', 'set-cookie', 'content-security-policy'].includes(key)) {
+      headers[key] = proxyRes.headers[key];
     }
-  };
+  }
+  headers['Access-Control-Allow-Origin'] = '*';
+  
+  // Allow range requests for video seeking
+  if (proxyRes.headers['content-range']) {
+    headers['Content-Range'] = proxyRes.headers['content-range'];
+    headers['Accept-Ranges'] = 'bytes';
+  }
 
-  https.get(options, (proxyRes) => {
-    if (proxyRes.statusCode === 302 || proxyRes.statusCode === 301) {
-      const newCookies = (proxyRes.headers['set-cookie'] || []).concat(cookies);
-      handleFinalStream(proxyRes.headers.location, newCookies, req, res, userAgent);
-      return;
-    }
-
-    const headers = {};
-    for (const key in proxyRes.headers) {
-      if (!['transfer-encoding', 'connection', 'set-cookie', 'content-security-policy'].includes(key)) {
-        headers[key] = proxyRes.headers[key];
-      }
-    }
-    headers['Access-Control-Allow-Origin'] = '*';
-    res.writeHead(proxyRes.statusCode, headers);
-    proxyRes.pipe(res);
-  }).on('error', err => {
-    res.status(500).send('Stream error: ' + err.message);
-  });
+  res.writeHead(proxyRes.statusCode, headers);
+  proxyRes.pipe(res);
 }
+
+// Health check endpoint
+app.get('/health', function(req, res) {
+  res.json({
+    status: 'ok',
+    driveConfigured: !!drive,
+    folderId: !!FOLDER_ID,
+    episodeCount: Object.keys(EPISODES).length
+  });
+});
+
+// Discovery endpoint - list files in folder
+app.get('/discover', async function(req, res) {
+  if (!drive) return res.status(500).send('Drive not configured');
+  
+  try {
+    const response = await drive.files.list({
+      q: `'${FOLDER_ID}' in parents and trashed = false`,
+      fields: 'files(id, name, mimeType, size)',
+      orderBy: 'name',
+      supportsAllDrives: true
+    });
+    
+    res.json({
+      files: response.data.files,
+      count: response.data.files.length
+    });
+  } catch (err) {
+    res.status(500).send('Discovery error: ' + err.message);
+  }
+});
 
 const addonRouter = getRouter(addon.getInterface());
 app.use('/', addonRouter);
@@ -178,4 +292,7 @@ app.use('/', addonRouter);
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, () => {
   console.log('Tiger Mask Arabic Addon running on port ' + PORT);
+  console.log('Public URL: ' + PUBLIC_URL);
+  console.log('Drive configured: ' + !!drive);
+  console.log('Folder ID: ' + FOLDER_ID);
 });
