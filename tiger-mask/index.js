@@ -5,19 +5,15 @@ const http = require('http');
 const { URL } = require('url');
 
 const POSTER = 'https://m.media-amazon.com/images/M/MV5BNTY5ZjJiMzItNGJiZi00YjJmLWE3NTMtZjY5Mjc0NjY0MzNkXkEyXkFqcGc@._V1_SX300.jpg';
-const TMDB_ID = '25114';
-const SEASON_NUM = 2; // Tiger Mask II (1981) = the Arabic dub
 const TOTAL_EPISODES = 33;
 const SERVICE_NAME = 'tiger-mask-arabic';
+const SEASON_NUM = 2;
 const PUBLIC_URL = process.env.PUBLIC_URL || 'https://tiger-mask-arabic.onrender.com';
 
 // Episode file IDs from Google Drive
-// Format: episode number -> { fileId, name }
+// Format: episode number -> fileId
 const EPISODES = {
-  1: {
-    fileId: '1kKS_hJ-O0GPLpMV2lBPZIWLv1_uuInA7',
-    name: 'أغنية البداية'
-  }
+  1: '1kKS_hJ-O0GPLpMV2lBPZIWLv1_uuInA7'
   // More episodes will be added as file IDs are provided
 };
 
@@ -33,15 +29,10 @@ const CATALOG = {
 function buildEpisodeMetas() {
   var metas = [];
   for (var i = 1; i <= TOTAL_EPISODES; i++) {
-    var ep = EPISODES[i];
-    var name = 'النمر المقنع مدبلج - الحلقة ' + i;
-    if (ep) {
-      name = 'النمر المقنع مدبلج - ' + ep.name;
-    }
     metas.push({
       id: SERVICE_NAME + '-' + i,
       type: 'series',
-      name: name,
+      name: 'النمر المقنع مدبلج - الحلقة ' + i,
       poster: POSTER
     });
   }
@@ -60,7 +51,7 @@ const addon = new addonBuilder({
   idPrefixes: ['tiger-mask-arabic-']
 });
 
-// Catalog handler - returns all episodes
+// Catalog handler
 addon.defineCatalogHandler(function(args) {
   if (args.type === 'series' && args.id === SERVICE_NAME + '-season-' + SEASON_NUM) {
     return Promise.resolve({ metas: buildEpisodeMetas() });
@@ -68,21 +59,17 @@ addon.defineCatalogHandler(function(args) {
   return Promise.resolve({ metas: [] });
 });
 
-// Meta handler - returns info for a specific episode
+// Meta handler
 addon.defineMetaHandler(function(args) {
   if (args.type === 'series' && args.id.startsWith(SERVICE_NAME + '-')) {
-    var epNum = parseInt(args.id.split('-').pop(), 10);
+    var parts = args.id.split('-');
+    var epNum = parseInt(parts[parts.length - 1], 10);
     if (epNum >= 1 && epNum <= TOTAL_EPISODES) {
-      var ep = EPISODES[epNum];
-      var name = 'النمر المقنع مدبلج - الحلقة ' + epNum;
-      if (ep) {
-        name = 'النمر المقنع مدبلج - ' + ep.name;
-      }
       return Promise.resolve({
         meta: {
           id: args.id,
           type: 'series',
-          name: name,
+          name: 'النمر المقنع مدبلج - الحلقة ' + epNum,
           poster: POSTER,
           description: 'النمر المقنع (Tiger Mask II) - الجزء الثاني مدبلج عربي - الحلقة ' + epNum,
           releaseInfo: 'الحلقة ' + epNum,
@@ -94,20 +81,19 @@ addon.defineMetaHandler(function(args) {
   return Promise.resolve({ meta: null });
 });
 
-// Stream handler - returns the video stream for an episode
+// Stream handler - uses Google Drive direct download URL with proxy
 addon.defineStreamHandler(function(args) {
   if (args.type === 'series' && args.id.startsWith(SERVICE_NAME + '-')) {
-    var epNum = parseInt(args.id.split('-').pop(), 10);
-    var ep = EPISODES[epNum];
-    if (epNum >= 1 && epNum <= TOTAL_EPISODES && ep) {
-      var driveUrl = 'https://drive.google.com/file/d/' + ep.fileId + '/preview';
-      var proxyUrl = '/stream-proxy?url=' + encodeURIComponent(driveUrl);
-      var fullName = 'النمر المقنع مدبلج - الحلقة ' + epNum + ' - ' + ep.name;
+    var parts = args.id.split('-');
+    var epNum = parseInt(parts[parts.length - 1], 10);
+    var fileId = EPISODES[epNum];
+    if (epNum >= 1 && epNum <= TOTAL_EPISODES && fileId) {
+      var proxyUrl = PUBLIC_URL + '/stream-proxy?id=' + fileId;
       return Promise.resolve({
         streams: [
           {
-            title: fullName,
-            url: PUBLIC_URL + proxyUrl
+            title: 'النمر المقنع مدبلج - الحلقة ' + epNum + ' (Google Drive)',
+            url: proxyUrl
           }
         ]
       });
@@ -131,123 +117,130 @@ addon.defineStreamHandler(function(args) {
 // Create Express app
 const app = express();
 
-// Video proxy for Google Drive
+// Video proxy for Google Drive direct download
 app.get('/stream-proxy', function(req, res) {
-  var rawUrl = decodeURIComponent(req.query.url || '');
-  var targetUrl = rawUrl;
-  
-  if (!targetUrl) {
-    res.status(400).send('Missing URL');
+  var fileId = req.query.id || '';
+  if (!fileId) {
+    res.status(400).send('Missing file ID');
     return;
   }
+
+  // Google Drive direct download URL
+  var driveUrl = 'https://drive.google.com/uc?export=download&id=' + fileId;
   
-  try {
-    var targetUrlObj = new URL(targetUrl);
-  } catch (e) {
-    res.status(400).send('Invalid URL');
-    return;
-  }
-  
-  var protocol = targetUrlObj.protocol === 'https:' ? https : http;
   var options = {
-    hostname: targetUrlObj.hostname,
-    port: targetUrlObj.port || (targetUrlObj.protocol === 'https:' ? 443 : 80),
-    path: targetUrlObj.pathname + targetUrlObj.search,
+    hostname: 'drive.google.com',
+    port: 443,
+    path: '/uc?export=download&id=' + fileId,
     method: 'GET',
     headers: {
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-      'Accept-Language': 'ar,en-US;q=0.9,en;q=0.8',
+      'Accept': 'video/*,*/*;q=0.8',
       'Accept-Encoding': 'identity',
       'Connection': 'keep-alive'
     }
   };
-  
-  var reqObj = protocol.get(options, function(proxyRes) {
+
+  if (req.headers.range) {
+    options.headers['Range'] = req.headers.range;
+  }
+
+  var reqObj = https.get(options, function(proxyRes) {
+    // Google Drive returns 302 redirect to actual file URL
     if (proxyRes.statusCode === 302 || proxyRes.statusCode === 301) {
       var redirectUrl = proxyRes.headers['location'];
       if (redirectUrl) {
-        if (redirectUrl.startsWith('/')) {
-          redirectUrl = targetUrlObj.protocol + '//' + targetUrlObj.hostname + redirectUrl;
-        }
         var redirectUrlObj = new URL(redirectUrl);
         var redirectOptions = {
           hostname: redirectUrlObj.hostname,
-          port: redirectUrlObj.port || (redirectUrlObj.protocol === 'https:' ? 443 : 80),
+          port: redirectUrlObj.port || 443,
           path: redirectUrlObj.pathname + redirectUrlObj.search,
           method: 'GET',
-          headers: Object.assign({}, options.headers, {
-            'Accept': 'video/*,*/*;q=0.8'
-          })
+          headers: {
+            'User-Agent': options.headers['User-Agent'],
+            'Accept': 'video/*,*/*;q=0.8',
+            'Accept-Encoding': 'identity',
+            'Connection': 'keep-alive',
+            'Range': req.headers.range || 'bytes=0-'
+          }
         };
-        if (req.headers.range) {
-          redirectOptions.headers['Range'] = req.headers.range;
-        }
         var redirectProtocol = redirectUrlObj.protocol === 'https:' ? https : http;
         redirectProtocol.get(redirectOptions, function(redirectRes) {
           streamVideo(redirectRes, res);
         }).on('error', function(e) {
           console.error('Redirect error:', e.message);
-          res.status(502).send('Redirect failed');
+          res.status(502).send('Redirect failed: ' + e.message);
         });
         return;
       }
     }
-    
+
+    if (proxyRes.statusCode === 200 || proxyRes.statusCode === 206) {
+      streamVideo(proxyRes, res);
+      return;
+    }
+
+    // Check if it's a Google Drive warning page (large file warning)
     if (proxyRes.statusCode === 200) {
       var body = '';
       proxyRes.setEncoding('utf8');
-      proxyRes.on('data', function(chunk) {
-        body += chunk;
-      });
+      proxyRes.on('data', function(chunk) { body += chunk; });
       proxyRes.on('end', function() {
-        // Look for video URL in the preview page
-        var videoMatch = body.match(/"contentUrl":"([^"]+)"/);
-        if (videoMatch) {
-          var videoUrl = videoMatch[1];
-          // Proxy the actual video
-          var videoUrlObj = new URL(videoUrl);
-          var videoOptions = {
-            hostname: videoUrlObj.hostname,
-            port: videoUrlObj.port || (videoUrlObj.protocol === 'https:' ? 443 : 80),
-            path: videoUrlObj.pathname + videoUrlObj.search,
+        // Try to find download confirmation link
+        var confirmMatch = body.match(/href="([^"]*confirm[^"]*)"/);
+        if (confirmMatch) {
+          var confirmUrl = confirmMatch[1];
+          var confirmUrlObj = new URL(confirmUrl.startsWith('http') ? confirmUrl : 'https://drive.google.com' + confirmUrl);
+          var confirmOptions = {
+            hostname: confirmUrlObj.hostname,
+            port: confirmUrlObj.port || 443,
+            path: confirmUrlObj.pathname + confirmUrlObj.search,
             method: 'GET',
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
-              'Accept': 'video/*,*/*;q=0.8',
-              'Accept-Encoding': 'identity',
-              'Connection': 'keep-alive'
-            }
+            headers: Object.assign({}, options.headers, {
+              'Cookie': proxyRes.headers['set-cookie'] ? proxyRes.headers['set-cookie'].split(';')[0] : ''
+            })
           };
-          if (req.headers.range) {
-            videoOptions.headers['Range'] = req.headers.range;
-          }
-          var videoProtocol = videoUrlObj.protocol === 'https:' ? https : http;
-          videoProtocol.get(videoOptions, function(videoRes) {
-            streamVideo(videoRes, res);
+          https.get(confirmOptions, function(confirmRes) {
+            if (confirmRes.statusCode === 302 || confirmRes.statusCode === 301) {
+              var fileUrl = confirmRes.headers['location'];
+              var fileUrlObj = new URL(fileUrl);
+              var fileOptions = {
+                hostname: fileUrlObj.hostname,
+                port: fileUrlObj.port || 443,
+                path: fileUrlObj.pathname + fileUrlObj.search,
+                method: 'GET',
+                headers: {
+                  'User-Agent': options.headers['User-Agent'],
+                  'Accept': 'video/*,*/*;q=0.8',
+                  'Range': req.headers.range || 'bytes=0-'
+                }
+              };
+              https.get(fileOptions, function(fileRes) {
+                streamVideo(fileRes, res);
+              }).on('error', function(e) {
+                res.status(502).send('File download failed: ' + e.message);
+              });
+            } else {
+              res.status(502).send('Download confirmation failed (' + confirmRes.statusCode + ')');
+            }
           }).on('error', function(e) {
-            console.error('Video proxy error:', e.message);
-            res.status(502).send('Video proxy failed');
+            res.status(502).send('Confirmation error: ' + e.message);
           });
         } else {
-          res.status(502).send('Could not find video URL in preview page');
+          res.status(502).send('Could not download from Google Drive (status: ' + proxyRes.statusCode + ')');
         }
       });
       return;
     }
-    
-    if (proxyRes.statusCode !== 200 && proxyRes.statusCode !== 206) {
-      res.status(proxyRes.statusCode).send('Video unavailable (' + proxyRes.statusCode + ')');
-      return;
-    }
-    streamVideo(proxyRes, res);
+
+    res.status(proxyRes.statusCode || 502).send('Video unavailable (' + proxyRes.statusCode + ')');
   });
-  
+
   reqObj.on('error', function(e) {
     console.error('Proxy error:', e.message);
     res.status(502).send('Bad Gateway: ' + e.message);
   });
-  reqObj.setTimeout(60000, function() {
+  reqObj.setTimeout(120000, function() {
     reqObj.destroy();
     res.status(504).send('Gateway timeout');
   });
