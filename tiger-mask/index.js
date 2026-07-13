@@ -4,7 +4,7 @@ const { google } = require('googleapis');
 const { URL } = require('url');
 const https = require('https');
 
-const POSTER = 'https://m.media-amazon.com/images/M/MV5BNTY5ZjJiMzItNGJiZi00YjJmLWE3NTMtZjY5Mjc0NjY0MzNkXkEyXkFqcGc@._V1_SX300.jpg';
+const POSTER = 'https://cdn.myanimelist.net/images/anime/8/71351.jpg';
 const TOTAL_EPISODES = 33;
 const PUBLIC_URL = process.env.PUBLIC_URL || 'https://tiger-mask-arabic.onrender.com';
 
