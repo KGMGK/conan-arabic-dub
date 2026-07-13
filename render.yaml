@@ -1,0 +1,24 @@
+services:
+  - type: web_service
+    name: conan-arabic-dub
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: node index.js
+    rootDir: ./
+    envVars:
+      - key: PORT
+        value: 7000
+
+  - type: web_service
+    name: tiger-mask-arabic
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: node index.js
+    rootDir: ./tiger-mask
+    envVars:
+      - key: PORT
+        value: 7000
