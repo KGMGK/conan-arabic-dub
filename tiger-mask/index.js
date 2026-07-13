@@ -5,6 +5,7 @@ const { URL } = require('url');
 const https = require('https');
 
 const PUBLIC_URL = process.env.PUBLIC_URL || 'https://tiger-mask-arabic.onrender.com';
+const PARENT_FOLDER_ID = process.env.PARENT_FOLDER_ID || '12GroFa_NyHSsJIqsCWcJEcGdCcZrkfvB';
 
 // Google Drive credentials from environment variable
 const GDRIVE_CREDENTIALS = process.env.GDRIVE_CREDENTIALS
@@ -22,192 +23,258 @@ if (GDRIVE_CREDENTIALS) {
   drive = google.drive({ version: 'v3', auth: driveAuth });
 }
 
-// === SHOW DEFINITIONS ===
-// Each show has: name, folderId, poster, prefix, episode name pattern
-const SHOWS = {
-  'tiger-mask': {
-    name: 'النمر المقنع - مدبلج',
-    description: 'النمر المقنع (Tiger Mask II) مدبلج عربي - 33 حلقة',
-    folderId: process.env.TIGER_MASK_FOLDER_ID || '1iPKIcY0QjKMWOc_wboR45qJZ6RHvMfSN',
-    poster: 'https://cdn.myanimelist.net/images/anime/8/71351.jpg',
-    prefix: 'tiger-mask',
-    catalogId: 'tiger-mask-season-2',
-    catalogName: 'النمر المقنع - الجزء الثاني',
-    epNamePrefix: 'النمر المقنع مدبلج - الحلقة ',
-    epMetaNamePrefix: 'النمر المقنع (Tiger Mask II) - الجزء الثاني مدبلج عربي - الحلقة ',
-    maxEpisodes: 33,
-    namePattern: /الحلقه\s+(\d+)/
-  },
-  'fosha': {
-    name: 'الفسحة - مدبلج',
-    description: 'كرتون الفسحة (Recess) مدبلج عربي - 52 حلقة',
-    folderId: process.env.FOSHA_FOLDER_ID || '1NWP7LTEnNEdY5MDE5VGnTos_OsgG8U6Y',
-    poster: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/HtVxgjDfQaZqncBR.jpg',
-    prefix: 'fosha',
-    catalogId: 'fosha-season-1',
-    catalogName: 'الفسحة - مدبلج',
-    epNamePrefix: 'الفسحة - الحلقة ',
-    epMetaNamePrefix: 'كرتون الفسحة (Recess) مدبلج عربي - الحلقة ',
-    maxEpisodes: 52,
-    namePattern: /^(\d+)$/
-  },
-  'sandad': {
-    name: 'سنداد - مدبلج',
-    description: 'كرتون سنداد (Sinbad) مدبلج عربي - 52 حلقة',
-    folderId: process.env.SANDAD_FOLDER_ID || '12wjLgmnu6yu9ZK9uF7pRouDetNTH6AK1',
-    poster: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/HFoIUSVnyKHKLYxY.jpeg',
-    prefix: 'sandad',
-    catalogId: 'sandad-season-1',
-    catalogName: 'سنداد - مدبلج',
-    epNamePrefix: 'سنداد - الحلقة ',
-    epMetaNamePrefix: 'كرتون سنداد (Sinbad) مدبلج عربي - الحلقة ',
-    maxEpisodes: 52,
-    namePattern: /^(\d+)(?:\.mp4)?$/
-  },
-  'tomjerry': {
-    name: 'توم وجيري - مدبلج',
-    description: 'كرتون توم وجيري (Tom & Jerry) كلاسيكي - 73 حلقة',
-    folderId: process.env.TOMJERRY_FOLDER_ID || '16TmBd_17J2sAgxL7CQcQXPKLw4aFnNig',
-    poster: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/UMHUCkbXOyARLRTx.jpg',
-    prefix: 'tomjerry',
-    catalogId: 'tomjerry-classic',
-    catalogName: 'توم وجيري - كلاسيكي',
-    epNamePrefix: 'توم وجيري - الحلقة ',
-    epMetaNamePrefix: 'كرتون توم وجيري (Tom & Jerry) كلاسيكي - الحلقة ',
-    maxEpisodes: 73,
-    namePattern: /^(\d+)(?:\s|$)/
-  }
+// === POSTER MAPPING ===
+// Map cartoon folder names to poster URLs
+const POSTER_MAP = {
+  'النمر المقنع': 'https://cdn.myanimelist.net/images/anime/8/71351.jpg',
+  'الفسحه': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/HtVxgjDfQaZqncBR.jpg',
+  'سندباد': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/HFoIUSVnyKHKLYxY.jpeg',
+  'Tom & Jerry': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/UMHUCkbXOyARLRTx.jpg',
+  '«كونان»': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/ConanPoster_placeholder.jpg',
+  'اسطورة زورو': '',
+  'بوكيمون': '',
+  'تيمون و بومبا': '',
+  'حكايات عالميه': '',
+  'ساسوكي': '',
+  'في جعبتي حكايه': '',
+  'قصص بطوطية': '',
+  'ليلو وستيتش': '',
+  'ماروكو': '',
+  'ماوكلي': ''
 };
 
-// === FILE CACHES ===
-// Cache per show: { episodeNum: fileId }
+// Default poster for shows without a custom poster
+const DEFAULT_POSTER = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/UMHUCkbXOyARLRTx.jpg';
+
+// === DYNAMIC SHOWS ===
+// Shows will be auto-discovered from Google Drive parent folder
+const SHOWS = {};
 const showCaches = {};
 const showLoading = {};
+let showKeys = [];
+let discoveryDone = false;
 
-async function loadFilesFromFolder(showKey) {
-  const show = SHOWS[showKey];
-  if (!show) return {};
-
-  // Already loaded or currently loading
-  if (showCaches[showKey] || showLoading[showKey] || !drive) {
-    return showCaches[showKey] || {};
+async function getFilesRecursive(folderId) {
+  // Get files directly in this folder
+  let files = [];
+  try {
+    const response = await drive.files.list({
+      q: `'${folderId}' in parents and mimeType = 'video/mp4' and trashed = false`,
+      fields: 'files(id, name, mimeType, size)',
+      orderBy: 'name',
+      supportsAllDrives: true,
+      pageSize: 500
+    });
+    files = response.data.files || [];
+  } catch (err) {
+    console.error(`  Error getting files from ${folderId}:`, err.message);
   }
 
-  showLoading[showKey] = true;
-  showCaches[showKey] = {};
+  // Also get subfolders and recurse
+  try {
+    const folderResponse = await drive.files.list({
+      q: `'${folderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+      fields: 'files(id, name)',
+      supportsAllDrives: true
+    });
+    const subfolders = folderResponse.data.files || [];
+    for (const sub of subfolders) {
+      const subFiles = await getFilesRecursive(sub.id);
+      files = files.concat(subFiles);
+    }
+  } catch (err) {
+    console.error(`  Error getting subfolders from ${folderId}:`, err.message);
+  }
+
+  return files;
+}
+
+function extractEpisodeNumber(name) {
+  // Try various Arabic and numeric patterns
+  // Pattern 1: Arabic numerals (١, ٢, ٣...)
+  const arabicMap = {'١':1,'٢':2,'٣':3,'٤':4,'٥':5,'٦':6,'٧':7,'٨':8,'٩':9,'٠':0};
+  
+  // Try "الحلقة X" or "الحلقه X" pattern
+  const halqaMatch = name.match(/الحلق[هة]\s*([٠-٩]+)/);
+  if (halqaMatch) {
+    let num = '';
+    for (const ch of halqaMatch[1]) {
+      num += arabicMap[ch] || ch;
+    }
+    return parseInt(num);
+  }
+
+  // Try "X-" prefix pattern (like "1- title")
+  const prefixMatch = name.match(/^(\d+)[\s-]/);
+  if (prefixMatch) return parseInt(prefixMatch[1]);
+
+  // Try pure number pattern
+  const pureMatch = name.match(/^(\d+)(?:\.mp4)?$/);
+  if (pureMatch) return parseInt(pureMatch[1]);
+
+  return null;
+}
+
+function createShowKey(name) {
+  // Create a URL-safe key from the Arabic folder name
+  return name.toLowerCase()
+    .replace(/[\s\-«»]/g, '')
+    .replace(/[^a-z0-9\u0600-\u06FF]/g, '');
+}
+
+function slugify(name) {
+  // Create a slug for the catalog ID
+  return createShowKey(name).substring(0, 30);
+}
+
+async function discoverShows() {
+  if (discoveryDone || !drive) return;
+  discoveryDone = true;
+
+  console.log(`=== Auto-discovering shows from parent folder: ${PARENT_FOLDER_ID} ===`);
 
   try {
-    console.log(`Loading files for "${show.name}" from folder: ${show.folderId}`);
+    // Get all subfolders in the parent folder
     const response = await drive.files.list({
-      q: `'${show.folderId}' in parents and trashed = false`,
-      fields: 'files(id, name, mimeType, size)',
+      q: `'${PARENT_FOLDER_ID}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+      fields: 'files(id, name, mimeType)',
       orderBy: 'name',
       supportsAllDrives: true
     });
 
-    const files = response.data.files;
-    console.log(`  Found ${files.length} files in folder`);
+    const folders = response.data.files || [];
+    console.log(`Found ${folders.length} subfolders`);
 
-    for (const file of files) {
-      if (file.mimeType !== 'video/mp4') continue;
+    for (const folder of folders) {
+      const folderName = folder.name.trim();
+      if (!folderName) continue;
 
-      const name = file.name;
-      const match = name.match(show.namePattern);
-      if (match) {
-        const epNum = parseInt(match[1], 10);
-        if (epNum >= 1 && epNum <= show.maxEpisodes) {
-          // If duplicate, keep the larger file
-          if (showCaches[showKey][epNum]) {
-            const existingId = showCaches[showKey][epNum];
-            // Keep existing (already loaded), skip duplicate
-            // But prefer .mp4 files if they're larger
-            if (name.endsWith('.mp4')) {
-              showCaches[showKey][epNum] = file.id;
-            }
-            console.log(`  Episode ${epNum} -> ${file.id} (${name}) [duplicate kept ${name.endsWith('.mp4') ? 'mp4' : 'existing'}]`);
-          } else {
-            showCaches[showKey][epNum] = file.id;
-            console.log(`  Episode ${epNum} -> ${file.id} (${name})`);
+      console.log(`\n📁 Discovering: ${folderName}`);
+      const files = await getFilesRecursive(folder.id);
+      console.log(`  Total files found: ${files.length}`);
+
+      if (files.length === 0) {
+        console.log(`  Skipping empty folder`);
+        continue;
+      }
+
+      // Build episode map
+      const episodeMap = {};
+      for (const file of files) {
+        const epNum = extractEpisodeNumber(file.name);
+        if (epNum && epNum >= 1) {
+          // Keep the largest file if duplicates exist
+          if (episodeMap[epNum]) {
+            const existing = files.find(f => f.id === episodeMap[epNum]);
+            if (existing && existing.size > file.size) continue;
           }
+          episodeMap[epNum] = file.id;
         }
       }
+
+      const sortedEps = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
+      const maxEp = sortedEps.length > 0 ? sortedEps[sortedEps.length - 1] : 0;
+
+      const key = createShowKey(folderName);
+      const slug = slugify(folderName);
+      const poster = POSTER_MAP[folderName] || DEFAULT_POSTER;
+
+      SHOWS[key] = {
+        name: folderName,
+        description: `كرتون ${folderName} مدبلج عربي - ${sortedEps.length} حلقة`,
+        folderId: folder.id,
+        poster: poster,
+        prefix: slug,
+        catalogId: slug + '-season-1',
+        catalogName: folderName + ' - مدبلج',
+        epNamePrefix: folderName + ' - الحلقة ',
+        epMetaNamePrefix: `كرتون ${folderName} مدبلج عربي - الحلقة `,
+        maxEpisodes: maxEp,
+        allEpisodes: sortedEps,
+        episodeMap: episodeMap,
+        episodeCount: sortedEps.length
+      };
+
+      showCaches[key] = episodeMap;
+      showKeys.push(key);
+
+      console.log(`  ✅ Key: ${key}, Episodes: ${sortedEps.length}, Max: ${maxEp}`);
     }
 
-    showLoading[showKey] = false;
-    console.log(`  Loaded ${Object.keys(showCaches[showKey]).length} episodes for "${show.name}"`);
+    console.log(`\n=== Discovery complete: ${showKeys.length} shows found ===`);
   } catch (err) {
-    showLoading[showKey] = false;
-    console.error(`  Error loading files for "${show.name}":`, err.message);
+    console.error('Discovery error:', err.message);
   }
-
-  return showCaches[showKey];
 }
 
-function buildEpisodeMetas(showKey) {
-  const show = SHOWS[showKey];
-  const episodes = showCaches[showKey] || {};
-  var metas = [];
-  for (var i = 1; i <= show.maxEpisodes; i++) {
-    metas.push({
-      id: showKey + '-' + i,
+// === BUILD ADDON (will be updated after discovery) ===
+let addon = null;
+let catalogs = [];
+let idPrefixes = [];
+
+function buildAddon() {
+  catalogs = [];
+  idPrefixes = [];
+  for (const key of showKeys) {
+    const show = SHOWS[key];
+    catalogs.push({
       type: 'movie',
-      name: show.epNamePrefix + i,
-      poster: show.poster
+      id: show.catalogId,
+      name: show.catalogName
     });
+    idPrefixes.push(show.prefix);
   }
-  return metas;
-}
 
-// === BUILD ADDON ===
-const catalogs = [];
-const idPrefixes = [];
-for (const key of Object.keys(SHOWS)) {
-  const show = SHOWS[key];
-  catalogs.push({
-    type: 'movie',
-    id: show.catalogId,
-    name: show.catalogName
+  addon = new addonBuilder({
+    id: 'local.network.arabic.cartoons',
+    name: 'كرتون دريف - مدبلج',
+    version: '4.0.0',
+    description: `كرتون عربي مدبلج من Google Drive - ${showKeys.length} كارتون`,
+    logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
+    resources: ['catalog', 'meta', 'stream'],
+    types: ['movie'],
+    catalogs: catalogs,
+    idPrefixes: idPrefixes
   });
-  idPrefixes.push(show.prefix);
-}
 
-const addon = new addonBuilder({
-  id: 'local.network.arabic.cartoons',
-  name: 'كرتون دريف - مدبلج',
-  version: '3.0.0',
-  description: 'كرتون عربي مدبلج من Google Drive - النمر المقنع، الفسحة، سنداد، توم وجيري',
-  logo: SHOWS['tiger-mask'].poster,
-  resources: ['catalog', 'meta', 'stream'],
-  types: ['movie'],
-  catalogs: catalogs,
-  idPrefixes: idPrefixes
-});
+  // Rebind handlers
+  addon.defineCatalogHandler(catalogHandler);
+  addon.defineMetaHandler(metaHandler);
+  addon.defineStreamHandler(streamHandler);
+}
 
 // === CATALOG HANDLER ===
-addon.defineCatalogHandler(function(args) {
-  for (const key of Object.keys(SHOWS)) {
+function catalogHandler(args) {
+  if (!addon) return Promise.resolve({ metas: [] });
+  
+  for (const key of showKeys) {
     const show = SHOWS[key];
     if (args.type === 'movie' && args.id === show.catalogId) {
-      // Load files if not loaded yet
-      if (!showCaches[key] && drive) {
-        loadFilesFromFolder(key);
+      const metas = [];
+      for (const epNum of show.allEpisodes) {
+        metas.push({
+          id: show.prefix + '-' + epNum,
+          type: 'movie',
+          name: show.epNamePrefix + epNum,
+          poster: show.poster
+        });
       }
-      return Promise.resolve({ metas: buildEpisodeMetas(key) });
+      return Promise.resolve({ metas: metas });
     }
   }
   return Promise.resolve({ metas: [] });
-});
+}
 
 // === META HANDLER ===
-addon.defineMetaHandler(function(args) {
-  if (args.type !== 'movie') return Promise.resolve({ meta: null });
+function metaHandler(args) {
+  if (!addon || args.type !== 'movie') return Promise.resolve({ meta: null });
 
-  for (const key of Object.keys(SHOWS)) {
+  for (const key of showKeys) {
     const show = SHOWS[key];
     const prefix = show.prefix + '-';
     if (args.id.startsWith(prefix)) {
       const epNum = parseInt(args.id.substring(prefix.length), 10);
-      if (epNum >= 1 && epNum <= show.maxEpisodes) {
+      if (show.allEpisodes.includes(epNum)) {
         return Promise.resolve({
           meta: {
             id: args.id,
@@ -221,44 +288,25 @@ addon.defineMetaHandler(function(args) {
     }
   }
   return Promise.resolve({ meta: null });
-});
+}
 
 // === STREAM HANDLER ===
-addon.defineStreamHandler(function(args) {
-  if (args.type !== 'movie') return Promise.resolve({ streams: [] });
+function streamHandler(args) {
+  if (!addon || args.type !== 'movie') return Promise.resolve({ streams: [] });
 
-  for (const key of Object.keys(SHOWS)) {
+  for (const key of showKeys) {
     const show = SHOWS[key];
     const prefix = show.prefix + '-';
     if (args.id.startsWith(prefix)) {
       const epNum = parseInt(args.id.substring(prefix.length), 10);
+      const fileId = show.episodeMap[epNum];
 
-      if (epNum >= 1 && epNum <= show.maxEpisodes) {
-        // Load files if not already loaded
-        if (!showCaches[key] && drive) {
-          loadFilesFromFolder(key);
-        }
-
-        var fileId = (showCaches[key] || {})[epNum];
-
-        if (fileId && drive) {
-          var proxyUrl = PUBLIC_URL + '/stream-proxy?id=' + fileId;
-          return Promise.resolve({
-            streams: [
-              {
-                title: show.epNamePrefix + epNum + ' (Google Drive)',
-                url: proxyUrl
-              }
-            ]
-          });
-        }
-
+      if (fileId && drive) {
         return Promise.resolve({
           streams: [
             {
-              name: show.epNamePrefix + epNum,
-              description: 'لم يتم إضافة رابط الفيديو لهذه الحلقة بعد',
-              externalUrl: 'https://drive.google.com/'
+              title: show.epNamePrefix + epNum + ' (Google Drive)',
+              url: PUBLIC_URL + '/stream-proxy?id=' + fileId
             }
           ]
         });
@@ -266,8 +314,9 @@ addon.defineStreamHandler(function(args) {
     }
   }
   return Promise.resolve({ streams: [] });
-});
+}
 
+// === ROUTES ===
 const app = express();
 
 // Stream proxy using Google Drive API (secure, bypasses virus scan)
@@ -280,13 +329,10 @@ app.get('/stream-proxy', async function(req, res) {
   }
 
   try {
-    // Get an access token using the service account
     const client = await driveAuth.getClient();
     const accessToken = await client.getAccessToken();
 
-    // Use Google Drive API to get a direct download URL
     const downloadUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
-
     const urlObj = new URL(downloadUrl);
     const options = {
       hostname: urlObj.hostname,
@@ -302,7 +348,6 @@ app.get('/stream-proxy', async function(req, res) {
 
     const proxyReq = https.get(options, (proxyRes) => {
       if (proxyRes.statusCode === 403 || proxyRes.statusCode === 404) {
-        // Fallback: try webContentLink approach
         drive.files.get({
           fileId: fileId,
           fields: 'webContentLink',
@@ -358,7 +403,6 @@ function handleStreamResponse(proxyRes, req, res) {
   }
   headers['Access-Control-Allow-Origin'] = '*';
 
-  // Allow range requests for video seeking
   if (proxyRes.headers['content-range']) {
     headers['Content-Range'] = proxyRes.headers['content-range'];
     headers['Accept-Ranges'] = 'bytes';
@@ -373,66 +417,72 @@ app.get('/health', function(req, res) {
   const healthData = {
     status: 'ok',
     driveConfigured: !!drive,
-    version: '2.0.0',
+    parentFolderId: PARENT_FOLDER_ID,
+    version: '4.0.0',
     shows: {}
   };
 
-  for (const key of Object.keys(SHOWS)) {
+  for (const key of showKeys) {
     const show = SHOWS[key];
     healthData.shows[key] = {
       name: show.name,
       folderId: show.folderId,
-      episodesLoaded: Object.keys(showCaches[key] || {}).length,
-      loading: !!showLoading[key]
+      episodesLoaded: show.episodeCount,
+      catalogName: show.catalogName
     };
   }
 
   res.json(healthData);
 });
 
-// Discovery endpoint - list files in all folders
+// Discovery endpoint
 app.get('/discover', async function(req, res) {
   if (!drive) return res.status(500).send('Drive not configured');
 
-  const result = {};
-  for (const key of Object.keys(SHOWS)) {
-    const show = SHOWS[key];
-    try {
-      const response = await drive.files.list({
-        q: `'${show.folderId}' in parents and trashed = false`,
-        fields: 'files(id, name, mimeType, size)',
-        orderBy: 'name',
-        supportsAllDrives: true
-      });
+  // Trigger fresh discovery
+  discoveryDone = false;
+  showKeys = [];
+  Object.keys(SHOWS).forEach(k => delete SHOWS[k]);
+  Object.keys(showCaches).forEach(k => delete showCaches[k]);
 
-      result[key] = {
-        name: show.name,
-        files: response.data.files,
-        count: response.data.files.length,
-        episodes: showCaches[key] || {}
-      };
-    } catch (err) {
-      result[key] = { error: err.message };
-    }
+  await discoverShows();
+  buildAddon();
+
+  const result = {};
+  for (const key of showKeys) {
+    const show = SHOWS[key];
+    result[key] = {
+      name: show.name,
+      folderId: show.folderId,
+      episodes: show.episodeCount,
+      catalogName: show.catalogName
+    };
   }
 
   res.json(result);
 });
 
-const addonRouter = getRouter(addon.getInterface());
-app.use('/', addonRouter);
+// Mount addon router (placeholder until discovery)
+app.use('/', function(req, res, next) {
+  if (addon) {
+    const router = getRouter(addon.getInterface());
+    router(req, res, next);
+  } else {
+    res.json({ error: 'Discovery in progress, please wait' });
+  }
+});
 
 const PORT = process.env.PORT || 7000;
-app.listen(PORT, () => {
-  console.log('Arabic Cartoons Addon v2.0.0 running on port ' + PORT);
+app.listen(PORT, async () => {
+  console.log('Arabic Cartoons Addon v4.0.0 running on port ' + PORT);
   console.log('Public URL: ' + PUBLIC_URL);
+  console.log('Parent Folder: ' + PARENT_FOLDER_ID);
   console.log('Drive configured: ' + !!drive);
-  console.log('Shows: ' + Object.keys(SHOWS).join(', '));
 
-  // Pre-load files from all folders
+  // Auto-discover and build addon
   if (drive) {
-    for (const key of Object.keys(SHOWS)) {
-      loadFilesFromFolder(key);
-    }
+    await discoverShows();
+    buildAddon();
+    console.log(`Addon ready with ${showKeys.length} cartoons!`);
   }
 });
