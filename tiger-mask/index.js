@@ -8,21 +8,16 @@ const POSTER = 'https://m.media-amazon.com/images/M/MV5BNTY5ZjJiMzItNGJiZi00YjJm
 const TOTAL_EPISODES = 33;
 const PUBLIC_URL = process.env.PUBLIC_URL || 'https://tiger-mask-arabic.onrender.com';
 
-// Episode file IDs from Google Drive
-// Format: episode number -> fileId
 const EPISODES = {
   1: '1kKS_hJ-O0GPLpMV2lBPZIWLv1_uuInA7'
-  // More episodes will be added as file IDs are provided
 };
 
-// Build the catalog (matching Conan format - no extra field, type: movie)
 const CATALOG = {
   type: 'movie',
   id: 'tiger-mask-season-2',
   name: 'النمر المقنع - الجزء الثاني'
 };
 
-// Build metas for all episodes
 function buildEpisodeMetas() {
   var metas = [];
   for (var i = 1; i <= TOTAL_EPISODES; i++) {
@@ -48,7 +43,6 @@ const addon = new addonBuilder({
   idPrefixes: ['tiger-mask']
 });
 
-// Catalog handler
 addon.defineCatalogHandler(function(args) {
   if (args.type === 'movie' && args.id === 'tiger-mask-season-2') {
     return Promise.resolve({ metas: buildEpisodeMetas() });
@@ -56,7 +50,6 @@ addon.defineCatalogHandler(function(args) {
   return Promise.resolve({ metas: [] });
 });
 
-// Meta handler
 addon.defineMetaHandler(function(args) {
   if (args.type === 'movie' && args.id.startsWith('tiger-mask-')) {
     var parts = args.id.split('-');
@@ -77,7 +70,6 @@ addon.defineMetaHandler(function(args) {
   return Promise.resolve({ meta: null });
 });
 
-// Stream handler - uses Google Drive direct download URL with proxy
 addon.defineStreamHandler(function(args) {
   if (args.type === 'movie' && args.id.startsWith('tiger-mask-')) {
     var parts = args.id.split('-');
@@ -94,7 +86,6 @@ addon.defineStreamHandler(function(args) {
         ]
       });
     }
-    // Episode exists but no file ID yet
     if (episodeNum >= 1 && episodeNum <= TOTAL_EPISODES) {
       return Promise.resolve({
         streams: [
@@ -110,103 +101,91 @@ addon.defineStreamHandler(function(args) {
   return Promise.resolve({ streams: [] });
 });
 
-// Create Express app
 const app = express();
 
-// Video proxy for Google Drive direct download
-app.get('/stream-proxy', function(req, res) {
-  var fileId = req.query.id || '';
-  if (!fileId) {
-    res.status(400).send('Missing file ID');
-    return;
-  }
+// Video proxy for Google Drive with auto-confirmation for large files
+app.get('/stream-proxy', async function(req, res) {
+  const fileId = req.query.id;
+  if (!fileId) return res.status(400).send('Missing file ID');
 
-  var options = {
-    hostname: 'drive.google.com',
+  const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
+  try {
+    // 1. Get the initial page to get the confirmation token if needed
+    const driveUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+    
+    https.get(driveUrl, { headers: { 'User-Agent': userAgent } }, (driveRes) => {
+      let body = '';
+      driveRes.on('data', chunk => body += chunk);
+      driveRes.on('end', () => {
+        // If Google Drive returns a 303/302 redirect
+        if (driveRes.statusCode === 303 || driveRes.statusCode === 302) {
+          const location = driveRes.headers.location;
+          handleFinalRedirect(location, req, res, userAgent);
+          return;
+        }
+
+        // Check for confirmation token in the HTML (for large files)
+        const confirmMatch = body.match(/confirm=([a-zA-Z0-9_]+)/);
+        const confirmToken = confirmMatch ? confirmMatch[1] : '';
+        
+        if (confirmToken) {
+          const finalUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=download&confirm=${confirmToken}`;
+          handleFinalRedirect(finalUrl, req, res, userAgent);
+        } else {
+          // If no token, maybe it's a small file or something went wrong
+          // Try direct download anyway
+          const finalUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=download`;
+          handleFinalRedirect(finalUrl, req, res, userAgent);
+        }
+      });
+    }).on('error', err => {
+      res.status(500).send('Proxy error: ' + err.message);
+    });
+  } catch (e) {
+    res.status(500).send('Internal error: ' + e.message);
+  }
+});
+
+function handleFinalRedirect(url, req, res, userAgent) {
+  const urlObj = new URL(url);
+  const options = {
+    hostname: urlObj.hostname,
     port: 443,
-    path: '/uc?export=download&id=' + fileId,
+    path: urlObj.pathname + urlObj.search,
     method: 'GET',
     headers: {
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
-      'Accept': 'video/*,*/*;q=0.8',
-      'Accept-Encoding': 'identity',
-      'Connection': 'keep-alive'
+      'User-Agent': userAgent,
+      'Range': req.headers.range || 'bytes=0-'
     }
   };
 
-  if (req.headers.range) {
-    options.headers['Range'] = req.headers.range;
-  }
-
-  var reqObj = https.get(options, function(proxyRes) {
+  https.get(options, (proxyRes) => {
+    // If it redirects again (common for Google Drive)
     if (proxyRes.statusCode === 302 || proxyRes.statusCode === 301) {
-      var redirectUrl = proxyRes.headers['location'];
-      if (redirectUrl) {
-        var redirectUrlObj = new URL(redirectUrl);
-        var redirectOptions = {
-          hostname: redirectUrlObj.hostname,
-          port: redirectUrlObj.port || 443,
-          path: redirectUrlObj.pathname + redirectUrlObj.search,
-          method: 'GET',
-          headers: {
-            'User-Agent': options.headers['User-Agent'],
-            'Accept': 'video/*,*/*;q=0.8',
-            'Accept-Encoding': 'identity',
-            'Connection': 'keep-alive',
-            'Range': req.headers.range || 'bytes=0-'
-          }
-        };
-        var redirectProtocol = redirectUrlObj.protocol === 'https:' ? https : http;
-        redirectProtocol.get(redirectOptions, function(redirectRes) {
-          streamVideo(redirectRes, res);
-        }).on('error', function(e) {
-          console.error('Redirect error:', e.message);
-          res.status(502).send('Redirect failed: ' + e.message);
-        });
-        return;
-      }
-    }
-
-    if (proxyRes.statusCode === 200 || proxyRes.statusCode === 206) {
-      streamVideo(proxyRes, res);
+      handleFinalRedirect(proxyRes.headers.location, req, res, userAgent);
       return;
     }
 
-    res.status(proxyRes.statusCode || 502).send('Video unavailable (' + proxyRes.statusCode + ')');
-  });
-
-  reqObj.on('error', function(e) {
-    console.error('Proxy error:', e.message);
-    res.status(502).send('Bad Gateway: ' + e.message);
-  });
-  reqObj.setTimeout(120000, function() {
-    reqObj.destroy();
-    res.status(504).send('Gateway timeout');
-  });
-});
-
-function streamVideo(proxyRes, res) {
-  var headers = {};
-  for (var key in proxyRes.headers) {
-    if (key !== 'transfer-encoding' && key !== 'connection' && key !== 'set-cookie') {
-      headers[key] = proxyRes.headers[key];
+    // Set headers and pipe the video stream
+    const headers = {};
+    for (const key in proxyRes.headers) {
+      if (!['transfer-encoding', 'connection', 'set-cookie', 'content-security-policy'].includes(key)) {
+        headers[key] = proxyRes.headers[key];
+      }
     }
-  }
-  headers['Access-Control-Allow-Origin'] = '*';
-  headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS';
-  headers['Access-Control-Allow-Headers'] = 'Range, Accept, Content-Type';
-  headers['Access-Control-Expose-Headers'] = 'Content-Range, Content-Length, Accept-Ranges, Content-Type';
-  headers['Accept-Ranges'] = 'bytes';
-  res.writeHead(proxyRes.statusCode, headers);
-  proxyRes.pipe(res);
+    headers['Access-Control-Allow-Origin'] = '*';
+    res.writeHead(proxyRes.statusCode, headers);
+    proxyRes.pipe(res);
+  }).on('error', err => {
+    res.status(500).send('Stream error: ' + err.message);
+  });
 }
 
-// Mount addon router
 const addonRouter = getRouter(addon.getInterface());
 app.use('/', addonRouter);
 
 const PORT = process.env.PORT || 7000;
-app.listen(PORT, function() {
+app.listen(PORT, () => {
   console.log('Tiger Mask Arabic Addon running on port ' + PORT);
-  console.log('Manifest: http://localhost:' + PORT + '/manifest.json');
 });
