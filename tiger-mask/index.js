@@ -280,6 +280,34 @@ function metaHandler(args) {
         }
       });
     }
+    // Also handle per-episode meta requests (Vidi compatibility)
+    const prefix = show.prefix + '-S';
+    if (args.id.startsWith(prefix)) {
+      const match = args.id.match(/S(\d+)E(\d+)/);
+      if (match) {
+        const epNum = parseInt(match[2]);
+        if (show.allEpisodes.includes(epNum)) {
+          return Promise.resolve({
+            meta: {
+              id: args.id,
+              type: 'series',
+              name: show.name,
+              poster: show.poster,
+              description: show.epMetaNamePrefix + epNum,
+              genres: show.metaInfo.genres,
+              language: show.metaInfo.language,
+              videos: [{
+                id: args.id,
+                title: show.epNamePrefix + epNum,
+                season: 1,
+                number: epNum,
+                released: new Date().toISOString()
+              }]
+            }
+          });
+        }
+      }
+    }
   }
   return Promise.resolve({ meta: null });
 }
