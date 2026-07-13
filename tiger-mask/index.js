@@ -150,7 +150,7 @@ async function getFilesRecursive(folderId) {
 
 function buildMeta(show) {
   return {
-    id: show.prefix,
+    id: 'cartoon-ar:' + show.prefix,
     type: 'series',
     name: show.name,
     poster: show.poster,
@@ -160,7 +160,7 @@ function buildMeta(show) {
     genres: show.metaInfo.genres,
     year: 2024,
     videos: show.allEpisodes.map(epNum => ({
-      id: show.prefix + ':' + epNum,
+      id: 'cartoon-ar:' + show.prefix + ':' + epNum,
       title: show.name + ' - الحلقة ' + epNum,
       episode: epNum,
       season: 1,
@@ -243,7 +243,7 @@ function buildAddon() {
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'Arabic Cartoons Drive',
-    version: '10.0.0',
+    version: '10.1.0',
     description: `Arabic dubbed cartoons from Google Drive - ${showKeys.length} shows`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
@@ -258,7 +258,7 @@ function buildAddon() {
         ]
       }
     ],
-    idPrefixes: ['cartoon-ar']
+    idPrefixes: ['cartoon-ar', 'tomjerry', 'conan', 'zorro', 'fosha', 'tiger-mask', 'pokemon', 'timon-pumbaa', 'global-tales', 'sasuke', 'sinbad', 'my-story', 'duck-tales', 'lilo-stitch', 'maruko', 'mowgli']
   });
   addon.defineCatalogHandler(catalogHandler);
   addon.defineMetaHandler(metaHandler);
@@ -279,7 +279,10 @@ function metaHandler(args) {
   if (!addon || args.type !== 'series') return Promise.resolve({ meta: null });
   for (const key of showKeys) {
     const show = SHOWS[key];
-    if (args.id === key) {
+    // Match both cartoon-ar:key and plain key
+    const plainMatch = args.id === key;
+    const prefixedMatch = args.id === 'cartoon-ar:' + key;
+    if (plainMatch || prefixedMatch) {
       return Promise.resolve({ meta: buildMeta(show) });
     }
   }
@@ -496,7 +499,7 @@ app.use('/', function(req, res, next) {
 
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, async () => {
-  console.log('Arabic Cartoons Addon v10.0.0 (Single catalog, full metas) running on port ' + PORT);
+  console.log('Arabic Cartoons Addon v10.1.0 (Fixed idPrefixes + meta IDs) running on port ' + PORT);
   console.log('Public URL: ' + PUBLIC_URL);
   console.log('Parent Folder: ' + PARENT_FOLDER_ID);
   console.log('Drive configured: ' + !!drive);
