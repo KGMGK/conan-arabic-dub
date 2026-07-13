@@ -6,8 +6,6 @@ const { URL } = require('url');
 
 const POSTER = 'https://m.media-amazon.com/images/M/MV5BNTY5ZjJiMzItNGJiZi00YjJmLWE3NTMtZjY5Mjc0NjY0MzNkXkEyXkFqcGc@._V1_SX300.jpg';
 const TOTAL_EPISODES = 33;
-const SERVICE_NAME = 'tiger-mask-arabic';
-const SEASON_NUM = 2;
 const PUBLIC_URL = process.env.PUBLIC_URL || 'https://tiger-mask-arabic.onrender.com';
 
 // Episode file IDs from Google Drive
@@ -17,12 +15,11 @@ const EPISODES = {
   // More episodes will be added as file IDs are provided
 };
 
-// Build the catalog
+// Build the catalog (matching Conan format - no extra field, type: movie)
 const CATALOG = {
-  type: 'series',
-  id: SERVICE_NAME + '-season-' + SEASON_NUM,
-  name: 'النمر المقنع الجزء الثاني',
-  extra: []
+  type: 'movie',
+  id: 'tiger-mask-season-2',
+  name: 'النمر المقنع - الجزء الثاني'
 };
 
 // Build metas for all episodes
@@ -30,8 +27,8 @@ function buildEpisodeMetas() {
   var metas = [];
   for (var i = 1; i <= TOTAL_EPISODES; i++) {
     metas.push({
-      id: SERVICE_NAME + '-' + i,
-      type: 'series',
+      id: 'tiger-mask-2-' + i,
+      type: 'movie',
       name: 'النمر المقنع مدبلج - الحلقة ' + i,
       poster: POSTER
     });
@@ -46,14 +43,14 @@ const addon = new addonBuilder({
   description: 'النمر المقنع (Tiger Mask II) مدبلج عربي - 33 حلقة',
   logo: POSTER,
   resources: ['catalog', 'meta', 'stream'],
-  types: ['series'],
+  types: ['movie'],
   catalogs: [CATALOG],
-  idPrefixes: ['tiger-mask-arabic-']
+  idPrefixes: ['tiger-mask']
 });
 
 // Catalog handler
 addon.defineCatalogHandler(function(args) {
-  if (args.type === 'series' && args.id === SERVICE_NAME + '-season-' + SEASON_NUM) {
+  if (args.type === 'movie' && args.id === 'tiger-mask-season-2') {
     return Promise.resolve({ metas: buildEpisodeMetas() });
   }
   return Promise.resolve({ metas: [] });
@@ -61,19 +58,18 @@ addon.defineCatalogHandler(function(args) {
 
 // Meta handler
 addon.defineMetaHandler(function(args) {
-  if (args.type === 'series' && args.id.startsWith(SERVICE_NAME + '-')) {
+  if (args.type === 'movie' && args.id.startsWith('tiger-mask-')) {
     var parts = args.id.split('-');
-    var epNum = parseInt(parts[parts.length - 1], 10);
-    if (epNum >= 1 && epNum <= TOTAL_EPISODES) {
+    var seasonNum = parseInt(parts[1], 10);
+    var episodeNum = parseInt(parts[2], 10);
+    if (seasonNum === 2 && episodeNum >= 1 && episodeNum <= TOTAL_EPISODES) {
       return Promise.resolve({
         meta: {
           id: args.id,
-          type: 'series',
-          name: 'النمر المقنع مدبلج - الحلقة ' + epNum,
+          type: 'movie',
+          name: 'النمر المقنع مدبلج - الحلقة ' + episodeNum,
           poster: POSTER,
-          description: 'النمر المقنع (Tiger Mask II) - الجزء الثاني مدبلج عربي - الحلقة ' + epNum,
-          releaseInfo: 'الحلقة ' + epNum,
-          year: 1981
+          description: 'النمر المقنع (Tiger Mask II) - الجزء الثاني مدبلج عربي - الحلقة ' + episodeNum
         }
       });
     }
@@ -83,27 +79,27 @@ addon.defineMetaHandler(function(args) {
 
 // Stream handler - uses Google Drive direct download URL with proxy
 addon.defineStreamHandler(function(args) {
-  if (args.type === 'series' && args.id.startsWith(SERVICE_NAME + '-')) {
+  if (args.type === 'movie' && args.id.startsWith('tiger-mask-')) {
     var parts = args.id.split('-');
-    var epNum = parseInt(parts[parts.length - 1], 10);
-    var fileId = EPISODES[epNum];
-    if (epNum >= 1 && epNum <= TOTAL_EPISODES && fileId) {
+    var episodeNum = parseInt(parts[2], 10);
+    var fileId = EPISODES[episodeNum];
+    if (episodeNum >= 1 && episodeNum <= TOTAL_EPISODES && fileId) {
       var proxyUrl = PUBLIC_URL + '/stream-proxy?id=' + fileId;
       return Promise.resolve({
         streams: [
           {
-            title: 'النمر المقنع مدبلج - الحلقة ' + epNum + ' (Google Drive)',
+            title: 'النمر المقنع مدبلج - الحلقة ' + episodeNum + ' (Google Drive)',
             url: proxyUrl
           }
         ]
       });
     }
     // Episode exists but no file ID yet
-    if (epNum >= 1 && epNum <= TOTAL_EPISODES) {
+    if (episodeNum >= 1 && episodeNum <= TOTAL_EPISODES) {
       return Promise.resolve({
         streams: [
           {
-            name: 'النمر المقنع - الحلقة ' + epNum,
+            name: 'النمر المقنع - الحلقة ' + episodeNum,
             description: 'لم يتم إضافة رابط الفيديو لهذه الحلقة بعد',
             externalUrl: 'https://drive.google.com/'
           }
@@ -125,9 +121,6 @@ app.get('/stream-proxy', function(req, res) {
     return;
   }
 
-  // Google Drive direct download URL
-  var driveUrl = 'https://drive.google.com/uc?export=download&id=' + fileId;
-  
   var options = {
     hostname: 'drive.google.com',
     port: 443,
@@ -146,7 +139,6 @@ app.get('/stream-proxy', function(req, res) {
   }
 
   var reqObj = https.get(options, function(proxyRes) {
-    // Google Drive returns 302 redirect to actual file URL
     if (proxyRes.statusCode === 302 || proxyRes.statusCode === 301) {
       var redirectUrl = proxyRes.headers['location'];
       if (redirectUrl) {
@@ -177,59 +169,6 @@ app.get('/stream-proxy', function(req, res) {
 
     if (proxyRes.statusCode === 200 || proxyRes.statusCode === 206) {
       streamVideo(proxyRes, res);
-      return;
-    }
-
-    // Check if it's a Google Drive warning page (large file warning)
-    if (proxyRes.statusCode === 200) {
-      var body = '';
-      proxyRes.setEncoding('utf8');
-      proxyRes.on('data', function(chunk) { body += chunk; });
-      proxyRes.on('end', function() {
-        // Try to find download confirmation link
-        var confirmMatch = body.match(/href="([^"]*confirm[^"]*)"/);
-        if (confirmMatch) {
-          var confirmUrl = confirmMatch[1];
-          var confirmUrlObj = new URL(confirmUrl.startsWith('http') ? confirmUrl : 'https://drive.google.com' + confirmUrl);
-          var confirmOptions = {
-            hostname: confirmUrlObj.hostname,
-            port: confirmUrlObj.port || 443,
-            path: confirmUrlObj.pathname + confirmUrlObj.search,
-            method: 'GET',
-            headers: Object.assign({}, options.headers, {
-              'Cookie': proxyRes.headers['set-cookie'] ? proxyRes.headers['set-cookie'].split(';')[0] : ''
-            })
-          };
-          https.get(confirmOptions, function(confirmRes) {
-            if (confirmRes.statusCode === 302 || confirmRes.statusCode === 301) {
-              var fileUrl = confirmRes.headers['location'];
-              var fileUrlObj = new URL(fileUrl);
-              var fileOptions = {
-                hostname: fileUrlObj.hostname,
-                port: fileUrlObj.port || 443,
-                path: fileUrlObj.pathname + fileUrlObj.search,
-                method: 'GET',
-                headers: {
-                  'User-Agent': options.headers['User-Agent'],
-                  'Accept': 'video/*,*/*;q=0.8',
-                  'Range': req.headers.range || 'bytes=0-'
-                }
-              };
-              https.get(fileOptions, function(fileRes) {
-                streamVideo(fileRes, res);
-              }).on('error', function(e) {
-                res.status(502).send('File download failed: ' + e.message);
-              });
-            } else {
-              res.status(502).send('Download confirmation failed (' + confirmRes.statusCode + ')');
-            }
-          }).on('error', function(e) {
-            res.status(502).send('Confirmation error: ' + e.message);
-          });
-        } else {
-          res.status(502).send('Could not download from Google Drive (status: ' + proxyRes.statusCode + ')');
-        }
-      });
       return;
     }
 
