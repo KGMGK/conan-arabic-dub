@@ -275,8 +275,8 @@ function streamHandler(args) {
         const fileId = show.episodeMap[epNum];
         return Promise.resolve({
           streams: [{
-            title: show.name + ' - الحلقة ' + epNum + ' (Google Drive)',
-            url: PUBLIC_URL + '/stream-proxy?id=' + fileId
+            title: show.name + ' - الحلقة ' + epNum,
+            url: 'https://drive.google.com/uc?export=download&id=' + fileId
           }]
         });
       }
