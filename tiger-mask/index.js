@@ -26,21 +26,21 @@ if (GDRIVE_CREDENTIALS) {
 // === POSTER MAPPING ===
 // Map cartoon folder names to poster URLs
 const POSTER_MAP = {
-  'النمر المقنع': 'https://cdn.myanimelist.net/images/anime/8/71351.jpg',
-  'الفسحه': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/HtVxgjDfQaZqncBR.jpg',
-  'سندباد': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/HFoIUSVnyKHKLYxY.jpeg',
-  'Tom & Jerry': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/UMHUCkbXOyARLRTx.jpg',
-  '«كونان»': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/ConanPoster_placeholder.jpg',
-  'اسطورة زورو': '',
-  'بوكيمون': '',
-  'تيمون و بومبا': '',
-  'حكايات عالميه': '',
-  'ساسوكي': '',
-  'في جعبتي حكايه': '',
-  'قصص بطوطية': '',
-  'ليلو وستيتش': '',
-  'ماروكو': '',
-  'ماوكلي': ''
+  'النمر المقنع': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/LsuDmIaieeZCDhRi.jpg',
+  'الفسحه': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/qgVOcbhqDJjjzZZl.png',
+  'سندباد': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/yVqDPBalfuUdvGxD.jpg',
+  'Tom & Jerry': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/GnURlTivfXkzZHtg.jpg',
+  '«كونان»': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/euiWIKaqfflmdaJH.png',
+  'اسطورة زورو': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/RHnlhRTqksDuSZrQ.jpg',
+  'بوكيمون': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/MrCXyBcpoWZQDDGB.jpg',
+  'تيمون و بومبا': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/GLdtyEmfYSmdYVLP.jpg',
+  'حكايات عالميه': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/tuufXlZKldaVlwzo.jpg',
+  'ساسوكي': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/EXUPPIBVFXRcHnna.jpg',
+  'في جعبتي حكايه': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/rjYswUdsbNalKneX.png',
+  'قصص بطوطية': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/UYUdWpKrUyLVlZij.png',
+  'ليلو وستيتش': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/ViHccoocGpHJSasV.jpg',
+  'ماروكو': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/pBkyctjkdTschpzj.jpg',
+  'ماوكلي': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/vEcWBOqkTDaLKyfZ.jpg'
 };
 
 // Default poster for shows without a custom poster
