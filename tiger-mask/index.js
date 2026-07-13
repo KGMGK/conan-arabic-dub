@@ -60,8 +60,8 @@ addon.defineCatalogHandler(function(args) {
 addon.defineMetaHandler(function(args) {
   if (args.type === 'movie' && args.id.startsWith('tiger-mask-')) {
     var parts = args.id.split('-');
-    var seasonNum = parseInt(parts[1], 10);
-    var episodeNum = parseInt(parts[2], 10);
+    var seasonNum = parseInt(parts[parts.length - 2], 10);
+    var episodeNum = parseInt(parts[parts.length - 1], 10);
     if (seasonNum === 2 && episodeNum >= 1 && episodeNum <= TOTAL_EPISODES) {
       return Promise.resolve({
         meta: {
@@ -81,7 +81,7 @@ addon.defineMetaHandler(function(args) {
 addon.defineStreamHandler(function(args) {
   if (args.type === 'movie' && args.id.startsWith('tiger-mask-')) {
     var parts = args.id.split('-');
-    var episodeNum = parseInt(parts[2], 10);
+    var episodeNum = parseInt(parts[parts.length - 1], 10);
     var fileId = EPISODES[episodeNum];
     if (episodeNum >= 1 && episodeNum <= TOTAL_EPISODES && fileId) {
       var proxyUrl = PUBLIC_URL + '/stream-proxy?id=' + fileId;
