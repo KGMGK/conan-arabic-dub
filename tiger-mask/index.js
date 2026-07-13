@@ -28,6 +28,7 @@ const POSTER_MAP = {
   'سندباد': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/yVqDPBalfuUdvGxD.jpg',
   'Tom & Jerry': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/GnURlTivfXkzZHtg.jpg',
   'كونان': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/euiWIKaqfflmdaJH.png',
+  '«كونان»': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/euiWIKaqfflmdaJH.png',
   'اسطورة زورو': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/RHnlhRTqksDuSZrQ.jpg',
   'بوكيمون': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/MrCXyBcpoWZQDDGB.jpg',
   'تيمون و بومبا': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/GLdtyEmfYSmdYVLP.jpg',
@@ -49,6 +50,7 @@ const SHOW_META = {
   'سندباد': { description: 'سندباد هو مسلسل كرتوني مغامرات يروي قصص البحار سندباد.', genres: ['Animation', 'Adventure'] },
   'Tom & Jerry': { description: 'توم وجيري هو مسلسل كرتوني كوميدي كلاسيكي عن القط والفأر.', genres: ['Animation', 'Comedy', 'Family'] },
   'كونان': { description: 'المحقق كونان هو أنمي ياباني يتابع تحقيقات المحقق الصغير.', genres: ['Animation', 'Mystery', 'Thriller'] },
+  '«كونان»': { description: 'المحقق كونان هو أنمي ياباني يتابع تحقيقات المحقق الصغير.', genres: ['Animation', 'Mystery', 'Thriller'] },
   'اسطورة زورو': { description: 'اسطورة زورو هو مسلسل يروي مغامرات البطل المقنع زورو.', genres: ['Animation', 'Action', 'Adventure'] },
   'بوكيمون': { description: 'بوكيمون هو أنمي شهير يتابع مغامرات أش وأصدقائه في عالم البوكيمون.', genres: ['Animation', 'Adventure', 'Fantasy'] },
   'تيمون و بومبا': { description: 'تيمون وبومبا هو مسلسل كرتوني ديزني عن مغامرات الثنائي الشهير.', genres: ['Animation', 'Comedy', 'Family'] },
@@ -83,6 +85,7 @@ const ARABIC_TO_ASCII = {
   'سندباد': 'sinbad',
   'Tom & Jerry': 'tomjerry',
   'كونان': 'conan',
+  '«كونان»': 'conan',
   'اسطورة زورو': 'zorro',
   'بوكيمون': 'pokemon',
   'تيمون و بومبا': 'timon-pumbaa',
@@ -199,6 +202,13 @@ async function discoverShows() {
       };
       showKeys.push(key);
       console.log(`  ✅ Key: ${key}, Episodes: ${sortedEps.length}`);
+    }
+    // Normalize key to conan if it's kwnan (guillemet issue)
+    if ('kwnan' in SHOWS) {
+      SHOWS['conan'] = SHOWS['kwnan'];
+      delete SHOWS['kwnan'];
+      showKeys = showKeys.map(k => k === 'kwnan' ? 'conan' : k);
+      console.log('  🔧 Normalized kwnan -> conan');
     }
     console.log(`\n=== Discovery complete: ${showKeys.length} shows found ===`);
   } catch (err) {
