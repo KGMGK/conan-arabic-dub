@@ -77,10 +77,40 @@ function extractEpisodeNumber(name) {
   return null;
 }
 
+// ASCII-only transliteration map for Arabic cartoon names
+const ARABIC_TO_ASCII = {
+  'النمر المقنع': 'tiger-mask',
+  'الفسحه': 'fosha',
+  'سندباد': 'sinbad',
+  'Tom & Jerry': 'tomjerry',
+  '«كونان»': 'conan',
+  'اسطورة زورو': 'zorro',
+  'بوكيمون': 'pokemon',
+  'تيمون و بومبا': 'timon-pumbaa',
+  'حكايات عالميه': 'global-tales',
+  'ساسوكي': 'sasuke',
+  'في جعبتي حكايه': 'my-story',
+  'قصص بطوطية': 'duck-tales',
+  'ليلو وستيتش': 'lilo-stitch',
+  'ماروكو': 'maruko',
+  'ماوكلي': 'mowgli'
+};
+
 function createShowKey(name) {
+  // First try exact match in transliteration map
+  if (ARABIC_TO_ASCII[name]) return ARABIC_TO_ASCII[name];
+  // Fallback: transliterate Arabic to ASCII
   return name.toLowerCase()
     .replace(/[\s\-«»]/g, '')
-    .replace(/[^a-z0-9\u0600-\u06FF]/g, '');
+    .replace(/[\u0627]/g, 'a').replace(/[\u0628]/g, 'b').replace(/[\u062a\u062b]/g, 't')
+    .replace(/[\u062c\u062d\u062e]/g, 'j').replace(/[\u062f\u0630]/g, 'd')
+    .replace(/[\u0631\u0632\u0633\u0634]/g, 's').replace(/[\u0635\u0636\u0637\u0638]/g, 'z')
+    .replace(/[\u0639]/g, 'a').replace(/[\u063a\u0641]/g, 'f')
+    .replace(/[\u0642\u0643]/g, 'k').replace(/[\u0644]/g, 'l')
+    .replace(/[\u0645]/g, 'm').replace(/[\u0646]/g, 'n')
+    .replace(/[\u0647\u0629]/g, 'h').replace(/[\u0648]/g, 'w')
+    .replace(/[\u064a\u0649]/g, 'y').replace(/[\u0621]/g, 'a')
+    .replace(/[^a-z0-9]/g, '');
 }
 
 // === DYNAMIC SHOWS ===
