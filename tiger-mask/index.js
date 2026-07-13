@@ -63,6 +63,19 @@ const SHOWS = {
     epMetaNamePrefix: 'كرتون سنداد (Sinbad) مدبلج عربي - الحلقة ',
     maxEpisodes: 52,
     namePattern: /^(\d+)(?:\.mp4)?$/
+  },
+  'tomjerry': {
+    name: 'توم وجيري - مدبلج',
+    description: 'كرتون توم وجيري (Tom & Jerry) كلاسيكي - 73 حلقة',
+    folderId: process.env.TOMJERRY_FOLDER_ID || '16TmBd_17J2sAgxL7CQcQXPKLw4aFnNig',
+    poster: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/UMHUCkbXOyARLRTx.jpg',
+    prefix: 'tomjerry',
+    catalogId: 'tomjerry-classic',
+    catalogName: 'توم وجيري - كلاسيكي',
+    epNamePrefix: 'توم وجيري - الحلقة ',
+    epMetaNamePrefix: 'كرتون توم وجيري (Tom & Jerry) كلاسيكي - الحلقة ',
+    maxEpisodes: 73,
+    namePattern: /^(\d+)(?:\s|$)/
   }
 };
 
@@ -161,8 +174,8 @@ for (const key of Object.keys(SHOWS)) {
 const addon = new addonBuilder({
   id: 'local.network.arabic.cartoons',
   name: 'كرتون دريف - مدبلج',
-  version: '2.0.0',
-  description: 'كرتون عربي مدبلج من Google Drive - النمر المقنع، الفسحة، سنداد',
+  version: '3.0.0',
+  description: 'كرتون عربي مدبلج من Google Drive - النمر المقنع، الفسحة، سنداد، توم وجيري',
   logo: SHOWS['tiger-mask'].poster,
   resources: ['catalog', 'meta', 'stream'],
   types: ['movie'],
