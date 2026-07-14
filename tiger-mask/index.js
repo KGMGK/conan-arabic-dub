@@ -257,6 +257,7 @@ let discoveryDone = false;
 async function getFilesRecursive(folderId) {
   let files = [];
   try {
+    // Get direct video files
     const response = await drive.files.list({
       q: `'${folderId}' in parents and mimeType = 'video/mp4' and trashed = false`,
       fields: 'files(id, name, mimeType, size)',
@@ -265,6 +266,20 @@ async function getFilesRecursive(folderId) {
       pageSize: 500
     });
     files = response.data.files || [];
+    
+    // Also get shortcuts (which may point to video files)
+    const shortcutResponse = await drive.files.list({
+      q: `'${folderId}' in parents and mimeType = 'application/vnd.google-apps.shortcut' and trashed = false`,
+      fields: 'files(id, name, shortcutDetails)',
+      supportsAllDrives: true,
+      pageSize: 500
+    });
+    const shortcuts = shortcutResponse.data.files || [];
+    for (const sc of shortcuts) {
+      if (sc.shortcutDetails && sc.shortcutDetails.targetMimeType === 'video/mp4') {
+        files.push({ id: sc.shortcutDetails.targetId, name: sc.name, mimeType: 'video/mp4' });
+      }
+    }
   } catch (err) {
     console.error(`  Error getting files from ${folderId}:`, err.message);
   }
@@ -448,7 +463,7 @@ function buildAddon() {
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - Arabic Cartoons',
-    version: '11.0.2',
+    version: '11.0.3',
     description: `كرتون عربي مدبلج - ${showKeys.length} مسلسل + ${movieKeys.length} سلسلة أفلام`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
@@ -752,7 +767,7 @@ function handleStreamResponse(proxyRes, req, res) {
 }
 
 app.get('/health', function(req, res) {
-  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, moviesFolderId: MOVIES_FOLDER_ID, version: '11.0.2', shows: {}, movies: {} };
+  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, moviesFolderId: MOVIES_FOLDER_ID, version: '11.0.3', shows: {}, movies: {} };
   for (const key of showKeys) {
     const show = SHOWS[key];
     healthData.shows[key] = { name: show.name, folderId: show.folderId, episodesLoaded: show.totalEpisodes };
