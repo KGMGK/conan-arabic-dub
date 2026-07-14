@@ -5,6 +5,7 @@ const https = require('https');
 
 const PUBLIC_URL = process.env.PUBLIC_URL || 'https://tiger-mask-arabic.onrender.com';
 const PARENT_FOLDER_ID = process.env.PARENT_FOLDER_ID || '12GroFa_NyHSsJIqsCWcJEcGdCcZrkfvB';
+const MOVIES_FOLDER_ID = process.env.MOVIES_FOLDER_ID || '1BlJ7emrognT9blypmui7oyQL_0BIhsgN';
 
 const GDRIVE_CREDENTIALS = process.env.GDRIVE_CREDENTIALS
   ? JSON.parse(process.env.GDRIVE_CREDENTIALS)
@@ -40,6 +41,36 @@ const POSTER_MAP = {
   'ماوكلي': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/vEcWBOqkTDaLKyfZ.jpg'
 };
 
+// Movie poster mapping (Arabic folder name -> poster URL)
+const MOVIE_POSTER_MAP = {
+  '101 Dalmatians': 'https://image.tmdb.org/t/p/w500/dalmatians.jpg',
+  'Angry Birds': 'https://image.tmdb.org/t/p/w500/angrybirds.jpg',
+  'Despicable Me': 'https://image.tmdb.org/t/p/w500/despicableme.jpg',
+  'Finding Nemo': 'https://image.tmdb.org/t/p/w500/findingnemo.jpg',
+  'Frozen': 'https://image.tmdb.org/t/p/w500/frozen.jpg',
+  'Inside Out': 'https://image.tmdb.org/t/p/w500/insideout.jpg',
+  'Kung Fu Panda': 'https://image.tmdb.org/t/p/w500/kungfupanda.jpg',
+  'Lilo & Stitch': 'https://image.tmdb.org/t/p/w500/lilostitch.jpg',
+  'Minions': 'https://image.tmdb.org/t/p/w500/minions.jpg',
+  'Puss In Boots': 'https://image.tmdb.org/t/p/w500/pussinboots.jpg',
+  'Super Mario': 'https://image.tmdb.org/t/p/w500/supermario.jpg',
+  'Toy Story': 'https://image.tmdb.org/t/p/w500/toystory.jpg',
+  'Zootopia': 'https://image.tmdb.org/t/p/w500/zootopia.jpg',
+  'أطلانتس': 'https://image.tmdb.org/t/p/w500/atlantis.jpg',
+  'الأسد الملك': 'https://image.tmdb.org/t/p/w500/lionking.jpg',
+  'الخارقين': 'https://image.tmdb.org/t/p/w500/incredibles.jpg',
+  'السنافر': 'https://image.tmdb.org/t/p/w500/smurfs.jpg',
+  'حياة الإمبراطور الجديدة': 'https://image.tmdb.org/t/p/w500/emperorsgroove.jpg',
+  'سندريلا': 'https://image.tmdb.org/t/p/w500/cinderella.jpg',
+  'شركة المرعبين المحدودة': 'https://image.tmdb.org/t/p/w500/monstersinc.jpg',
+  'طرزان': 'https://image.tmdb.org/t/p/w500/tarzan.jpg',
+  'علاء الدين': 'https://image.tmdb.org/t/p/w500/aladdin.jpg',
+  'كيف تدرب التنين': 'https://image.tmdb.org/t/p/w500/howtotrainyourdragon.jpg',
+  'مدغشقر': 'https://image.tmdb.org/t/p/w500/madagascar.jpg',
+  'موانا': 'https://image.tmdb.org/t/p/w500/moana.jpg',
+  'مولان': 'https://image.tmdb.org/t/p/w500/mulan.jpg'
+};
+
 const DEFAULT_POSTER = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/GnURlTivfXkzZHtg.jpg';
 
 // === SHOW META INFO ===
@@ -59,7 +90,98 @@ const SHOW_META = {
   'قصص بطوطية': { description: 'قصص بطوطية هي مسلسل ديزني يحكي مغامرات بطوط.', genres: ['Animation', 'Comedy', 'Family'] },
   'ليلو وستيتش': { description: 'ليلو وستيتش هو مسلسل ديزني عن فتاة هاوايية وصديقها ستيتش.', genres: ['Animation', 'Comedy', 'Family'] },
   'ماروكو': { description: 'تشيبى ماروكو-تشان هو أنمي ياباني كوميدي عن حياة الطفلة ماروكو.', genres: ['Animation', 'Comedy'] },
-  'ماوكلي': { description: 'ماوكلي هو أنمي مستوحى من كتاب الأدغال عن فتى نشأ بين الحيوانات.', genres: ['Animation', 'Adventure', 'Family'] }
+  'ماوكلي': { description: 'ماوكلي هو أنمي مستوحى من كتاب الأدغال عن فتى نشأ بين الحيوانات.', genres: ['Animation', 'Adventure', 'Family'] },
+  'فلونه': { description: 'فلونة هو مسلسل أنمي ياباني يحكي قصة عائلة روبنسون السويسرية في جزيرة نائية.', genres: ['Animation', 'Adventure', 'Family'] }
+};
+
+// Movie meta info
+const MOVIE_META = {
+  '101 Dalmatians': { description: 'سلسلة أفلام 101 كلب مرقش', genres: ['Animation', 'Family', 'Adventure'] },
+  'Angry Birds': { description: 'سلسلة أفلام الطيور الغاضبة', genres: ['Animation', 'Comedy', 'Adventure'] },
+  'Despicable Me': { description: 'سلسلة أفلام غرو والمينيونز', genres: ['Animation', 'Comedy', 'Family'] },
+  'Finding Nemo': { description: 'سلسلة أفلام نيمو ودوري', genres: ['Animation', 'Adventure', 'Family'] },
+  'Frozen': { description: 'سلسلة أفلام فروزن - إلسا وآنا', genres: ['Animation', 'Fantasy', 'Musical'] },
+  'Inside Out': { description: 'سلسلة أفلام المشاعر الداخلية', genres: ['Animation', 'Comedy', 'Drama'] },
+  'Kung Fu Panda': { description: 'سلسلة أفلام الباندا المحارب بو', genres: ['Animation', 'Action', 'Comedy'] },
+  'Lilo & Stitch': { description: 'سلسلة أفلام ليلو وستيتش', genres: ['Animation', 'Comedy', 'Family'] },
+  'Minions': { description: 'سلسلة أفلام المينيونز', genres: ['Animation', 'Comedy', 'Adventure'] },
+  'Puss In Boots': { description: 'سلسلة أفلام القط المغامر', genres: ['Animation', 'Adventure', 'Comedy'] },
+  'Super Mario': { description: 'سلسلة أفلام سوبر ماريو', genres: ['Animation', 'Adventure', 'Comedy'] },
+  'Toy Story': { description: 'سلسلة أفلام حكاية لعبة - وودي وباز', genres: ['Animation', 'Adventure', 'Comedy'] },
+  'Zootopia': { description: 'سلسلة أفلام مدينة الحيوانات', genres: ['Animation', 'Adventure', 'Comedy'] },
+  'أطلانتس': { description: 'سلسلة أفلام أطلانتس المفقودة', genres: ['Animation', 'Adventure', 'Fantasy'] },
+  'الأسد الملك': { description: 'سلسلة أفلام الأسد الملك سيمبا', genres: ['Animation', 'Drama', 'Family'] },
+  'الخارقين': { description: 'سلسلة أفلام عائلة الأبطال الخارقين', genres: ['Animation', 'Action', 'Family'] },
+  'السنافر': { description: 'سلسلة أفلام السنافر', genres: ['Animation', 'Comedy', 'Family'] },
+  'حياة الإمبراطور الجديدة': { description: 'سلسلة أفلام حياة الإمبراطور الجديدة', genres: ['Animation', 'Comedy', 'Family'] },
+  'سندريلا': { description: 'سلسلة أفلام سندريلا', genres: ['Animation', 'Fantasy', 'Musical'] },
+  'شركة المرعبين المحدودة': { description: 'سلسلة أفلام شركة المرعبين المحدودة', genres: ['Animation', 'Comedy', 'Family'] },
+  'طرزان': { description: 'سلسلة أفلام طرزان', genres: ['Animation', 'Adventure', 'Family'] },
+  'علاء الدين': { description: 'سلسلة أفلام علاء الدين والمصباح السحري', genres: ['Animation', 'Fantasy', 'Musical'] },
+  'كيف تدرب التنين': { description: 'سلسلة أفلام كيف تدرب تنينك', genres: ['Animation', 'Adventure', 'Fantasy'] },
+  'مدغشقر': { description: 'سلسلة أفلام مدغشقر', genres: ['Animation', 'Comedy', 'Adventure'] },
+  'موانا': { description: 'سلسلة أفلام موانا', genres: ['Animation', 'Adventure', 'Musical'] },
+  'مولان': { description: 'سلسلة أفلام مولان المحاربة', genres: ['Animation', 'Action', 'Drama'] }
+};
+
+// Arabic movie name -> ASCII key mapping
+const MOVIE_ARABIC_TO_ASCII = {
+  '101 Dalmatians': 'dalmatians',
+  'Angry Birds': 'angry-birds',
+  'Despicable Me': 'despicable-me',
+  'Finding Nemo': 'finding-nemo',
+  'Frozen': 'frozen',
+  'Inside Out': 'inside-out',
+  'Kung Fu Panda': 'kung-fu-panda',
+  'Lilo & Stitch': 'lilo-stitch-movie',
+  'Minions': 'minions',
+  'Puss In Boots': 'puss-in-boots',
+  'Super Mario': 'super-mario',
+  'Toy Story': 'toy-story',
+  'Zootopia': 'zootopia',
+  'أطلانتس': 'atlantis',
+  'الأسد الملك': 'lion-king',
+  'الخارقين': 'incredibles',
+  'السنافر': 'smurfs',
+  'حياة الإمبراطور الجديدة': 'emperors-groove',
+  'سندريلا': 'cinderella',
+  'شركة المرعبين المحدودة': 'monsters-inc',
+  'طرزان': 'tarzan',
+  'علاء الدين': 'aladdin',
+  'كيف تدرب التنين': 'how-to-train-dragon',
+  'مدغشقر': 'madagascar',
+  'موانا': 'moana',
+  'مولان': 'mulan'
+};
+
+// Arabic display names for movies
+const MOVIE_ARABIC_NAMES = {
+  '101 Dalmatians': 'مئة مرقش ومرقش',
+  'Angry Birds': 'أنجري بيردز',
+  'Despicable Me': 'أنا الحقير',
+  'Finding Nemo': 'البحث عن نيمو',
+  'Frozen': 'ملكة الثلج',
+  'Inside Out': 'قلباً وقالباً',
+  'Kung Fu Panda': 'كونغ فو باندا',
+  'Lilo & Stitch': 'ليلو وستيتش - الأفلام',
+  'Minions': 'المينيونز',
+  'Puss In Boots': 'القط ذو الحذاء',
+  'Super Mario': 'سوبر ماريو',
+  'Toy Story': 'حكاية لعبة',
+  'Zootopia': 'زوتوبيا',
+  'أطلانتس': 'أطلانتس',
+  'الأسد الملك': 'الأسد الملك',
+  'الخارقين': 'الخارقون',
+  'السنافر': 'السنافر',
+  'حياة الإمبراطور الجديدة': 'حياة الإمبراطور',
+  'سندريلا': 'سندريلا',
+  'شركة المرعبين المحدودة': 'شركة المرعبين',
+  'طرزان': 'طرزان',
+  'علاء الدين': 'علاء الدين',
+  'كيف تدرب التنين': 'كيف تروض تنينك',
+  'مدغشقر': 'مدغشقر',
+  'موانا': 'موانا',
+  'مولان': 'مولان'
 };
 
 // === HELPERS ===
@@ -78,6 +200,16 @@ function extractEpisodeNumber(name) {
   return null;
 }
 
+// For movies: extract part number from filename
+function extractPartNumber(name) {
+  // Match patterns like "Part 1", "الجزء 1", "1.mp4", "فيلم 1", etc.
+  const partMatch = name.match(/(?:part|الجزء|جزء)\s*(\d+)/i);
+  if (partMatch) return parseInt(partMatch[1]);
+  const numMatch = name.match(/(\d+)/);
+  if (numMatch) return parseInt(numMatch[1]);
+  return 1; // Default to part 1 if only one file
+}
+
 const ARABIC_TO_ASCII = {
   'النمر المقنع': 'tiger-mask',
   'الفسحه': 'fosha',
@@ -94,11 +226,13 @@ const ARABIC_TO_ASCII = {
   'قصص بطوطية': 'duck-tales',
   'ليلو وستيتش': 'lilo-stitch',
   'ماروكو': 'maruko',
-  'ماوكلي': 'mowgli'
+  'ماوكلي': 'mowgli',
+  'فلونه': 'flona'
 };
 
 function createShowKey(name) {
   if (ARABIC_TO_ASCII[name]) return ARABIC_TO_ASCII[name];
+  if (MOVIE_ARABIC_TO_ASCII[name]) return MOVIE_ARABIC_TO_ASCII[name];
   return name.toLowerCase()
     .replace(/[\s\-«»]/g, '')
     .replace(/[\u0627]/g, 'a').replace(/[\u0628]/g, 'b').replace(/[\u062a\u062b]/g, 't')
@@ -112,9 +246,11 @@ function createShowKey(name) {
     .replace(/[^a-z0-9]/g, '');
 }
 
-// === DYNAMIC SHOWS ===
+// === DYNAMIC SHOWS & MOVIES ===
 const SHOWS = {};
+const MOVIES = {};
 let showKeys = [];
+let movieKeys = [];
 let discoveryDone = false;
 
 async function getFilesRecursive(folderId) {
@@ -148,7 +284,8 @@ async function getFilesRecursive(folderId) {
   return files;
 }
 
-function buildMeta(show) {
+function buildMeta(show, isMovie) {
+  const label = isMovie ? 'الجزء' : 'الحلقة';
   return {
     id: 'cartoon-ar:' + show.prefix,
     type: 'series',
@@ -161,7 +298,7 @@ function buildMeta(show) {
     year: 2024,
     videos: show.allEpisodes.map(epNum => ({
       id: 'cartoon-ar:' + show.prefix + ':' + epNum,
-      title: show.name + ' - الحلقة ' + epNum,
+      title: show.name + ' - ' + label + ' ' + epNum,
       episode: epNum,
       season: 1,
       released: new Date(2024, 0, 1).toISOString()
@@ -172,6 +309,8 @@ function buildMeta(show) {
 async function discoverShows() {
   if (discoveryDone || !drive) return;
   discoveryDone = true;
+  
+  // === Discover TV Series ===
   console.log(`=== Auto-discovering shows from parent folder: ${PARENT_FOLDER_ID} ===`);
   try {
     const response = await drive.files.list({
@@ -181,11 +320,11 @@ async function discoverShows() {
       supportsAllDrives: true
     });
     const folders = response.data.files || [];
-    console.log(`Found ${folders.length} subfolders`);
+    console.log(`Found ${folders.length} show subfolders`);
     for (const folder of folders) {
       const folderName = folder.name.trim();
       if (!folderName) continue;
-      console.log(`\n📁 Discovering: ${folderName}`);
+      console.log(`\n📁 Discovering show: ${folderName}`);
       const files = await getFilesRecursive(folder.id);
       console.log(`  Total files found: ${files.length}`);
       if (files.length === 0) {
@@ -230,9 +369,73 @@ async function discoverShows() {
       showKeys = showKeys.map(k => k === 'kwnan' ? 'conan' : k);
       console.log('  🔧 Normalized kwnan -> conan');
     }
-    console.log(`\n=== Discovery complete: ${showKeys.length} shows found ===`);
+    console.log(`\n=== Show discovery complete: ${showKeys.length} shows found ===`);
   } catch (err) {
-    console.error('Discovery error:', err.message);
+    console.error('Show discovery error:', err.message);
+  }
+
+  // === Discover Movies ===
+  console.log(`\n=== Auto-discovering movies from folder: ${MOVIES_FOLDER_ID} ===`);
+  try {
+    const response = await drive.files.list({
+      q: `'${MOVIES_FOLDER_ID}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+      fields: 'files(id, name, mimeType)',
+      orderBy: 'name',
+      supportsAllDrives: true
+    });
+    const folders = response.data.files || [];
+    console.log(`Found ${folders.length} movie subfolders`);
+    for (const folder of folders) {
+      const folderName = folder.name.trim();
+      if (!folderName) continue;
+      console.log(`\n🎬 Discovering movie: ${folderName}`);
+      const files = await getFilesRecursive(folder.id);
+      console.log(`  Total files found: ${files.length}`);
+      if (files.length === 0) {
+        console.log(`  Skipping empty folder`);
+        continue;
+      }
+      // For movies, each file is a "part" (جزء)
+      const episodeMap = {};
+      if (files.length === 1) {
+        // Single movie file = part 1
+        episodeMap[1] = files[0].id;
+      } else {
+        // Multiple files = multiple parts, sort by name/number
+        for (let i = 0; i < files.length; i++) {
+          const partNum = extractPartNumber(files[i].name);
+          if (!episodeMap[partNum]) {
+            episodeMap[partNum] = files[i].id;
+          } else {
+            // If duplicate part number, use index+1
+            episodeMap[i + 1] = files[i].id;
+          }
+        }
+      }
+      const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
+      const key = MOVIE_ARABIC_TO_ASCII[folderName] || createShowKey(folderName);
+      const displayName = MOVIE_ARABIC_NAMES[folderName] || folderName;
+      const poster = MOVIE_POSTER_MAP[folderName] || DEFAULT_POSTER;
+      const metaInfo = MOVIE_META[folderName] || {
+        description: `سلسلة أفلام ${folderName}`,
+        genres: ['Animation', 'Family']
+      };
+      MOVIES[key] = {
+        name: displayName,
+        folderId: folder.id,
+        poster: poster,
+        prefix: key,
+        metaInfo: metaInfo,
+        allEpisodes: sortedParts,
+        episodeMap: episodeMap,
+        totalEpisodes: sortedParts.length
+      };
+      movieKeys.push(key);
+      console.log(`  ✅ Key: ${key}, Parts: ${sortedParts.length}`);
+    }
+    console.log(`\n=== Movie discovery complete: ${movieKeys.length} movies found ===`);
+  } catch (err) {
+    console.error('Movie discovery error:', err.message);
   }
 }
 
@@ -240,25 +443,30 @@ async function discoverShows() {
 let addon = null;
 
 function buildAddon() {
+  const allPrefixes = ['cartoon-ar', ...showKeys, ...movieKeys];
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
-    name: 'Arabic Cartoons Drive',
-    version: '10.1.0',
-    description: `Arabic dubbed cartoons from Google Drive - ${showKeys.length} shows`,
+    name: 'كرتون دريف - Arabic Cartoons',
+    version: '11.0.0',
+    description: `كرتون عربي مدبلج - ${showKeys.length} مسلسل + ${movieKeys.length} سلسلة أفلام`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
     types: ['series'],
     catalogs: [
       {
         type: 'series',
-        id: 'cartoons',
-        name: 'كرتون عربي مدبلج',
-        extra: [
-          { name: 'skip', isRequired: false }
-        ]
+        id: 'cartoons_all',
+        name: 'الكل - المسلسلات',
+        extra: [{ name: 'skip', isRequired: false }]
+      },
+      {
+        type: 'series',
+        id: 'cartoons_movies',
+        name: 'أفلام كرتون',
+        extra: [{ name: 'skip', isRequired: false }]
       }
     ],
-    idPrefixes: ['cartoon-ar', 'tomjerry', 'conan', 'zorro', 'fosha', 'tiger-mask', 'pokemon', 'timon-pumbaa', 'global-tales', 'sasuke', 'sinbad', 'my-story', 'duck-tales', 'lilo-stitch', 'maruko', 'mowgli']
+    idPrefixes: allPrefixes
   });
   addon.defineCatalogHandler(catalogHandler);
   addon.defineMetaHandler(metaHandler);
@@ -268,22 +476,44 @@ function buildAddon() {
 // === CATALOG HANDLER ===
 function catalogHandler(args) {
   if (!addon) return Promise.resolve({ metas: [] });
-  if (args.id !== 'cartoons') return Promise.resolve({ metas: [] });
   const skip = args.extra && args.extra.skip ? parseInt(args.extra.skip) : 0;
-  const metas = showKeys.map(key => buildMeta(SHOWS[key]));
-  return Promise.resolve({ metas: metas.slice(skip, skip + 100) });
+  
+  if (args.id === 'cartoons_all') {
+    const metas = showKeys.map(key => buildMeta(SHOWS[key], false));
+    return Promise.resolve({ metas: metas.slice(skip, skip + 100) });
+  }
+  if (args.id === 'cartoons_movies') {
+    const metas = movieKeys.map(key => buildMeta(MOVIES[key], true));
+    return Promise.resolve({ metas: metas.slice(skip, skip + 100) });
+  }
+  // Legacy single catalog
+  if (args.id === 'cartoons') {
+    const metas = showKeys.map(key => buildMeta(SHOWS[key], false));
+    return Promise.resolve({ metas: metas.slice(skip, skip + 100) });
+  }
+  return Promise.resolve({ metas: [] });
 }
 
 // === META HANDLER ===
 function metaHandler(args) {
   if (!addon || args.type !== 'series') return Promise.resolve({ meta: null });
+  
+  // Check shows
   for (const key of showKeys) {
     const show = SHOWS[key];
-    // Match both cartoon-ar:key and plain key
     const plainMatch = args.id === key;
     const prefixedMatch = args.id === 'cartoon-ar:' + key;
     if (plainMatch || prefixedMatch) {
-      return Promise.resolve({ meta: buildMeta(show) });
+      return Promise.resolve({ meta: buildMeta(show, false) });
+    }
+  }
+  // Check movies
+  for (const key of movieKeys) {
+    const movie = MOVIES[key];
+    const plainMatch = args.id === key;
+    const prefixedMatch = args.id === 'cartoon-ar:' + key;
+    if (plainMatch || prefixedMatch) {
+      return Promise.resolve({ meta: buildMeta(movie, true) });
     }
   }
   return Promise.resolve({ meta: null });
@@ -292,7 +522,8 @@ function metaHandler(args) {
 // === STREAM HANDLER ===
 function streamHandler(args) {
   if (!addon) return Promise.resolve({ streams: [] });
-  // Try matching cartoon-ar:key:episode format
+  
+  // Check shows
   for (const key of showKeys) {
     const show = SHOWS[key];
     const prefix = 'cartoon-ar:' + key + ':';
@@ -308,7 +539,7 @@ function streamHandler(args) {
         });
       }
     }
-    // Also try matching key:episode format (for backwards compat)
+    // Backwards compat: key:episode
     if (args.id && args.id.startsWith(key + ':')) {
       const parts = args.id.split(':');
       if (parts.length >= 2) {
@@ -318,6 +549,39 @@ function streamHandler(args) {
           return Promise.resolve({
             streams: [{
               title: show.name + ' - الحلقة ' + epNum + ' (Google Drive)',
+              url: PUBLIC_URL + '/stream-proxy?id=' + fileId
+            }]
+          });
+        }
+      }
+    }
+  }
+  
+  // Check movies
+  for (const key of movieKeys) {
+    const movie = MOVIES[key];
+    const prefix = 'cartoon-ar:' + key + ':';
+    if (args.id && args.id.startsWith(prefix)) {
+      const partNum = parseInt(args.id.substring(prefix.length));
+      if (movie.episodeMap[partNum] && drive) {
+        const fileId = movie.episodeMap[partNum];
+        return Promise.resolve({
+          streams: [{
+            title: movie.name + ' - الجزء ' + partNum + ' (Google Drive)',
+            url: PUBLIC_URL + '/stream-proxy?id=' + fileId
+          }]
+        });
+      }
+    }
+    if (args.id && args.id.startsWith(key + ':')) {
+      const parts = args.id.split(':');
+      if (parts.length >= 2) {
+        const partNum = parseInt(parts[1]);
+        if (movie.episodeMap[partNum] && drive) {
+          const fileId = movie.episodeMap[partNum];
+          return Promise.resolve({
+            streams: [{
+              title: movie.name + ' - الجزء ' + partNum + ' (Google Drive)',
               url: PUBLIC_URL + '/stream-proxy?id=' + fileId
             }]
           });
@@ -360,6 +624,19 @@ function buildLandingPage() {
         </div>
       </div>`;
   }
+  let movieCards = '';
+  for (const key of movieKeys) {
+    const movie = MOVIES[key];
+    movieCards += `
+      <div class="show-card">
+        <img src="${movie.poster}" alt="${movie.name}" loading="lazy">
+        <div class="show-info">
+          <h3>${movie.name}</h3>
+          <p>${movie.totalEpisodes} أجزاء</p>
+          <p class="genre">${(movie.metaInfo.genres || []).join(' • ')}</p>
+        </div>
+      </div>`;
+  }
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -377,6 +654,7 @@ function buildLandingPage() {
     .addon-links a:hover { background: #c73e54; }
     .addon-links a.secondary { background: #16213e; border: 1px solid #e94560; }
     .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+    .section-title { font-size: 1.5em; color: #e94560; margin: 30px 0 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
     .shows-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
     .show-card { background: #1a1a2e; border-radius: 12px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; }
     .show-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(233,69,96,0.2); }
@@ -390,16 +668,19 @@ function buildLandingPage() {
 </head>
 <body>
   <div class="header">
-    <h1>🎬 كرتون دريف - مدبلج</h1>
-    <p>كرتون عربي مدبلج من Google Drive - ${showKeys.length} كارتون</p>
+    <h1>🎬 كرتون دريف</h1>
+    <p>كرتون عربي مدبلج - ${showKeys.length} مسلسل + ${movieKeys.length} سلسلة أفلام</p>
     <div class="addon-links">
       <a href="${PUBLIC_URL}/manifest.json" target="_blank">📺 إضافة لـ Stremio</a>
       <a href="vidi://${PUBLIC_URL.replace('https://', '')}/manifest.json" class="secondary">📱 إضافة لـ Vidi</a>
     </div>
   </div>
   <div class="container">
+    <h2 class="section-title">📺 المسلسلات (${showKeys.length})</h2>
     <div class="shows-grid">${showCards}</div>
-    <div class="stats">الإصدار: v10.0.0 | الكارتونات: ${showKeys.length}</div>
+    <h2 class="section-title">🎬 أفلام كرتون (${movieKeys.length})</h2>
+    <div class="shows-grid">${movieCards}</div>
+    <div class="stats">الإصدار: v11.0.0 | المسلسلات: ${showKeys.length} | الأفلام: ${movieKeys.length}</div>
   </div>
 </body>
 </html>`;
@@ -428,7 +709,6 @@ app.get('/stream-proxy', async function(req, res) {
   try {
     const client = await driveAuth.getClient();
     const accessToken = await client.getAccessToken();
-    const downloadUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
     const options = {
       hostname: 'www.googleapis.com',
       port: 443,
@@ -471,20 +751,27 @@ function handleStreamResponse(proxyRes, req, res) {
 }
 
 app.get('/health', function(req, res) {
-  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, version: '10.0.0', type: 'series', shows: {} };
+  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, moviesFolderId: MOVIES_FOLDER_ID, version: '11.0.0', shows: {}, movies: {} };
   for (const key of showKeys) {
     const show = SHOWS[key];
     healthData.shows[key] = { name: show.name, folderId: show.folderId, episodesLoaded: show.totalEpisodes };
+  }
+  for (const key of movieKeys) {
+    const movie = MOVIES[key];
+    healthData.movies[key] = { name: movie.name, folderId: movie.folderId, partsLoaded: movie.totalEpisodes };
   }
   res.json(healthData);
 });
 
 app.get('/discover', async function(req, res) {
   if (!drive) return res.status(500).send('Drive not configured');
-  discoveryDone = false; showKeys = []; Object.keys(SHOWS).forEach(k => delete SHOWS[k]);
+  discoveryDone = false; showKeys = []; movieKeys = [];
+  Object.keys(SHOWS).forEach(k => delete SHOWS[k]);
+  Object.keys(MOVIES).forEach(k => delete MOVIES[k]);
   await discoverShows(); buildAddon();
-  const result = {};
-  for (const key of showKeys) { const show = SHOWS[key]; result[key] = { name: show.name, episodes: show.totalEpisodes }; }
+  const result = { shows: {}, movies: {} };
+  for (const key of showKeys) { result.shows[key] = { name: SHOWS[key].name, episodes: SHOWS[key].totalEpisodes }; }
+  for (const key of movieKeys) { result.movies[key] = { name: MOVIES[key].name, parts: MOVIES[key].totalEpisodes }; }
   res.json(result);
 });
 
@@ -499,13 +786,14 @@ app.use('/', function(req, res, next) {
 
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, async () => {
-  console.log('Arabic Cartoons Addon v10.1.0 (Fixed idPrefixes + meta IDs) running on port ' + PORT);
+  console.log('كرتون دريف Addon v11.0.0 running on port ' + PORT);
   console.log('Public URL: ' + PUBLIC_URL);
-  console.log('Parent Folder: ' + PARENT_FOLDER_ID);
+  console.log('Shows Folder: ' + PARENT_FOLDER_ID);
+  console.log('Movies Folder: ' + MOVIES_FOLDER_ID);
   console.log('Drive configured: ' + !!drive);
   if (drive) {
     await discoverShows();
     buildAddon();
-    console.log(`Addon ready with ${showKeys.length} cartoons!`);
+    console.log(`Addon ready! ${showKeys.length} shows + ${movieKeys.length} movies`);
   }
 });
