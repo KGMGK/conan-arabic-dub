@@ -41,36 +41,36 @@ const POSTER_MAP = {
   'ماوكلي': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/vEcWBOqkTDaLKyfZ.jpg'
 };
 
-// Movie poster mapping (Arabic folder name -> poster URL)
-const MOVIE_POSTER_MAP = {
-  // Match by actual Google Drive folder names
-  'مئة مرقش ومرقش': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/sQRlrNuXxuBiXNcz.jpg',
-  'Angry birds': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/hixMBzqXTQceExFe.jpg',
-  'Despicable Me (E)': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/VYmWfFGzcttnOkiE.jpg',
-  'Finding (Nemo-Dory)': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/LcGFzPrSsZUiLSVj.jpg',
-  'Frozen (E)(ع)': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/pybxCWZohiNxCZMq.jpg',
-  'قلباً وقالباً': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/QNJJjoXlUtnMPxiy.jpg',
-  'Kung Fu Panda (E)(ع)': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/qPGfBjRRWLsCkbfZ.jpg',
-  'ليلو وستيتش - الأفلام': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/nUgDSjoVkYPoGnCy.jpg',
-  'المينيونز': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/yLqgxOjEZxjGzHRw.jpg',
-  'Puss in Boots': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/MuuiSQkNzFUhcizF.jpg',
-  'سوبر ماريو': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/SbQwTVCrLVwbmKDQ.jpg',
-  'Toys Story': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/cfIixtAuFWFDRvaZ.jpg',
-  'ZooTopia': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/JESmtSHlGuYQAPOo.jpg',
-  'اطلانطس': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/LwwDdXFpfyPuYvZn.jpg',
-  'الاسد الملك': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/fWroqombyHBordyd.jpg',
-  'الخارقون': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/gPRenXmGtrKtHXeD.jpg',
-  'السنافر': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/tFlaiyLcKVTZbOwC.jpg',
-  'حياة الامبراطور الجديده': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/QaLIpHCkGklxtuDr.jpg',
-  'سندريلا': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/TQqYnQsWDjgLKOeW.jpg',
-  'شركة المرعبين المحدوده': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/yvsGzumBxjvbeczl.jpg',
-  'طرزان': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/fnvDcLvPLQuuWRDe.jpg',
-  'علاء الدين': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/xtuVPLbFnuhspeoI.jpg',
-  'كيف تروض تنينك': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/IuxBMtFHZXNsumyl.jpg',
-  'مدغشقر': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/nNPfsMqjCFeIsHLz.jpg',
-  'موانا': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/ufmwEjtCJDIovOoP.jpg',
-  'مولان': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/dOTwEQPaqovmsMsn.jpg'
+// Movie poster mapping (by key -> poster URL)
+const MOVIE_POSTER_MAP_BY_KEY = {
+  'dalmatians': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/sQRlrNuXxuBiXNcz.jpg',
+  'angrybirds': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/hixMBzqXTQceExFe.jpg',
+  'despicablemee': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/VYmWfFGzcttnOkiE.jpg',
+  'findingnemodory': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/LcGFzPrSsZUiLSVj.jpg',
+  'frozenea': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/pybxCWZohiNxCZMq.jpg',
+  'inside-out': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/QNJJjoXlUtnMPxiy.jpg',
+  'kungfupandaea': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/qPGfBjRRWLsCkbfZ.jpg',
+  'lilo-stitch-movie': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/nUgDSjoVkYPoGnCy.jpg',
+  'minions': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/yLqgxOjEZxjGzHRw.jpg',
+  'pussinboots': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/MuuiSQkNzFUhcizF.jpg',
+  'super-mario': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/SbQwTVCrLVwbmKDQ.jpg',
+  'toysstory': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/cfIixtAuFWFDRvaZ.jpg',
+  'zootopia': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/JESmtSHlGuYQAPOo.jpg',
+  'azlanzs': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/LwwDdXFpfyPuYvZn.jpg',
+  'alasdalmlk': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/fWroqombyHBordyd.jpg',
+  'incredibles': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/gPRenXmGtrKtHXeD.jpg',
+  'smurfs': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/tFlaiyLcKVTZbOwC.jpg',
+  'jyahalambsazwsaljdydh': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/QaLIpHCkGklxtuDr.jpg',
+  'cinderella': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/TQqYnQsWDjgLKOeW.jpg',
+  'sskhalmsabynalmjdwdh': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/yvsGzumBxjvbeczl.jpg',
+  'tarzan': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/fnvDcLvPLQuuWRDe.jpg',
+  'aladdin': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/xtuVPLbFnuhspeoI.jpg',
+  'how-to-train-dragon': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/IuxBMtFHZXNsumyl.jpg',
+  'madagascar': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/nNPfsMqjCFeIsHLz.jpg',
+  'moana': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/ufmwEjtCJDIovOoP.jpg',
+  'mulan': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/dOTwEQPaqovmsMsn.jpg'
 };
+const MOVIE_POSTER_MAP = {};
 
 const DEFAULT_POSTER = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/GnURlTivfXkzZHtg.jpg';
 
@@ -416,7 +416,7 @@ async function discoverShows() {
       const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
       const key = MOVIE_ARABIC_TO_ASCII[folderName] || createShowKey(folderName);
       const displayName = MOVIE_ARABIC_NAMES[folderName] || folderName;
-      const poster = MOVIE_POSTER_MAP[folderName] || DEFAULT_POSTER;
+      const poster = MOVIE_POSTER_MAP_BY_KEY[key] || MOVIE_POSTER_MAP[folderName] || DEFAULT_POSTER;
       const metaInfo = MOVIE_META[folderName] || {
         description: `سلسلة أفلام ${folderName}`,
         genres: ['Animation', 'Family']
@@ -448,7 +448,7 @@ function buildAddon() {
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - Arabic Cartoons',
-    version: '11.0.0',
+    version: '11.0.2',
     description: `كرتون عربي مدبلج - ${showKeys.length} مسلسل + ${movieKeys.length} سلسلة أفلام`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
@@ -752,7 +752,7 @@ function handleStreamResponse(proxyRes, req, res) {
 }
 
 app.get('/health', function(req, res) {
-  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, moviesFolderId: MOVIES_FOLDER_ID, version: '11.0.0', shows: {}, movies: {} };
+  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, moviesFolderId: MOVIES_FOLDER_ID, version: '11.0.2', shows: {}, movies: {} };
   for (const key of showKeys) {
     const show = SHOWS[key];
     healthData.shows[key] = { name: show.name, folderId: show.folderId, episodesLoaded: show.totalEpisodes };
