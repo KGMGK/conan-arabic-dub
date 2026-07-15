@@ -33,11 +33,22 @@ const streamCache = new MemoryCache();   // Access tokens for stream proxy
 const STREAM_TTL = 50 * 60 * 1000;      // 50 minutes (tokens expire ~1hr)
 const catalogCache = new MemoryCache();  // Catalog responses
 const CATALOG_TTL = 30 * 60 * 1000;     // 30 minutes
+const posterCache = new MemoryCache();  // Poster image cache
 const metaCache = new MemoryCache();     // Meta responses
 const META_TTL = 30 * 60 * 1000;        // 30 minutes
 
 
 const PUBLIC_URL = process.env.PUBLIC_URL || 'https://tiger-mask-arabic.onrender.com';
+
+// Proxy poster URLs through our server to avoid CORS/hotlink issues
+function proxyPosterUrl(url) {
+  if (!url) return url;
+  // Don't proxy manuscdn URLs (they already work) or default poster
+  if (url.includes('manuscdn.com') || url === DEFAULT_POSTER) return url;
+  // Encode the URL in base64 and serve through our proxy
+  const encoded = Buffer.from(url).toString('base64url');
+  return PUBLIC_URL + '/poster/' + encoded;
+}
 const PARENT_FOLDER_ID = process.env.PARENT_FOLDER_ID || '12GroFa_NyHSsJIqsCWcJEcGdCcZrkfvB';
 const MOVIES_FOLDER_ID = process.env.MOVIES_FOLDER_ID || '1BlJ7emrognT9blypmui7oyQL_0BIhsgN';
 // New content folders
@@ -545,13 +556,14 @@ async function getFilesRecursive(folderId) {
 
 function buildMeta(show, isMovie) {
   const label = isMovie ? 'الجزء' : 'الحلقة';
+  const proxiedPoster = proxyPosterUrl(show.poster);
   return {
     id: 'cartoon-ar:' + show.prefix,
     type: 'series',
     name: show.name,
-    poster: show.poster,
-    background: show.poster,
-    logo: show.poster,
+    poster: proxiedPoster,
+    background: proxiedPoster,
+    logo: proxiedPoster,
     description: show.metaInfo.description,
     genres: show.metaInfo.genres,
     year: 2024,
@@ -568,13 +580,14 @@ function buildMeta(show, isMovie) {
 
 // Build meta for standalone movies (type: 'movie' for single-file, 'series' for multi-part)
 function buildMovieMeta(film) {
+  const proxiedPoster = proxyPosterUrl(film.poster);
   if (film.totalEpisodes === 1) {
     return {
       id: 'cartoon-ar:' + film.prefix,
       type: 'movie',
       name: film.name,
-      poster: film.poster,
-      background: film.poster,
+      poster: proxiedPoster,
+      background: proxiedPoster,
       description: film.metaInfo.description,
       genres: film.metaInfo.genres,
       year: 2024
@@ -585,8 +598,8 @@ function buildMovieMeta(film) {
     id: 'cartoon-ar:' + film.prefix,
     type: 'series',
     name: film.name,
-    poster: film.poster,
-    background: film.poster,
+    poster: proxiedPoster,
+    background: proxiedPoster,
     description: film.metaInfo.description,
     genres: film.metaInfo.genres,
     year: 2024,
@@ -1041,7 +1054,7 @@ function buildAddon() {
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - Arabic Cartoons & Movies',
-    version: '12.4.3',
+    version: '12.4.5',
     description: `كرتون عربي مدبلج - ${showKeys.length} مسلسل + ${movieKeys.length + cartoonFilmKeys.length} فلم كرتون + ${foreignFilmKeys.length} فلم أجنبي + ${arabicFilmKeys.length} فلم عربي`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
@@ -1338,6 +1351,41 @@ app.get('/stream/:fileId/play.mp4', async (req, res) => {
   }
 });
 
+// Poster image proxy endpoint (avoids CORS/hotlink issues with TMDB/IMDB)
+app.get('/poster/:encoded', async (req, res) => {
+  try {
+    const encoded = req.params.encoded;
+    const url = Buffer.from(encoded, 'base64url').toString('utf8');
+    if (!url.startsWith('http')) {
+      return res.status(400).send('Invalid URL');
+    }
+    const cached = posterCache.get(encoded);
+    if (cached) {
+      res.set('Content-Type', cached.contentType);
+      res.set('Cache-Control', 'public, max-age=86400');
+      res.set('Access-Control-Allow-Origin', '*');
+      return res.send(cached.data);
+    }
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+    });
+    if (!response.ok) {
+      return res.status(response.status).send('Image fetch failed');
+    }
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    if (buffer.length < 500000) {
+      posterCache.set(encoded, { data: buffer, contentType }, 2 * 60 * 60 * 1000);
+    }
+    res.set('Content-Type', contentType);
+    res.set('Cache-Control', 'public, max-age=86400');
+    res.set('Access-Control-Allow-Origin', '*');
+    res.send(buffer);
+  } catch (err) {
+    console.error('Poster proxy error:', err.message);
+    if (!res.headersSent) res.status(502).send('Proxy error');
+  }
+});
 // Health endpoint
 app.get('/health', (req, res) => {
   const showKeys = Object.keys(SHOWS);
@@ -1347,7 +1395,7 @@ app.get('/health', (req, res) => {
   const arabicFilmKeys = Object.keys(ARABIC_FILMS);
   res.json({
     status: 'ok',
-    version: '12.4.3',
+    version: '12.4.5',
     shows: showKeys.length,
     movieSeries: movieKeys.length,
     cartoonFilms: cartoonFilmKeys.length,
@@ -1368,7 +1416,7 @@ app.get('/debug', (req, res) => {
   const foreignFilmKeys2 = Object.keys(FOREIGN_FILMS);
   const arabicFilmKeys2 = Object.keys(ARABIC_FILMS);
   res.json({
-    version: '12.4.3',
+    version: '12.4.5',
     discoveryDone,
     counts: {
       shows: showKeys.length,
