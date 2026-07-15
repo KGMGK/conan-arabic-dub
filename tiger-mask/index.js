@@ -73,7 +73,8 @@ const POSTER_MAP = {
   'ليلو وستيتش': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/ViHccoocGpHJSasV.jpg',
   'ماروكو': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/pBkyctjkdTschpzj.jpg',
   'ماوكلي': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/vEcWBOqkTDaLKyfZ.jpg',
-  'هايدي': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/LsuDmIaieeZCDhRi.jpg'
+  'هايدي': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/mBqhKIFPgeEHgatl.jpg',
+  'مستر بين': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/PuGDgmrdrmZgnUXJ.jpg'
 };
 
 // Movie poster mapping (by key -> poster URL)
@@ -225,16 +226,28 @@ const MOVIE_ARABIC_NAMES = {
 // === HELPERS ===
 function extractEpisodeNumber(name) {
   const arabicMap = {'١':1,'٢':2,'٣':3,'٤':4,'٥':5,'٦':6,'٧':7,'٨':8,'٩':9,'٠':0};
-  const halqaMatch = name.match(/الحلق[هة]\s*([٠-٩]+)/);
-  if (halqaMatch) {
+  // Match الحلقه/الحلقة followed by Arabic numerals
+  const halqaArabicMatch = name.match(/الحلق[هة]\s*([٠-٩]+)/);
+  if (halqaArabicMatch) {
     let num = '';
-    for (const ch of halqaMatch[1]) num += arabicMap[ch] || ch;
+    for (const ch of halqaArabicMatch[1]) num += arabicMap[ch] || ch;
     return parseInt(num);
   }
-  const prefixMatch = name.match(/^(\d+)[\s-]/);
+  // Match الحلقه/الحلقة followed by Western numerals (e.g. "الحلقه 33")
+  const halqaWesternMatch = name.match(/الحلق[هة]\s*(\d+)/);
+  if (halqaWesternMatch) return parseInt(halqaWesternMatch[1]);
+  // Match "حلقة" or "حلقه" followed by number
+  const halqaShortMatch = name.match(/حلق[هة]\s*(\d+)/);
+  if (halqaShortMatch) return parseInt(halqaShortMatch[1]);
+  // Match number at start like "33 - title" or "33.mp4"
+  const prefixMatch = name.match(/^(\d+)[\s\-\.]/);
   if (prefixMatch) return parseInt(prefixMatch[1]);
-  const pureMatch = name.match(/^(\d+)(?:\.mp4)?$/);
+  // Match pure number (with optional extension)
+  const pureMatch = name.match(/^(\d+)(?:\.\w+)?$/);
   if (pureMatch) return parseInt(pureMatch[1]);
+  // Match number anywhere in filename as last resort
+  const anyNumMatch = name.match(/(\d+)/);
+  if (anyNumMatch) return parseInt(anyNumMatch[1]);
   return null;
 }
 
@@ -873,34 +886,6 @@ function handleStreamResponse(proxyRes, req, res) {
   proxyRes.pipe(res);
 }
 
-
-app.get('/debug-folder/:folderId', async function(req, res) {
-  if (!drive) return res.status(500).send('Drive not configured');
-  const folderId = req.params.folderId;
-  try {
-    // Get ALL files in folder (any type)
-    const allFiles = await drive.files.list({
-      q: `'${folderId}' in parents and trashed = false`,
-      fields: 'files(id, name, mimeType, shortcutDetails, size)',
-      supportsAllDrives: true,
-      pageSize: 100
-    });
-    // Also check subfolders
-    const subfolders = await drive.files.list({
-      q: `'${folderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
-      fields: 'files(id, name)',
-      supportsAllDrives: true
-    });
-    res.json({
-      folderId,
-      totalFiles: allFiles.data.files.length,
-      files: allFiles.data.files,
-      subfolders: subfolders.data.files
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 app.get('/health', function(req, res) {
   const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, moviesFolderId: MOVIES_FOLDER_ID, version: '11.1.0', cache: { streamEntries: streamCache.size, catalogEntries: catalogCache.size, metaEntries: metaCache.size }, shows: {}, movies: {} };
