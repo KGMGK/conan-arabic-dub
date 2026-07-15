@@ -113,7 +113,148 @@ const MOVIE_POSTER_MAP_BY_KEY = {
   'moana': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/ufmwEjtCJDIovOoP.jpg',
   'mulan': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/dOTwEQPaqovmsMsn.jpg'
 };
-const MOVIE_POSTER_MAP = {};
+const MOVIE_POSTER_MAP = {
+  '80 Day\'s': 'https://m.media-amazon.com/images/M/MV5BMjIwNDk0NzUtNTZlOC00OGNiLWI0ODgtYWNhYzU4MzEwMjRiXkEyXkFqcGc@._V1_SX300.jpg',
+  'Aladdin': 'https://m.media-amazon.com/images/M/MV5BYzE2YTZkNGMtZmNlMy00MjdjLTk2NzItYjE2NTZjYTUxYTQ0XkEyXkFqcGdeQXVyMzM1Mjg0Ng@@._V1_SX300.jpg',
+  'Analyze': 'https://m.media-amazon.com/images/M/MV5BZDJmZTNmMmQtYWM2MC00YzM5LWI5MGEtODRmZTgzNDAyN2FjXkEyXkFqcGc@._V1_SX300.jpg',
+  'Aquaman': 'https://m.media-amazon.com/images/M/MV5BOTk5ODg0OTU5M15BMl5BanBnXkFtZTgwMDQ3MDY3NjM@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'Avatar': 'https://m.media-amazon.com/images/M/MV5BMDEzMmQwZjctZWU2My00MWNlLWE0NjItMDJlYTRlNGJiZjcyXkEyXkFqcGc@._V1_SX300.jpg',
+  'Avengers': 'https://m.media-amazon.com/images/M/MV5BN2NiMzQ2OTAtZGRjNi00MjFkLTgxYmUtZTRkNGUyMjgxYWI1XkEyXkFqcGdeQXVyNTMxMTQ1NTk@._V1_SX300.jpg',
+  'Bad Boy\'s': 'https://m.media-amazon.com/images/M/MV5BMWNjZWEwNDMtMWE1ZC00MTgwLTk2YzAtYmE0NTkwOWVhMDI0XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'Bee (النحله)': 'https://m.media-amazon.com/images/M/MV5BMjE1MDYxOTA4MF5BMl5BanBnXkFtZTcwMDE0MDUzMw@@._V1_SX300.jpg',
+  'Bee keeper': 'https://m.media-amazon.com/images/M/MV5BNzg3YjVmZGYtOTc5MC00MDdiLTllOTYtZWQ0ODQ1MmMyNTExXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'Big MaMa': 'https://m.media-amazon.com/images/M/MV5BMTg4YWY4MjEtNzQ2NC00MDJjLTg3YWEtZDI1ODkzYjEwNjczXkEyXkFqcGc@._V1_SX300.jpg',
+  'Black Knight': 'https://m.media-amazon.com/images/M/MV5BNzU4Y2M0MjgtZTBkOS00Y2RjLTk0YzAtYzEzNmI4NmY3YTI4XkEyXkFqcGc@._V1_SX300.jpg',
+  'Blended': 'https://m.media-amazon.com/images/M/MV5BNzc2ODI5NjAyMl5BMl5BanBnXkFtZTgwMzIyOTE4MDE@._V1_SX300.jpg',
+  'Blitz': 'https://m.media-amazon.com/images/M/MV5BMTQ2MjAyMDY0NF5BMl5BanBnXkFtZTcwODMwOTY1OQ@@._V1_SX300.jpg',
+  'Blue Streak': 'https://m.media-amazon.com/images/M/MV5BY2RmODQxZmQtZjAzYy00MWQxLWFmN2MtMWJiOGIxOGQxOWU4XkEyXkFqcGc@._V1_SX300.jpg',
+  'Bourne': 'https://m.media-amazon.com/images/M/MV5BYTk1ZTcyMWMtMWUxYS00MmEzLTlmODYtOTk1MGRjOTg1ZjlmXkEyXkFqcGc@._V1_SX300.jpg',
+  'Boyka': 'https://m.media-amazon.com/images/M/MV5BZTUyNjU3N2YtNDc0Ni00NmY0LTlkZjMtZGI4MjUwNmFiZDRjXkEyXkFqcGc@._V1_SX300.jpg',
+  'Captain Phillips': 'https://m.media-amazon.com/images/M/MV5BMWYyNjI3ZjEtNGE5ZS00MDgxLWIzNGEtZTgzNDVlZjZjYWU5XkEyXkFqcGc@._V1_SX300.jpg',
+  'Cast Away': 'https://m.media-amazon.com/images/M/MV5BOGNjNDI5ZGQtZjRjMy00NzQyLWFiYzQtYjcwNjM3ZDYwNThhXkEyXkFqcGc@._V1_SX300.jpg',
+  'Central Intel...': 'https://m.media-amazon.com/images/M/MV5BMjA2NzEzNjIwNl5BMl5BanBnXkFtZTgwNzgwMTEzNzE@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'Chaos': 'https://m.media-amazon.com/images/M/MV5BMTc3NDU0MTgyN15BMl5BanBnXkFtZTcwNjgwMzY4NA@@._V1_SX300.jpg',
+  'CoCo': 'https://m.media-amazon.com/images/M/MV5BMDIyM2E2NTAtMzlhNy00ZGUxLWI1NjgtZDY5MzhiMDc5NGU3XkEyXkFqcGc@._V1_QL75_UY562_CR7,0,380,562_.jpg',
+  'Cobbler': 'https://m.media-amazon.com/images/M/MV5BMTgzMjQ2OTQ0NV5BMl5BanBnXkFtZTgwMTc2MTI2NDE@._V1_SX300.jpg',
+  'Cop Out': 'https://m.media-amazon.com/images/M/MV5BMTk0NzcxMjYwNF5BMl5BanBnXkFtZTcwMTI4MTIxMw@@._V1_SX300.jpg',
+  'Daddy\'s Home': 'https://m.media-amazon.com/images/M/MV5BMTQ0OTE1MTk4N15BMl5BanBnXkFtZTgwMDM5OTk5NjE@._V1_SX300.jpg',
+  'Day After Tomorrow': 'https://m.media-amazon.com/images/M/MV5BOGZmNDYyNmMtNDQyNy00OTkzLTg1OGUtYWJiNmQ5Y2Q5ZGU3XkEyXkFqcGc@._V1_SX300.jpg',
+  'Death Race': 'https://m.media-amazon.com/images/M/MV5BZjdlNmJjM2ItYjkwOS00NDMxLWFjM2QtNzcyZjJkYzEzYzQ5XkEyXkFqcGc@._V1_QL75_UY562_CR3,0,380,562_.jpg',
+  'Dinosaur': 'https://m.media-amazon.com/images/M/MV5BYjFlNjFkNmUtNDRmNi00ZWIwLTg3ZjQtNTIxNmJkMjc1OTlhXkEyXkFqcGc@._V1_SX300.jpg',
+  'Due date': 'https://m.media-amazon.com/images/M/MV5BMTU5MTgxODM3Nl5BMl5BanBnXkFtZTcwMjMxNDEwNA@@._V1_SX300.jpg',
+  'Elysium': 'https://m.media-amazon.com/images/M/MV5BNDc2NjU0MTcwNV5BMl5BanBnXkFtZTcwMjg4MDg2OQ@@._V1_SX300.jpg',
+  'Equalizer': 'https://m.media-amazon.com/images/M/MV5BMTQ2MzE2NTk0NF5BMl5BanBnXkFtZTgwOTM3NTk1MjE@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'Escape From Pretoria': 'https://m.media-amazon.com/images/M/MV5BYTFmODhiMzMtYjM3MC00MzNjLWEzYjctNzIxZjk2M2JiMDA4XkEyXkFqcGc@._V1_SX300.jpg',
+  'Expendables': 'https://m.media-amazon.com/images/M/MV5BNTUwODQyNjM0NF5BMl5BanBnXkFtZTcwNDMwMTU1Mw@@._V1_QL75_UX380_CR0,1,380,562_.jpg',
+  'Fantastic Four': 'https://m.media-amazon.com/images/M/MV5BNjY2YmZmMzUtZWY5Mi00MzI3LTljOTgtYTMwMWY1ODI5ZWY5XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'Fast & Furious Hobbs & Shaw': 'https://m.media-amazon.com/images/M/MV5BNmU4OTA5NGYtMTFjMS00MzgxLWFjNTMtYjdlMThlYzc4M2M4XkEyXkFqcGc@._V1_SX300.jpg',
+  'Ferdinand': 'https://m.media-amazon.com/images/M/MV5BMjI4Mjk0NzQwOF5BMl5BanBnXkFtZTgwNjg3MjI2MjI@._V1_SX300.jpg',
+  'Fist Fight': 'https://m.media-amazon.com/images/M/MV5BMTg0NzkyMjE5NF5BMl5BanBnXkFtZTgwMDE5NTg3MDI@._V1_SX300.jpg',
+  'Garfield': 'https://m.media-amazon.com/images/M/MV5BMTIzMTc1OTUxOV5BMl5BanBnXkFtZTYwNTMxODc3._V1_SX300.jpg',
+  'Gladiator': 'https://m.media-amazon.com/images/M/MV5BMzNmNjFkZjctNDE1Ny00ZDAwLWJlMjktZWVkYzM0MDIxODI2XkEyXkFqcGdeQXVyMTEyMTMxMDk3._V1_SX300.jpg',
+  'Godfather': 'https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_QL75_UY562_CR8,0,380,562_.jpg',
+  'Guns Akimbo': 'https://m.media-amazon.com/images/M/MV5BYjI2MTRjMmEtYTE1Yy00Zjk2LTk1NTQtYzA4MmI2YmQyYzAyXkEyXkFqcGc@._V1_SX300.jpg',
+  'HERO 6': 'https://m.media-amazon.com/images/M/MV5BYjQ3YzUyOGQtNjdlYS00YmRhLWIyOWYtMGQ3YjkwMjJiYzRjXkEyXkFqcGc@._V1_SX300.jpg',
+  'Harry Potter': 'https://m.media-amazon.com/images/M/MV5BNTU1MzgyMDMtMzBlZS00YzczLThmYWEtMjU3YmFlOWEyMjE1XkEyXkFqcGc@._V1_SX300.jpg',
+  'Has Fallen': 'https://m.media-amazon.com/images/M/MV5BNzg3Mjc0YzItZWQyOS00ODY4LTgwZjUtYWRmYzM1MDg1ZDA5XkEyXkFqcGc@._V1_SX300.jpg',
+  'Here Comes the Boom': 'https://m.media-amazon.com/images/M/MV5BMTUxMzEzNDQ0Nl5BMl5BanBnXkFtZTcwMDI2NTY1OA@@._V1_SX300.jpg',
+  'Hobbit': 'https://m.media-amazon.com/images/M/MV5BMTcwNTE4MTUxMl5BMl5BanBnXkFtZTcwMDIyODM4OA@@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'Home Alone': 'https://m.media-amazon.com/images/M/MV5BNzNmNmQ2ZDEtMTc1MS00NjNiLThlMGUtZmQxNTg1Nzg5NWMzXkEyXkFqcGc@._V1_SX300.jpg',
+  'Home On The Range': 'https://m.media-amazon.com/images/M/MV5BMzQyMDY4MjQ0Nl5BMl5BanBnXkFtZTYwODk4ODM3._V1_SX300.jpg',
+  'Honest Thief': 'https://m.media-amazon.com/images/M/MV5BNmY3Y2E0MzYtY2JjNy00MTNkLTllODYtZDIxY2ZkNWQ5MTRlXkEyXkFqcGc@._V1_SX300.jpg',
+  'Hulk': 'https://m.media-amazon.com/images/M/MV5BNTQxMmVlMTItMGFjYi00MTc2LWE5MzMtYjFhZWJmZGY0MTY5XkEyXkFqcGc@._V1_SX300.jpg',
+  'Independence Day': 'https://m.media-amazon.com/images/M/MV5BOGMwN2UwZjEtYjFjMi00ZDA1LWJlYTQtMjA1MTYxMzIyNTdiXkEyXkFqcGc@._V1_SX300.jpg',
+  'Inside Man': 'https://m.media-amazon.com/images/M/MV5BZWFmMDZkYjktMjYyOS00MTM2LTg2MmQtOTUwMzJjMDlhZDY1XkEyXkFqcGc@._V1_SX300.jpg',
+  'Iron Man': 'https://m.media-amazon.com/images/M/MV5BMTczNTI2ODUwOF5BMl5BanBnXkFtZTcwMTU0NTIzMw@@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'Italian Job': 'https://m.media-amazon.com/images/M/MV5BMjJjNzc5YjAtZjU2Ni00ZjVkLTkzYmItM2E2NDM0NWE1YmJhXkEyXkFqcGc@._V1_SX300.jpg',
+  'Jack Reacher': 'https://m.media-amazon.com/images/M/MV5BMTM1NjUxMDI3OV5BMl5BanBnXkFtZTcwNjg1ODM3OA@@._V1_SX300.jpg',
+  'John Wick': 'https://m.media-amazon.com/images/M/MV5BMTU2NjA1ODgzMF5BMl5BanBnXkFtZTgwMTM2MTI4MjE@._V1_SX300.jpg',
+  'Johnny English': 'https://m.media-amazon.com/images/M/MV5BMTU0MGM4ZjQtNmQ3MC00NDE4LWEwYTItYWZiYzAxMGQwMDkzXkEyXkFqcGc@._V1_SX300.jpg',
+  'Journey': 'https://m.media-amazon.com/images/M/MV5BNTMyMGQ4MWYtZmMyYi00M2JhLWFhZmQtNWM5MTVjYjk1MTYxXkEyXkFqcGc@._V1_SX300.jpg',
+  'Jumanji': 'https://m.media-amazon.com/images/M/MV5BYTFkMjFmODgtYzRiZi00NmQwLTliZWMtMzRhMWQ5ZmY3ZDExXkEyXkFqcGc@._V1_SX300.jpg',
+  'Just Like Heaven': 'https://m.media-amazon.com/images/M/MV5BYjQ5MDc1OWEtOTAzZS00OWE1LWE5MmMtMGRlMDExZTRhZTQyXkEyXkFqcGc@._V1_SX300.jpg',
+  'Karate Kid': 'https://m.media-amazon.com/images/M/MV5BMTQ0ODg3ODEyMF5BMl5BanBnXkFtZTcwNjI1MTgxMw@@._V1_SX300.jpg',
+  'Killers': 'https://m.media-amazon.com/images/M/MV5BMTU0NDIwOTcwOV5BMl5BanBnXkFtZTcwNjU3NTQ0Mw@@._V1_SX300.jpg',
+  'Knight and Day': 'https://m.media-amazon.com/images/M/MV5BMTM0Mzg0MzI3Ml5BMl5BanBnXkFtZTcwNjIyNzk1Mw@@._V1_SX300.jpg',
+  'LIFT': 'https://m.media-amazon.com/images/M/MV5BN2FkMDJmNWItYzBlYy00ZDQ0LTgyMzEtZTA2N2U0ZTY5OGMyXkEyXkFqcGc@._V1_SX300.jpg',
+  'LUCA (E)(ع)': 'https://m.media-amazon.com/images/M/MV5BMWMyNGNlZTktODVkNS00ZmMyLTk0NmUtNWVjOWU1MWMzZGMzXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'Law abiding citizen': 'https://m.media-amazon.com/images/M/MV5BNDFjNzM2NzMtNTkxZi00ZGFmLTkyZGMtZWQ3ZjMwZDc5NDExXkEyXkFqcGc@._V1_SX300.jpg',
+  'Let\'s be cops': 'https://m.media-amazon.com/images/M/MV5BMjI3MDY2ODQwNF5BMl5BanBnXkFtZTgwNjUzNjE4MTE@._V1_SX300.jpg',
+  'Life as we know it': 'https://m.media-amazon.com/images/M/MV5BMTc1OTQzNzE0Nl5BMl5BanBnXkFtZTcwNDU4NDk3Mw@@._V1_SX300.jpg',
+  'Lion King (واقعي)': 'https://m.media-amazon.com/images/M/MV5BNzk4MWJlMzAtMzM4NC00MGFhLTk4ZTItMjQ4N2IyNzYzM2Q3XkEyXkFqcGc@._V1_SX300.jpg',
+  'Longest Yard': 'https://m.media-amazon.com/images/M/MV5BMTc1NTQyNDk2NV5BMl5BanBnXkFtZTcwOTE2OTQzMw@@._V1_SX300.jpg',
+  'Man on Fire': 'https://m.media-amazon.com/images/M/MV5BMGMzNjg3ZDgtOGNlNy00NTdjLWI2NDEtMjI1MmEwMTBmMjMxXkEyXkFqcGc@._V1_QL75_UY562_CR1,0,380,562_.jpg',
+  'Migration (E)(ع)': 'https://m.media-amazon.com/images/M/MV5BYjdlYWJjZTctODViZS00ODVlLTljOTEtOTZhYWZhZTRkZDM1XkEyXkFqcGc@._V1_SX300.jpg',
+  'Mr & Mrs Smith': 'https://m.media-amazon.com/images/M/MV5BMTUxMzcxNzQzOF5BMl5BanBnXkFtZTcwMzQxNjUyMw@@._V1_SX300.jpg',
+  'Mulan': 'https://m.media-amazon.com/images/M/MV5BYWJiZDg3ZWEtYWZkMC00Zjc1LTkzYTctZWFkODk2MDlmOGNiXkEyXkFqcGc@._V1_SX300.jpg',
+  'National Security': 'https://m.media-amazon.com/images/M/MV5BMGFlOWI3MjctMjkwZi00ZGQ5LTgyYzgtNjU1ZjQwNGQ4ZDUzXkEyXkFqcGc@._V1_SX300.jpg',
+  'Papper mint': 'https://m.media-amazon.com/images/M/MV5BN2ZmZGZmMzgtMWMwYS00ODEzLThhODgtYmM4YTViNTRlMWVlXkEyXkFqcGc@._V1_SX300.jpg',
+  'Pelham 123': 'https://m.media-amazon.com/images/M/MV5BMTU3NzA4MDcwNV5BMl5BanBnXkFtZTcwMDAyNzc1Mg@@._V1_SX300.jpg',
+  'Peter Pan': 'https://m.media-amazon.com/images/M/MV5BMGNjYWVkZGItZTNmNS00MGNkLWI2ZjEtMTIzNzAwNmIxMDRhXkEyXkFqcGc@._V1_SX300.jpg',
+  'Punisher': 'https://m.media-amazon.com/images/M/MV5BMjI5NjcwMTQxMV5BMl5BanBnXkFtZTcwODg5ODkwNQ@@._V1_SX300.jpg',
+  'Rampage': 'https://m.media-amazon.com/images/M/MV5BNDA1NjA3ODU3OV5BMl5BanBnXkFtZTgwOTg3MTIwNTM@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'Red Notice': 'https://m.media-amazon.com/images/M/MV5BOGNjNGQ3MmItYTM5NS00NjBiLWI0ZTItZDE5ZjQyNjg3ODBjXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'Salt': 'https://m.media-amazon.com/images/M/MV5BMjIyODA2NDg4NV5BMl5BanBnXkFtZTcwMjg4NDAwMw@@._V1_SX300.jpg',
+  'Shooter': 'https://m.media-amazon.com/images/M/MV5BYmE0NWZiMjktY2U4MC00MDVmLTljMGMtMWZiMThiNjczNzViXkEyXkFqcGc@._V1_SX300.jpg',
+  'Small Foot (E)': 'https://m.media-amazon.com/images/M/MV5BZjBjYWQxMTQtMThiZS00NjZkLWE1ZjctMzE2ZTgxZmJmMWQ1XkEyXkFqcGc@._V1_SX300.jpg',
+  'Snitch': 'https://m.media-amazon.com/images/M/MV5BNTM4MTYzNjA3Nl5BMl5BanBnXkFtZTcwMzcyNDA5OA@@._V1_SX300.jpg',
+  'SnowWhite and the Huntsman': 'https://m.media-amazon.com/images/M/MV5BY2JjYWUyZjUtMDg3OS00MGIyLTgyN2QtYjIyY2VlYzViYThlXkEyXkFqcGc@._V1_SX300.jpg',
+  'Spy': 'https://m.media-amazon.com/images/M/MV5BNjI5OTQ0MDQxM15BMl5BanBnXkFtZTgwMzcwNjMyNTE@._V1_SX300.jpg',
+  'Tangled': 'https://m.media-amazon.com/images/M/MV5BMTAxNDYxMjg0MjNeQTJeQWpwZ15BbWU3MDcyNTk2OTM@._V1_SX300.jpg',
+  'The Bank Job': 'https://m.media-amazon.com/images/M/MV5BZmQ5OTkxZDMtYTAxYS00OWE1LThhMWItYjdlYjJmNWZlNWU5XkEyXkFqcGc@._V1_SX300.jpg',
+  'The Departed': 'https://m.media-amazon.com/images/M/MV5BMTI1MTY2OTIxNV5BMl5BanBnXkFtZTYwNjQ4NjY3._V1_QL75_UY562_CR0,0,380,562_.jpg',
+  'The Forbidden': 'https://m.media-amazon.com/images/M/MV5BMTUwNTExMTg3NF5BMl5BanBnXkFtZTcwNDYyMTM2MQ@@._V1_SX300.jpg',
+  'The Foreigner': 'https://m.media-amazon.com/images/M/MV5BNjBmY2MzYmMtNjdmMi00MWYyLTgwYTgtOTYwMTdmZTUxOGQxXkEyXkFqcGc@._V1_SX300.jpg',
+  'The Heat': 'https://m.media-amazon.com/images/M/MV5BMjA2MDQ2ODM3MV5BMl5BanBnXkFtZTcwNDUzMTQ3OQ@@._V1_SX300.jpg',
+  'The Incredible Hulk': 'https://m.media-amazon.com/images/M/MV5BMTUyNzk3MjA1OF5BMl5BanBnXkFtZTcwMTE1Njg2MQ@@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'The Invisible Guest': 'https://m.media-amazon.com/images/M/MV5BYzZmOTc5ZjctMzAyZC00YmM1LThmNWUtM2UxNzFjMDcyYjAzXkEyXkFqcGc@._V1_SX300.jpg',
+  'The Loser\'s': 'https://m.media-amazon.com/images/M/MV5BMjU3MTU0NDI4Nl5BMl5BanBnXkFtZTcwMTE0NDMyMw@@._V1_SX300.jpg',
+  'The MAN': 'https://m.media-amazon.com/images/M/MV5BODcwMDU0NjU3NF5BMl5BanBnXkFtZTYwOTI3MDc2._V1_SX300.jpg',
+  'The Martian': 'https://m.media-amazon.com/images/M/MV5BMTc2MTQ3MDA1Nl5BMl5BanBnXkFtZTgwODA3OTI4NjE@._V1_SX300.jpg',
+  'The Mask': 'https://m.media-amazon.com/images/M/MV5BNGNmNjI0ZmMtMzI5MC00ZjUyLWFlZDEtYjUyMGZlN2E3N2E2XkEyXkFqcGc@._V1_SX300.jpg',
+  'The Myth': 'https://m.media-amazon.com/images/M/MV5BODU5MDczMWYtYTc5MS00NzZkLWIwMjQtNGI0NDdkYWE4NmI0XkEyXkFqcGc@._V1_SX300.jpg',
+  'The Parent Trap': 'https://m.media-amazon.com/images/M/MV5BNTRkYmY3Y2QtMGM2Ny00MTNmLTk4NjYtNjMwNTNmMGY5ZDllXkEyXkFqcGc@._V1_SX300.jpg',
+  'The Shawshank': 'https://m.media-amazon.com/images/M/MV5BMDAyY2FhYjctNDc5OS00MDNlLThiMGUtY2UxYWVkNGY2ZjljXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg',
+  'The Tourist': 'https://m.media-amazon.com/images/M/MV5BMTMyMzc3OTkwMV5BMl5BanBnXkFtZTcwMjc0MTgwNA@@._V1_SX300.jpg',
+  'The Town': 'https://m.media-amazon.com/images/M/MV5BMTcyNzcxODg3Nl5BMl5BanBnXkFtZTcwMTUyNjQ3Mw@@._V1_SX300.jpg',
+  'The Wild Robot': 'https://m.media-amazon.com/images/M/MV5BZWNiZjVlZTUtNGUwYi00MjJmLTg2MDctNWEzYTJiMzY1ODc4XkEyXkFqcGc@._V1_SX300.jpg',
+  'The invention of lying': 'https://m.media-amazon.com/images/M/MV5BMTU2OTQzOTc1Nl5BMl5BanBnXkFtZTcwNDM5MDE4Mg@@._V1_SX300.jpg',
+  'The island': 'https://m.media-amazon.com/images/M/MV5BMTAwNjk0NjM1ODReQTJeQWpwZ15BbWU3MDc1NjIxMzM@._V1_SX300.jpg',
+  'Tomp Raider': 'https://m.media-amazon.com/images/M/MV5BMTIwNWU2NTEtMDQ0Yi00MjFkLThhN2UtMjJhOGVjN2UyYzFkXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'Turbo': 'https://m.media-amazon.com/images/M/MV5BMTA4NTgwMjM5MzheQTJeQWpwZ15BbWU3MDg2ODA1ODk@._V1_SX300.jpg',
+  'UP': 'https://m.media-amazon.com/images/M/MV5BNmI1ZTc5MWMtMDYyOS00ZDc2LTkzOTAtNjQ4NWIxNjYyNDgzXkEyXkFqcGc@._V1_SX300.jpg',
+  'Uncharted': 'https://m.media-amazon.com/images/M/MV5BYjQxYWNiNzgtOTc2Yi00OGEwLTk5MjAtODdiZTk0ZDJlZGY4XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'Van Helsing': 'https://m.media-amazon.com/images/M/MV5BNDk3NTdlYzQtMjhiMy00MWJkLWFjNDctMzE4ZGEwZWExNGViXkEyXkFqcGc@._V1_SX300.jpg',
+  'Walking Tall': 'https://m.media-amazon.com/images/M/MV5BMTM0MjYzNzM1N15BMl5BanBnXkFtZTcwMDcwNDc3NA@@._V1_SX300.jpg',
+  'Wish Dragon': 'https://m.media-amazon.com/images/M/MV5BMWM1YmJmYWMtMDM1Ni00ZGM2LTkxODYtOTU1ZjA4MTFkMDM1XkEyXkFqcGc@._V1_SX300.jpg',
+  'Wolfs': 'https://m.media-amazon.com/images/M/MV5BNWI2MzdiM2ItMTg2Zi00MTYwLThlZmItM2FkNWI4NjE3ZjRhXkEyXkFqcGc@._V1_QL75_UY562_CR35,0,380,562_.jpg',
+  'Wrath Of Man': 'https://m.media-amazon.com/images/M/MV5BODE4ZGY4OTktNDBjMy00NGVkLTk5YWUtNjA3NGU3MTA5NzM0XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+  'ZODIAC': 'https://m.media-amazon.com/images/M/MV5BNDFkMTRkZmQtM2I0NC00NjJjLWJlMDctNTNiZWYxYzhjZDZiXkEyXkFqcGc@._V1_QL75_UY562_CR1,0,380,562_.jpg',
+  '«افلام كونان»': 'https://m.media-amazon.com/images/M/MV5BNGNjMjVmODYtMGMzZi00MWUyLTk1ZDQtYzI2ZTk2MmYzYTZiXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg',
+  'ابو علي': 'https://m.media-amazon.com/images/M/MV5BNTJmNTNiODktZjYxYy00YjZkLTg3OTUtNjMyMGM4MzY0NmQ4XkEyXkFqcGc@._V1_SX300.jpg',
+  'افريكانو': 'https://m.media-amazon.com/images/M/MV5BNjMwNDEzNTMtMDU5Yi00MjgwLWExZWUtMDNiMzNiZTk2YjA1XkEyXkFqcGc@._V1_SX300.jpg',
+  'اكس لارج': 'https://m.media-amazon.com/images/M/MV5BMTFiYjFlZTUtZmRiZS00NmRmLWE3YmUtNjkxOTRhMzBmODFiXkEyXkFqcGc@._V1_SX300.jpg',
+  'الديناصور اللطيف': 'https://m.media-amazon.com/images/M/MV5BMTc5MTg2NjQ4MV5BMl5BanBnXkFtZTgwNzcxOTY5NjE@._V1_SX300.jpg',
+  'اليس في بلاد العجائب': 'https://m.media-amazon.com/images/M/MV5BYjgxMTQ3NjMtOTI1Yy00Yzg4LWJlNWQtMjFkNjVlYjU0OWIyXkEyXkFqcGc@._V1_SX300.jpg',
+  'بلال': 'https://m.media-amazon.com/images/M/MV5BYTM3YTdmZDgtNTViZi00MmNmLWIyMDUtMmFkNWQ5YzdiZDA5XkEyXkFqcGc@._V1_SX300.jpg',
+  'بوحه': 'https://m.media-amazon.com/images/M/MV5BMTIwMTRiODAtYWNhZi00NGMyLWI3MWQtYmRmZGVjMmRlZThiXkEyXkFqcGdeQXVyMTMxMzkwODA2._V1_SX300.jpg',
+  'بوشكاش': 'https://m.media-amazon.com/images/M/MV5BMmIyNTU1NzUtOTVjMS00YjUyLThhOGItOWFmZmUwMTk2ZDZjXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg',
+  'بينوكيو': 'https://m.media-amazon.com/images/M/MV5BYjEyMDJmYTAtOTliMC00MjYzLTljNDEtMjliM2Y0MThjYzBiXkEyXkFqcGc@._V1_SX300.jpg',
+  'تسليم اهالي': 'https://m.media-amazon.com/images/M/MV5BMTk4MzcyNDIyMl5BMl5BanBnXkFtZTcwMTA4NTQ5OQ@@._V1_SX300.jpg',
+  'جميله و الوحش': 'https://m.media-amazon.com/images/M/MV5BMTUwNjUxMTM4NV5BMl5BanBnXkFtZTgwODExMDQzMTI@._V1_SX300.jpg',
+  'حرب اطاليا': 'https://m.media-amazon.com/images/M/MV5BOThjNjQ4ZGUtNTQzMS00NWFhLWI1M2ItNGFhYjJhYzM1YTdjXkEyXkFqcGc@._V1_SX300.jpg',
+  'حياة حشره': 'https://m.media-amazon.com/images/M/MV5BNGI3Mjc1ZjUtYTJhYS00NjBiLTgyYjctODU5NTNlMWJiYjYzXkEyXkFqcGc@._V1_SX300.jpg',
+  'خارج على القانون': 'https://m.media-amazon.com/images/M/MV5BNjE1OWIxNjYtZGU3Ny00NmYyLTg3ZGEtNGIzNWZhNzVlZmM2XkEyXkFqcGc@._V1_SX300.jpg',
+  'رايا و آخر تنين': 'https://m.media-amazon.com/images/M/MV5BN2QzZTQ3MzktN2JiYS00MDEzLTgxMWQtZWFmMDI3NWFkZTY0XkEyXkFqcGc@._V1_SX300.jpg',
+  'زكي شان': 'https://m.media-amazon.com/images/M/MV5BNDA0OTM5MzQ3M15BMl5BanBnXkFtZTcwMjM2NzI0MQ@@._V1_SX300.jpg',
+  'عسل اسود': 'https://m.media-amazon.com/images/M/MV5BNDUzNDc3OTI3NV5BMl5BanBnXkFtZTcwMDQ3OTQ2Ng@@._V1_SX300.jpg',
+  'فلم الفسحه': 'https://m.media-amazon.com/images/M/MV5BZGNiZmFiZGUtODA2Mi00YjY0LWI1OTEtNWQ5NTdhZTkwM2Y1XkEyXkFqcGc@._V1_SX300.jpg',
+  'فول الصين العظيم': 'https://m.media-amazon.com/images/M/MV5BOTU1Y2Y2ODYtNjI4My00NDIwLTllNTUtZGM3ZDk1Njc1OGNjXkEyXkFqcGc@._V1_SX300.jpg',
+  'في محطة مصر': 'https://m.media-amazon.com/images/M/MV5BYjhlMmMzOTMtNWE0MS00ODc4LThjNGYtNGViOTAxM2VjNjgxXkEyXkFqcGdeQXVyNTcwOTcxMjk@._V1_SX300.jpg',
+  'لا تراجع ولا استسلام': 'https://m.media-amazon.com/images/M/MV5BZTdlNWEwOTctYzJjNi00NjdhLWIyZmYtODcyYWU1OWFkMDZlXkEyXkFqcGc@._V1_SX300.jpg',
+  'همام في استردام': 'https://m.media-amazon.com/images/M/MV5BMzYzMDk5OGMtMThhYS00MjZkLTk4NTYtODk1YzBhYzBjODRmXkEyXkFqcGc@._V1_SX300.jpg',
+  'واحد من الناس': 'https://m.media-amazon.com/images/M/MV5BMTQxNjc2MDg5NF5BMl5BanBnXkFtZTcwMDg5MzI5OA@@._V1_SX300.jpg',
+};
 
 const DEFAULT_POSTER = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/GnURlTivfXkzZHtg.jpg';
 
@@ -591,7 +732,7 @@ async function discoverShows() {
       const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
       const key = 'cf-' + createShowKey(folderName);
       const firstFileId = files[0] ? files[0].id : null;
-      const filmPoster = firstFileId ? `https://lh3.googleusercontent.com/d/${firstFileId}=s400` : DEFAULT_POSTER;
+      const filmPoster = MOVIE_POSTER_MAP[folderName] || (firstFileId ? `https://lh3.googleusercontent.com/d/${firstFileId}=s400` : DEFAULT_POSTER);
       CARTOON_FILMS[key] = {
         name: folderName,
         folderId: folder.id,
@@ -643,7 +784,7 @@ async function discoverShows() {
       }
       const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
       const key = 'ff-' + createShowKey(folderName);
-      const ffPoster2 = files[0] ? `https://lh3.googleusercontent.com/d/${files[0].id}=s400` : DEFAULT_POSTER;
+      const ffPoster2 = MOVIE_POSTER_MAP[folderName] || (files[0] ? `https://lh3.googleusercontent.com/d/${files[0].id}=s400` : DEFAULT_POSTER);
       FOREIGN_FILMS[key] = {
         name: folderName,
         folderId: item.id,
@@ -686,7 +827,7 @@ async function discoverShows() {
       }
       const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
       const key = 'fs-' + createShowKey(folderName);
-      const fsPoster = files[0] ? `https://lh3.googleusercontent.com/d/${files[0].id}=s400` : DEFAULT_POSTER;
+      const fsPoster = MOVIE_POSTER_MAP[folderName] || (files[0] ? `https://lh3.googleusercontent.com/d/${files[0].id}=s400` : DEFAULT_POSTER);
       FOREIGN_FILMS[key] = {
         name: folderName,
         folderId: folder.id,
@@ -741,7 +882,7 @@ async function discoverShows() {
         const key = 'ff-' + createShowKey(movieName);
         // Skip if already added (from standalone or series)
         if (FOREIGN_FILMS[key]) continue;
-        const actPoster = actorFiles[0] ? `https://lh3.googleusercontent.com/d/${actorFiles[0].id}=s400` : DEFAULT_POSTER;
+        const actPoster = MOVIE_POSTER_MAP[movieName] || (actorFiles[0] ? `https://lh3.googleusercontent.com/d/${actorFiles[0].id}=s400` : DEFAULT_POSTER);
         FOREIGN_FILMS[key] = {
           name: movieName,
           folderId: movieFolder.id,
@@ -790,7 +931,7 @@ async function discoverShows() {
       }
       const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
       const key = 'ar-' + createShowKey(folderName);
-      const arPoster = files[0] ? `https://lh3.googleusercontent.com/d/${files[0].id}=s400` : DEFAULT_POSTER;
+      const arPoster = MOVIE_POSTER_MAP[folderName] || (files[0] ? `https://lh3.googleusercontent.com/d/${files[0].id}=s400` : DEFAULT_POSTER);
       ARABIC_FILMS[key] = {
         name: folderName,
         folderId: folder.id,
@@ -1127,7 +1268,7 @@ app.get('/health', (req, res) => {
   const arabicFilmKeys = Object.keys(ARABIC_FILMS);
   res.json({
     status: 'ok',
-    version: '12.1.0',
+    version: '12.2.0',
     shows: showKeys.length,
     movieSeries: movieKeys.length,
     cartoonFilms: cartoonFilmKeys.length,
