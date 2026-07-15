@@ -803,35 +803,54 @@ async function discoverShows() {
       if (!folderName) continue;
       // Skip sub-categories (سلسله and الممثلين) - we handle them separately
       if (item.id === FOREIGN_SERIES_FOLDER_ID || item.id === ACTORS_FOLDER_ID) continue;
-      if (item.mimeType !== 'application/vnd.google-apps.folder') continue;
-      console.log(`\n🎬 Discovering foreign movie: ${folderName}`);
-      const files = await getFilesRecursive(item.id);
-      if (files.length === 0) { console.log('  Skipping empty'); continue; }
-      const episodeMap = {};
-      if (files.length === 1) {
-        episodeMap[1] = files[0].id;
-      } else {
-        for (let i = 0; i < files.length; i++) {
-          const partNum = extractPartNumber(files[i].name);
-          if (!episodeMap[partNum]) episodeMap[partNum] = files[i].id;
-          else episodeMap[i + 1] = files[i].id;
+      if (item.mimeType === 'application/vnd.google-apps.folder') {
+        console.log(`\n🎬 Discovering foreign movie: ${folderName}`);
+        const files = await getFilesRecursive(item.id);
+        if (files.length === 0) { console.log('  Skipping empty'); continue; }
+        const episodeMap = {};
+        if (files.length === 1) {
+          episodeMap[1] = files[0].id;
+        } else {
+          for (let i = 0; i < files.length; i++) {
+            const partNum = extractPartNumber(files[i].name);
+            if (!episodeMap[partNum]) episodeMap[partNum] = files[i].id;
+            else episodeMap[i + 1] = files[i].id;
+          }
         }
+        const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
+        const key = 'ff-' + createShowKey(folderName);
+        const ffPoster2 = MOVIE_POSTER_MAP[folderName] || DEFAULT_POSTER;
+        FOREIGN_FILMS[key] = {
+          name: folderName,
+          folderId: item.id,
+          poster: ffPoster2,
+          prefix: key,
+          metaInfo: { description: `فلم ${folderName}`, genres: ['Action', 'Drama'] },
+          allEpisodes: sortedParts,
+          episodeMap: episodeMap,
+          totalEpisodes: sortedParts.length
+        };
+        foreignFilmKeys.push(key);
+        console.log(`  ✅ Key: ${key}, Parts: ${sortedParts.length}`);
+      } else if (item.mimeType && item.mimeType.startsWith('video/')) {
+        // Direct video file - treat as standalone movie
+        const movieName = folderName.replace(/\.(mp4|mkv|avi|mov|webm|m4v)$/i, '').trim();
+        const key = 'ff-' + createShowKey(movieName);
+        if (FOREIGN_FILMS[key]) continue; // Skip duplicates
+        const ffPoster2 = MOVIE_POSTER_MAP[movieName] || DEFAULT_POSTER;
+        FOREIGN_FILMS[key] = {
+          name: movieName,
+          folderId: FOREIGN_MOVIES_FOLDER_ID,
+          poster: ffPoster2,
+          prefix: key,
+          metaInfo: { description: `فلم ${movieName}`, genres: ['Action', 'Drama'] },
+          allEpisodes: [1],
+          episodeMap: { 1: item.id },
+          totalEpisodes: 1
+        };
+        foreignFilmKeys.push(key);
+        console.log(`  ✅ Key: ${key} (direct file)`);
       }
-      const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
-      const key = 'ff-' + createShowKey(folderName);
-      const ffPoster2 = MOVIE_POSTER_MAP[folderName] || DEFAULT_POSTER;
-      FOREIGN_FILMS[key] = {
-        name: folderName,
-        folderId: item.id,
-        poster: ffPoster2,
-        prefix: key,
-        metaInfo: { description: `فلم ${folderName}`, genres: ['Action', 'Drama'] },
-        allEpisodes: sortedParts,
-        episodeMap: episodeMap,
-        totalEpisodes: sortedParts.length
-      };
-      foreignFilmKeys.push(key);
-      console.log(`  ✅ Key: ${key}, Parts: ${sortedParts.length}`);
     }
     // Also discover foreign movie SERIES (سلسله)
     console.log(`\n=== Discovering foreign movie series ===`);
@@ -939,46 +958,71 @@ async function discoverShows() {
   // === Discover Arabic Movies (افلام عربيه) ===
   console.log(`\n=== Auto-discovering Arabic movies from: ${ARABIC_MOVIES_FOLDER_ID} ===`);
   try {
+    // Query ALL items (folders AND files) - Arabic movies may be stored as direct video files
     const response = await drive.files.list({
-      q: `'${ARABIC_MOVIES_FOLDER_ID}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+      q: `'${ARABIC_MOVIES_FOLDER_ID}' in parents and trashed = false`,
       fields: 'files(id, name, mimeType)',
       orderBy: 'name',
       supportsAllDrives: true,
       pageSize: 200
     });
-    const folders = response.data.files || [];
-    console.log(`Found ${folders.length} Arabic movie folders`);
-    for (const folder of folders) {
-      const folderName = folder.name.trim();
-      if (!folderName) continue;
-      console.log(`\n🎬 Discovering Arabic movie: ${folderName}`);
-      const files = await getFilesRecursive(folder.id);
-      if (files.length === 0) { console.log('  Skipping empty'); continue; }
-      const episodeMap = {};
-      if (files.length === 1) {
-        episodeMap[1] = files[0].id;
-      } else {
-        for (let i = 0; i < files.length; i++) {
-          const partNum = extractPartNumber(files[i].name);
-          if (!episodeMap[partNum]) episodeMap[partNum] = files[i].id;
-          else episodeMap[i + 1] = files[i].id;
+    const items = response.data.files || [];
+    console.log(`Found ${items.length} items in Arabic movies folder`);
+    for (const item of items) {
+      const itemName = item.name.trim();
+      if (!itemName) continue;
+      if (item.mimeType === 'application/vnd.google-apps.folder') {
+        // It's a folder - discover files inside it
+        console.log(`\n🎬 Discovering Arabic movie folder: ${itemName}`);
+        const files = await getFilesRecursive(item.id);
+        if (files.length === 0) { console.log('  Skipping empty'); continue; }
+        const episodeMap = {};
+        if (files.length === 1) {
+          episodeMap[1] = files[0].id;
+        } else {
+          for (let i = 0; i < files.length; i++) {
+            const partNum = extractPartNumber(files[i].name);
+            if (!episodeMap[partNum]) episodeMap[partNum] = files[i].id;
+            else episodeMap[i + 1] = files[i].id;
+          }
         }
+        const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
+        const key = 'ar-' + createShowKey(itemName);
+        const arPoster = MOVIE_POSTER_MAP[itemName] || DEFAULT_POSTER;
+        ARABIC_FILMS[key] = {
+          name: itemName,
+          folderId: item.id,
+          poster: arPoster,
+          prefix: key,
+          metaInfo: { description: `فلم ${itemName}`, genres: ['Comedy', 'Drama'] },
+          allEpisodes: sortedParts,
+          episodeMap: episodeMap,
+          totalEpisodes: sortedParts.length
+        };
+        arabicFilmKeys.push(key);
+        console.log(`  ✅ Key: ${key}, Parts: ${sortedParts.length}`);
+      } else if (item.mimeType && item.mimeType.startsWith('video/')) {
+        // It's a direct video file - treat as standalone movie
+        const movieName = itemName.replace(/\.(mp4|mkv|avi|mov|webm|m4v)$/i, '').trim();
+        console.log(`\n🎬 Arabic movie file: ${movieName}`);
+        const key = 'ar-' + createShowKey(movieName);
+        if (ARABIC_FILMS[key]) continue; // Skip duplicates
+        const arPoster = MOVIE_POSTER_MAP[movieName] || DEFAULT_POSTER;
+        ARABIC_FILMS[key] = {
+          name: movieName,
+          folderId: ARABIC_MOVIES_FOLDER_ID,
+          poster: arPoster,
+          prefix: key,
+          metaInfo: { description: `فلم ${movieName}`, genres: ['Comedy', 'Drama'] },
+          allEpisodes: [1],
+          episodeMap: { 1: item.id },
+          totalEpisodes: 1
+        };
+        arabicFilmKeys.push(key);
+        console.log(`  ✅ Key: ${key} (direct file)`);
+      } else {
+        console.log(`  ⏭️ Skipping non-video: ${itemName} (${item.mimeType})`);
       }
-      const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
-      const key = 'ar-' + createShowKey(folderName);
-      const arPoster = MOVIE_POSTER_MAP[folderName] || DEFAULT_POSTER;
-      ARABIC_FILMS[key] = {
-        name: folderName,
-        folderId: folder.id,
-        poster: arPoster,
-        prefix: key,
-        metaInfo: { description: `فلم ${folderName}`, genres: ['Comedy', 'Drama'] },
-        allEpisodes: sortedParts,
-        episodeMap: episodeMap,
-        totalEpisodes: sortedParts.length
-      };
-      arabicFilmKeys.push(key);
-      console.log(`  ✅ Key: ${key}, Parts: ${sortedParts.length}`);
     }
     console.log(`\n=== Arabic movies complete: ${arabicFilmKeys.length} found ===`);
   } catch (err) {
@@ -997,7 +1041,7 @@ function buildAddon() {
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - Arabic Cartoons & Movies',
-    version: '12.4.2',
+    version: '12.4.3',
     description: `كرتون عربي مدبلج - ${showKeys.length} مسلسل + ${movieKeys.length + cartoonFilmKeys.length} فلم كرتون + ${foreignFilmKeys.length} فلم أجنبي + ${arabicFilmKeys.length} فلم عربي`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
@@ -1303,7 +1347,7 @@ app.get('/health', (req, res) => {
   const arabicFilmKeys = Object.keys(ARABIC_FILMS);
   res.json({
     status: 'ok',
-    version: '12.4.2',
+    version: '12.4.3',
     shows: showKeys.length,
     movieSeries: movieKeys.length,
     cartoonFilms: cartoonFilmKeys.length,
@@ -1316,6 +1360,27 @@ app.get('/health', (req, res) => {
       metaEntries: metaCache.size
     }
   });
+
+app.get('/debug', (req, res) => {
+  const showKeys = Object.keys(SHOWS);
+  const movieKeys = Object.keys(MOVIES);
+  const cartoonFilmKeys2 = Object.keys(CARTOON_FILMS);
+  const foreignFilmKeys2 = Object.keys(FOREIGN_FILMS);
+  const arabicFilmKeys2 = Object.keys(ARABIC_FILMS);
+  res.json({
+    version: '12.4.3',
+    discoveryDone,
+    counts: {
+      shows: showKeys.length,
+      movieSeries: movieKeys.length,
+      cartoonFilms: cartoonFilmKeys2.length,
+      foreignFilms: foreignFilmKeys2.length,
+      arabicFilms: arabicFilmKeys2.length
+    },
+    arabicFilmNames: arabicFilmKeys2.map(k => ARABIC_FILMS[k]?.name || k),
+    foreignFilmSample: foreignFilmKeys2.slice(0, 10).map(k => FOREIGN_FILMS[k]?.name || k)
+  });
+});
 });
 
 // Discover endpoint (manual re-discovery)
