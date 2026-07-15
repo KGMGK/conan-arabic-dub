@@ -1121,7 +1121,7 @@ app.get('/health', (req, res) => {
   const arabicFilmKeys = Object.keys(ARABIC_FILMS);
   res.json({
     status: 'ok',
-    version: '12.0.1',
+    version: '12.0.2',
     shows: showKeys.length,
     movieSeries: movieKeys.length,
     cartoonFilms: cartoonFilmKeys.length,
