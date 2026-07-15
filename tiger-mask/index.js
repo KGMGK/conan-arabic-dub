@@ -590,10 +590,12 @@ async function discoverShows() {
       }
       const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
       const key = 'cf-' + createShowKey(folderName);
+      const firstFileId = files[0] ? files[0].id : null;
+      const filmPoster = firstFileId ? `https://lh3.googleusercontent.com/d/${firstFileId}=s400` : DEFAULT_POSTER;
       CARTOON_FILMS[key] = {
         name: folderName,
         folderId: folder.id,
-        poster: DEFAULT_POSTER,
+        poster: filmPoster,
         prefix: key,
         metaInfo: { description: `فلم كرتون ${folderName} مدبلج عربي`, genres: ['Animation', 'Family'] },
         allEpisodes: sortedParts,
@@ -641,10 +643,11 @@ async function discoverShows() {
       }
       const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
       const key = 'ff-' + createShowKey(folderName);
+      const ffPoster2 = files[0] ? `https://lh3.googleusercontent.com/d/${files[0].id}=s400` : DEFAULT_POSTER;
       FOREIGN_FILMS[key] = {
         name: folderName,
         folderId: item.id,
-        poster: DEFAULT_POSTER,
+        poster: ffPoster2,
         prefix: key,
         metaInfo: { description: `فلم ${folderName}`, genres: ['Action', 'Drama'] },
         allEpisodes: sortedParts,
@@ -683,10 +686,11 @@ async function discoverShows() {
       }
       const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
       const key = 'fs-' + createShowKey(folderName);
+      const fsPoster = files[0] ? `https://lh3.googleusercontent.com/d/${files[0].id}=s400` : DEFAULT_POSTER;
       FOREIGN_FILMS[key] = {
         name: folderName,
         folderId: folder.id,
-        poster: DEFAULT_POSTER,
+        poster: fsPoster,
         prefix: key,
         metaInfo: { description: `سلسلة أفلام ${folderName}`, genres: ['Action', 'Adventure'] },
         allEpisodes: sortedParts,
@@ -737,10 +741,11 @@ async function discoverShows() {
         const key = 'ff-' + createShowKey(movieName);
         // Skip if already added (from standalone or series)
         if (FOREIGN_FILMS[key]) continue;
+        const actPoster = actorFiles[0] ? `https://lh3.googleusercontent.com/d/${actorFiles[0].id}=s400` : DEFAULT_POSTER;
         FOREIGN_FILMS[key] = {
           name: movieName,
           folderId: movieFolder.id,
-          poster: DEFAULT_POSTER,
+          poster: actPoster,
           prefix: key,
           metaInfo: { description: `فلم ${movieName} (${actorFolder.name})`, genres: ['Action', 'Drama'] },
           allEpisodes: sortedParts,
@@ -785,10 +790,11 @@ async function discoverShows() {
       }
       const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
       const key = 'ar-' + createShowKey(folderName);
+      const arPoster = files[0] ? `https://lh3.googleusercontent.com/d/${files[0].id}=s400` : DEFAULT_POSTER;
       ARABIC_FILMS[key] = {
         name: folderName,
         folderId: folder.id,
-        poster: DEFAULT_POSTER,
+        poster: arPoster,
         prefix: key,
         metaInfo: { description: `فلم ${folderName}`, genres: ['Comedy', 'Drama'] },
         allEpisodes: sortedParts,
@@ -811,7 +817,7 @@ async function discoverShows() {
 let addon = null;
 
 function buildAddon() {
-  const allPrefixes = ['cartoon-ar', ...showKeys, ...movieKeys, ...cartoonFilmKeys, ...foreignFilmKeys, ...arabicFilmKeys];
+  const allPrefixes = ['cartoon-ar'];
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - Arabic Cartoons & Movies',
@@ -1121,7 +1127,7 @@ app.get('/health', (req, res) => {
   const arabicFilmKeys = Object.keys(ARABIC_FILMS);
   res.json({
     status: 'ok',
-    version: '12.0.3',
+    version: '12.1.0',
     shows: showKeys.length,
     movieSeries: movieKeys.length,
     cartoonFilms: cartoonFilmKeys.length,
