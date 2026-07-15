@@ -1121,7 +1121,7 @@ app.get('/health', (req, res) => {
   const arabicFilmKeys = Object.keys(ARABIC_FILMS);
   res.json({
     status: 'ok',
-    version: '12.0.2',
+    version: '12.0.3',
     shows: showKeys.length,
     movieSeries: movieKeys.length,
     cartoonFilms: cartoonFilmKeys.length,
@@ -1162,7 +1162,7 @@ async function startServer() {
     await discoverShows();
     buildAddon();
     // Mount addon router
-    const addonRouter = getRouter(addon);
+    const addonRouter = getRouter(addon.getInterface());
     app.use(addonRouter);
     console.log(`🎬 Addon ready! ${Object.keys(SHOWS).length} shows + ${Object.keys(MOVIES).length} movie series + ${Object.keys(CARTOON_FILMS).length} cartoon films + ${Object.keys(FOREIGN_FILMS).length} foreign films + ${Object.keys(ARABIC_FILMS).length} Arabic films`);
   } catch (err) {
