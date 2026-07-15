@@ -115,11 +115,11 @@ const MOVIE_POSTER_MAP_BY_KEY = {
 };
 const MOVIE_POSTER_MAP = {
   '80 Day\'s': 'https://m.media-amazon.com/images/M/MV5BMjIwNDk0NzUtNTZlOC00OGNiLWI0ODgtYWNhYzU4MzEwMjRiXkEyXkFqcGc@._V1_SX300.jpg',
-  'Aladdin': 'https://m.media-amazon.com/images/M/MV5BYzE2YTZkNGMtZmNlMy00MjdjLTk2NzItYjE2NTZjYTUxYTQ0XkEyXkFqcGdeQXVyMzM1Mjg0Ng@@._V1_SX300.jpg',
+  'Aladdin': 'https://image.tmdb.org/t/p/w500/eLFfl7vS8dkeG1hKp5mwbm37V83.jpg',
   'Analyze': 'https://m.media-amazon.com/images/M/MV5BZDJmZTNmMmQtYWM2MC00YzM5LWI5MGEtODRmZTgzNDAyN2FjXkEyXkFqcGc@._V1_SX300.jpg',
   'Aquaman': 'https://m.media-amazon.com/images/M/MV5BOTk5ODg0OTU5M15BMl5BanBnXkFtZTgwMDQ3MDY3NjM@._V1_QL75_UX380_CR0,0,380,562_.jpg',
   'Avatar': 'https://m.media-amazon.com/images/M/MV5BMDEzMmQwZjctZWU2My00MWNlLWE0NjItMDJlYTRlNGJiZjcyXkEyXkFqcGc@._V1_SX300.jpg',
-  'Avengers': 'https://m.media-amazon.com/images/M/MV5BN2NiMzQ2OTAtZGRjNi00MjFkLTgxYmUtZTRkNGUyMjgxYWI1XkEyXkFqcGdeQXVyNTMxMTQ1NTk@._V1_SX300.jpg',
+  'Avengers': 'https://image.tmdb.org/t/p/w500/RYMX2wcKCBAr24UyPD7xwmjaTn.jpg',
   'Bad Boy\'s': 'https://m.media-amazon.com/images/M/MV5BMWNjZWEwNDMtMWE1ZC00MTgwLTk2YzAtYmE0NTkwOWVhMDI0XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg',
   'Bee (النحله)': 'https://m.media-amazon.com/images/M/MV5BMjE1MDYxOTA4MF5BMl5BanBnXkFtZTcwMDE0MDUzMw@@._V1_SX300.jpg',
   'Bee keeper': 'https://m.media-amazon.com/images/M/MV5BNzg3YjVmZGYtOTc5MC00MDdiLTllOTYtZWQ0ODQ1MmMyNTExXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg',
@@ -151,7 +151,7 @@ const MOVIE_POSTER_MAP = {
   'Ferdinand': 'https://m.media-amazon.com/images/M/MV5BMjI4Mjk0NzQwOF5BMl5BanBnXkFtZTgwNjg3MjI2MjI@._V1_SX300.jpg',
   'Fist Fight': 'https://m.media-amazon.com/images/M/MV5BMTg0NzkyMjE5NF5BMl5BanBnXkFtZTgwMDE5NTg3MDI@._V1_SX300.jpg',
   'Garfield': 'https://m.media-amazon.com/images/M/MV5BMTIzMTc1OTUxOV5BMl5BanBnXkFtZTYwNTMxODc3._V1_SX300.jpg',
-  'Gladiator': 'https://m.media-amazon.com/images/M/MV5BMzNmNjFkZjctNDE1Ny00ZDAwLWJlMjktZWVkYzM0MDIxODI2XkEyXkFqcGdeQXVyMTEyMTMxMDk3._V1_SX300.jpg',
+  'Gladiator': 'https://image.tmdb.org/t/p/w500/wN2xWp1eIwCKOD0BHTcErTBv1Uq.jpg',
   'Godfather': 'https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_QL75_UY562_CR8,0,380,562_.jpg',
   'Guns Akimbo': 'https://m.media-amazon.com/images/M/MV5BYjI2MTRjMmEtYTE1Yy00Zjk2LTk1NTQtYzA4MmI2YmQyYzAyXkEyXkFqcGc@._V1_SX300.jpg',
   'HERO 6': 'https://m.media-amazon.com/images/M/MV5BYjQ3YzUyOGQtNjdlYS00YmRhLWIyOWYtMGQ3YjkwMjJiYzRjXkEyXkFqcGc@._V1_SX300.jpg',
@@ -231,29 +231,44 @@ const MOVIE_POSTER_MAP = {
   'Wrath Of Man': 'https://m.media-amazon.com/images/M/MV5BODE4ZGY4OTktNDBjMy00NGVkLTk5YWUtNjA3NGU3MTA5NzM0XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg',
   'ZODIAC': 'https://m.media-amazon.com/images/M/MV5BNDFkMTRkZmQtM2I0NC00NjJjLWJlMDctNTNiZWYxYzhjZDZiXkEyXkFqcGc@._V1_QL75_UY562_CR1,0,380,562_.jpg',
   '«افلام كونان»': 'https://m.media-amazon.com/images/M/MV5BNGNjMjVmODYtMGMzZi00MWUyLTk1ZDQtYzI2ZTk2MmYzYTZiXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg',
-  'ابو علي': 'https://m.media-amazon.com/images/M/MV5BNTJmNTNiODktZjYxYy00YjZkLTg3OTUtNjMyMGM4MzY0NmQ4XkEyXkFqcGc@._V1_SX300.jpg',
-  'افريكانو': 'https://m.media-amazon.com/images/M/MV5BNjMwNDEzNTMtMDU5Yi00MjgwLWExZWUtMDNiMzNiZTk2YjA1XkEyXkFqcGc@._V1_SX300.jpg',
-  'اكس لارج': 'https://m.media-amazon.com/images/M/MV5BMTFiYjFlZTUtZmRiZS00NmRmLWE3YmUtNjkxOTRhMzBmODFiXkEyXkFqcGc@._V1_SX300.jpg',
   'الديناصور اللطيف': 'https://m.media-amazon.com/images/M/MV5BMTc5MTg2NjQ4MV5BMl5BanBnXkFtZTgwNzcxOTY5NjE@._V1_SX300.jpg',
   'اليس في بلاد العجائب': 'https://m.media-amazon.com/images/M/MV5BYjgxMTQ3NjMtOTI1Yy00Yzg4LWJlNWQtMjFkNjVlYjU0OWIyXkEyXkFqcGc@._V1_SX300.jpg',
   'بلال': 'https://m.media-amazon.com/images/M/MV5BYTM3YTdmZDgtNTViZi00MmNmLWIyMDUtMmFkNWQ5YzdiZDA5XkEyXkFqcGc@._V1_SX300.jpg',
-  'بوحه': 'https://m.media-amazon.com/images/M/MV5BMTIwMTRiODAtYWNhZi00NGMyLWI3MWQtYmRmZGVjMmRlZThiXkEyXkFqcGdeQXVyMTMxMzkwODA2._V1_SX300.jpg',
-  'بوشكاش': 'https://m.media-amazon.com/images/M/MV5BMmIyNTU1NzUtOTVjMS00YjUyLThhOGItOWFmZmUwMTk2ZDZjXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg',
   'بينوكيو': 'https://m.media-amazon.com/images/M/MV5BYjEyMDJmYTAtOTliMC00MjYzLTljNDEtMjliM2Y0MThjYzBiXkEyXkFqcGc@._V1_SX300.jpg',
-  'تسليم اهالي': 'https://m.media-amazon.com/images/M/MV5BMTk4MzcyNDIyMl5BMl5BanBnXkFtZTcwMTA4NTQ5OQ@@._V1_SX300.jpg',
   'جميله و الوحش': 'https://m.media-amazon.com/images/M/MV5BMTUwNjUxMTM4NV5BMl5BanBnXkFtZTgwODExMDQzMTI@._V1_SX300.jpg',
-  'حرب اطاليا': 'https://m.media-amazon.com/images/M/MV5BOThjNjQ4ZGUtNTQzMS00NWFhLWI1M2ItNGFhYjJhYzM1YTdjXkEyXkFqcGc@._V1_SX300.jpg',
   'حياة حشره': 'https://m.media-amazon.com/images/M/MV5BNGI3Mjc1ZjUtYTJhYS00NjBiLTgyYjctODU5NTNlMWJiYjYzXkEyXkFqcGc@._V1_SX300.jpg',
-  'خارج على القانون': 'https://m.media-amazon.com/images/M/MV5BNjE1OWIxNjYtZGU3Ny00NmYyLTg3ZGEtNGIzNWZhNzVlZmM2XkEyXkFqcGc@._V1_SX300.jpg',
   'رايا و آخر تنين': 'https://m.media-amazon.com/images/M/MV5BN2QzZTQ3MzktN2JiYS00MDEzLTgxMWQtZWFmMDI3NWFkZTY0XkEyXkFqcGc@._V1_SX300.jpg',
-  'زكي شان': 'https://m.media-amazon.com/images/M/MV5BNDA0OTM5MzQ3M15BMl5BanBnXkFtZTcwMjM2NzI0MQ@@._V1_SX300.jpg',
-  'عسل اسود': 'https://m.media-amazon.com/images/M/MV5BNDUzNDc3OTI3NV5BMl5BanBnXkFtZTcwMDQ3OTQ2Ng@@._V1_SX300.jpg',
   'فلم الفسحه': 'https://m.media-amazon.com/images/M/MV5BZGNiZmFiZGUtODA2Mi00YjY0LWI1OTEtNWQ5NTdhZTkwM2Y1XkEyXkFqcGc@._V1_SX300.jpg',
-  'فول الصين العظيم': 'https://m.media-amazon.com/images/M/MV5BOTU1Y2Y2ODYtNjI4My00NDIwLTllNTUtZGM3ZDk1Njc1OGNjXkEyXkFqcGc@._V1_SX300.jpg',
-  'في محطة مصر': 'https://m.media-amazon.com/images/M/MV5BYjhlMmMzOTMtNWE0MS00ODc4LThjNGYtNGViOTAxM2VjNjgxXkEyXkFqcGdeQXVyNTcwOTcxMjk@._V1_SX300.jpg',
-  'لا تراجع ولا استسلام': 'https://m.media-amazon.com/images/M/MV5BZTdlNWEwOTctYzJjNi00NjdhLWIyZmYtODcyYWU1OWFkMDZlXkEyXkFqcGc@._V1_SX300.jpg',
-  'همام في استردام': 'https://m.media-amazon.com/images/M/MV5BMzYzMDk5OGMtMThhYS00MjZkLTk4NTYtODk1YzBhYzBjODRmXkEyXkFqcGc@._V1_SX300.jpg',
-  'واحد من الناس': 'https://m.media-amazon.com/images/M/MV5BMTQxNjc2MDg5NF5BMl5BanBnXkFtZTcwMDg5MzI5OA@@._V1_SX300.jpg',
+  // === Arabic Films ===
+  'ابو علي': 'https://m.media-amazon.com/images/M/MV5BNzk3NTI2NGUtNmM1Yy00YTRmLWE2YTItZTYyNGM0ZjdjOTliXkEyXkFqcGc@._V1_SX300.jpg',
+  'افريكانو': 'https://m.media-amazon.com/images/M/MV5BMTI3NDYxOTM4OF5BMl5BanBnXkFtZTcwOTEwNTI4Mg@@._V1_SX300.jpg',
+  'اكس لارج': 'https://image.tmdb.org/t/p/w500/dBK3YVsY27F7VYWXdSrXqot947K.jpg',
+  'الانس والنمس': 'https://image.tmdb.org/t/p/w500/jMxavCWPFEGXRoXGFwEuTUfLIsm.jpg',
+  'البعبع': 'https://image.tmdb.org/t/p/w500/iz0qDL4sW0DVdl0hzqVseMEHyrG.jpg',
+  'اللي بالي بالك': 'https://image.tmdb.org/t/p/w500/txstnOjizjPhtTeVN8pyY8OU8lZ.jpg',
+  'بلبل حيران': 'https://m.media-amazon.com/images/M/MV5BYzdlMTVjYTQtMjZjNS00OGQ0LTk4MmItY2U4MDM0MDI4ZjM0XkEyXkFqcGdeQXVyODkxMTU1Njc@._V1_SX300.jpg',
+  'بوحه': 'https://image.tmdb.org/t/p/w500/81NR0eJ2j7x4ioq9xBZWVQFZHiC.jpg',
+  'بوشكاش': 'https://image.tmdb.org/t/p/w500/nXgcGxqScIOTDXytjCGGzsdDWV9.jpg',
+  'تسليم اهالي': 'https://image.tmdb.org/t/p/w500/ecLiw0R09wvmKLQLs4u4dUCztDk.jpg',
+  'جعلتني مجرماً': 'https://image.tmdb.org/t/p/w500/9InvbMsehKRhHMSbPvAJrK0boCz.jpg',
+  'حراميه في تايلاند': 'https://image.tmdb.org/t/p/w500/cAtcJrQB87HMZT5Y73SVAtOJNwr.jpg',
+  'حرب اطاليا': 'https://image.tmdb.org/t/p/w500/zbSoyR3f1v7JrdPz09ecaYEXjji.jpg',
+  'خارج على القانون': 'https://image.tmdb.org/t/p/w500/i1AmjimmZaAx5vwZBOptl8nJ12y.jpg',
+  'زكي شان': 'https://m.media-amazon.com/images/M/MV5BMTk5NDE4Mjc1N15BMl5BanBnXkFtZTcwNDUwOTQ3OA@@._V1_SX300.jpg',
+  'ظرف طارق': 'https://image.tmdb.org/t/p/w500/twE4XKly7N8KNpTm5nIKsYwPEyX.jpg',
+  'عبود على الحدود': 'https://image.tmdb.org/t/p/w500/qVS0DrO1VjZ4gMEAizoaAeZLVAh.jpg',
+  'عسل اسود': 'https://m.media-amazon.com/images/M/MV5BMWZjYTdiY2UtMjdjNS00ZDhiLTkwYzktNzk0YmFmMTk5MmZmXkEyXkFqcGc@._V1_SX300.jpg',
+  'عوكل': 'https://image.tmdb.org/t/p/w500/77YlWDcBSh21HJikQD81GtC2gzi.jpg',
+  'غبي منه وفيه': 'https://image.tmdb.org/t/p/w500/nlMavs7h4gsan6GtnEZy9yisuKW.jpg',
+  'فاصل ونعود': 'https://image.tmdb.org/t/p/w500/weyu8VJruWUN772yQnCEAIM3D1G.jpg',
+  'فول الصين العظيم': 'https://image.tmdb.org/t/p/w500/xk3cOm7iRFi3kFom3zdh1c7qpKv.jpg',
+  'في محطة مصر': 'https://image.tmdb.org/t/p/w500/fjbdAIEDGPgu1Lod2I4G6hmvgcn.jpg',
+  'كده رضا': 'https://m.media-amazon.com/images/M/MV5BMjE4MTYwNDcxMl5BMl5BanBnXkFtZTcwMTQzMTczMQ@@._V1_SX300.jpg',
+  'لا تراجع ولا استسلام': 'https://image.tmdb.org/t/p/w500/b7gFI5L2thZy3TzXHRU54wgS8Zu.jpg',
+  'ماما حامل': 'https://image.tmdb.org/t/p/w500/c79gxPvnRQjP4kWvPEmSblpTy6G.jpg',
+  'مطب صناعي': 'https://m.media-amazon.com/images/M/MV5BOTM2MDI2NDg0OF5BMl5BanBnXkFtZTcwNDg2ODMzMQ@@._V1_SX300.jpg',
+  'همام في استردام': 'https://m.media-amazon.com/images/M/MV5BMjk3MDgyNDgxOF5BMl5BanBnXkFtZTcwNjI5Mzg5MQ@@._V1_SX300.jpg',
+  'واحد من الناس': 'https://m.media-amazon.com/images/M/MV5BMjE5NTI0NDIyMl5BMl5BanBnXkFtZTcwMTI3MDQzMQ@@._V1_SX300.jpg',
 };
 
 const DEFAULT_POSTER = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/GnURlTivfXkzZHtg.jpg';
@@ -732,7 +747,7 @@ async function discoverShows() {
       const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
       const key = 'cf-' + createShowKey(folderName);
       const firstFileId = files[0] ? files[0].id : null;
-      const filmPoster = MOVIE_POSTER_MAP[folderName] || (firstFileId ? `https://lh3.googleusercontent.com/d/${firstFileId}=s400` : DEFAULT_POSTER);
+      const filmPoster = MOVIE_POSTER_MAP[folderName] || DEFAULT_POSTER;
       CARTOON_FILMS[key] = {
         name: folderName,
         folderId: folder.id,
@@ -784,7 +799,7 @@ async function discoverShows() {
       }
       const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
       const key = 'ff-' + createShowKey(folderName);
-      const ffPoster2 = MOVIE_POSTER_MAP[folderName] || (files[0] ? `https://lh3.googleusercontent.com/d/${files[0].id}=s400` : DEFAULT_POSTER);
+      const ffPoster2 = MOVIE_POSTER_MAP[folderName] || DEFAULT_POSTER;
       FOREIGN_FILMS[key] = {
         name: folderName,
         folderId: item.id,
@@ -827,7 +842,7 @@ async function discoverShows() {
       }
       const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
       const key = 'fs-' + createShowKey(folderName);
-      const fsPoster = MOVIE_POSTER_MAP[folderName] || (files[0] ? `https://lh3.googleusercontent.com/d/${files[0].id}=s400` : DEFAULT_POSTER);
+      const fsPoster = MOVIE_POSTER_MAP[folderName] || DEFAULT_POSTER;
       FOREIGN_FILMS[key] = {
         name: folderName,
         folderId: folder.id,
@@ -882,7 +897,7 @@ async function discoverShows() {
         const key = 'ff-' + createShowKey(movieName);
         // Skip if already added (from standalone or series)
         if (FOREIGN_FILMS[key]) continue;
-        const actPoster = MOVIE_POSTER_MAP[movieName] || (actorFiles[0] ? `https://lh3.googleusercontent.com/d/${actorFiles[0].id}=s400` : DEFAULT_POSTER);
+        const actPoster = MOVIE_POSTER_MAP[movieName] || DEFAULT_POSTER;
         FOREIGN_FILMS[key] = {
           name: movieName,
           folderId: movieFolder.id,
@@ -931,7 +946,7 @@ async function discoverShows() {
       }
       const sortedParts = Object.keys(episodeMap).map(Number).sort((a, b) => a - b);
       const key = 'ar-' + createShowKey(folderName);
-      const arPoster = MOVIE_POSTER_MAP[folderName] || (files[0] ? `https://lh3.googleusercontent.com/d/${files[0].id}=s400` : DEFAULT_POSTER);
+      const arPoster = MOVIE_POSTER_MAP[folderName] || DEFAULT_POSTER;
       ARABIC_FILMS[key] = {
         name: folderName,
         folderId: folder.id,
@@ -962,7 +977,7 @@ function buildAddon() {
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - Arabic Cartoons & Movies',
-    version: '12.0.0',
+    version: '12.3.0',
     description: `كرتون عربي مدبلج - ${showKeys.length} مسلسل + ${movieKeys.length + cartoonFilmKeys.length} فلم كرتون + ${foreignFilmKeys.length} فلم أجنبي + ${arabicFilmKeys.length} فلم عربي`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
@@ -1268,7 +1283,7 @@ app.get('/health', (req, res) => {
   const arabicFilmKeys = Object.keys(ARABIC_FILMS);
   res.json({
     status: 'ok',
-    version: '12.2.0',
+    version: '12.3.0',
     shows: showKeys.length,
     movieSeries: movieKeys.length,
     cartoonFilms: cartoonFilmKeys.length,
