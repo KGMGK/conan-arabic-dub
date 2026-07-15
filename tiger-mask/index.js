@@ -68,6 +68,7 @@ const POSTER_MAP = {
   'تيمون و بومبا': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/GLdtyEmfYSmdYVLP.jpg',
   'حكايات عالميه': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/tuufXlZKldaVlwzo.jpg',
   'ساسوكي': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/HNZQFWswRWnDdEdx.jpg',
+  'فلونه': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/MlCXSExkONMHiHRU.jpg',
   'في جعبتي حكايه': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/rjYswUdsbNalKneX.png',
   'قصص بطوطية': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/UYUdWpKrUyLVlZij.png',
   'ليلو وستيتش': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/ViHccoocGpHJSasV.jpg',
