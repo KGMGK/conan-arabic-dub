@@ -1064,3 +1064,111 @@ function streamHandler(args) {
 }
 
 
+
+// === SERVER STARTUP ===
+const app = express();
+
+// Stream proxy endpoint
+app.get('/stream/:fileId/play.mp4', async (req, res) => {
+  try {
+    const fileId = req.params.fileId;
+    
+    // Check token cache first
+    let accessToken = streamCache.get('access_token');
+    if (!accessToken) {
+      const authClient = new google.auth.GoogleAuth({
+        credentials: JSON.parse(process.env.GDRIVE_CREDENTIALS),
+        scopes: ['https://www.googleapis.com/auth/drive.readonly']
+      });
+      const client = await authClient.getClient();
+      const tokenRes = await client.getAccessToken();
+      accessToken = tokenRes.token;
+      streamCache.set('access_token', accessToken, 50 * 60 * 1000); // 50 min
+    }
+
+    const driveUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
+    const range = req.headers.range;
+    const headers = { 'Authorization': `Bearer ${accessToken}` };
+    if (range) headers['Range'] = range;
+
+    const proxyReq = https.request(driveUrl, { headers }, (proxyRes) => {
+      res.writeHead(proxyRes.statusCode, {
+        'Content-Type': proxyRes.headers['content-type'] || 'video/mp4',
+        'Content-Length': proxyRes.headers['content-length'],
+        'Content-Range': proxyRes.headers['content-range'],
+        'Accept-Ranges': 'bytes',
+        'Access-Control-Allow-Origin': '*'
+      });
+      proxyRes.pipe(res);
+    });
+    proxyReq.on('error', (err) => {
+      console.error('Stream proxy error:', err.message);
+      if (!res.headersSent) res.status(502).send('Stream error');
+    });
+    proxyReq.end();
+  } catch (err) {
+    console.error('Stream error:', err.message);
+    if (!res.headersSent) res.status(500).send('Internal error');
+  }
+});
+
+// Health endpoint
+app.get('/health', (req, res) => {
+  const showKeys = Object.keys(SHOWS);
+  const movieKeys = Object.keys(MOVIES);
+  const cartoonFilmKeys = Object.keys(CARTOON_FILMS);
+  const foreignFilmKeys = Object.keys(FOREIGN_FILMS);
+  const arabicFilmKeys = Object.keys(ARABIC_FILMS);
+  res.json({
+    status: 'ok',
+    version: '12.0.1',
+    shows: showKeys.length,
+    movieSeries: movieKeys.length,
+    cartoonFilms: cartoonFilmKeys.length,
+    foreignFilms: foreignFilmKeys.length,
+    arabicFilms: arabicFilmKeys.length,
+    totalEpisodes: showKeys.reduce((sum, k) => sum + SHOWS[k].totalEpisodes, 0),
+    cache: {
+      streamEntries: streamCache.size,
+      catalogEntries: catalogCache.size,
+      metaEntries: metaCache.size
+    }
+  });
+});
+
+// Discover endpoint (manual re-discovery)
+app.get('/discover', async (req, res) => {
+  try {
+    await discoverShows();
+    buildAddon();
+    res.json({ status: 'ok', shows: Object.keys(SHOWS).length, movies: Object.keys(MOVIES).length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Mount Stremio addon
+async function startServer() {
+  console.log('🚀 Starting server...');
+  
+  // Start Express server FIRST (so Render sees the port)
+  const PORT = process.env.PORT || 7000;
+  app.listen(PORT, () => {
+    console.log(`✅ Server listening on port ${PORT}`);
+  });
+
+  // Then discover content in background
+  try {
+    await discoverShows();
+    buildAddon();
+    // Mount addon router
+    const addonRouter = getRouter(addon);
+    app.use(addonRouter);
+    console.log(`🎬 Addon ready! ${Object.keys(SHOWS).length} shows + ${Object.keys(MOVIES).length} movie series + ${Object.keys(CARTOON_FILMS).length} cartoon films + ${Object.keys(FOREIGN_FILMS).length} foreign films + ${Object.keys(ARABIC_FILMS).length} Arabic films`);
+  } catch (err) {
+    console.error('❌ Discovery error:', err.message);
+    // Server still runs, just no content yet
+  }
+}
+
+startServer();
