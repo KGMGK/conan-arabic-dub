@@ -997,7 +997,7 @@ function buildAddon() {
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - Arabic Cartoons & Movies',
-    version: '12.4.1',
+    version: '12.4.2',
     description: `كرتون عربي مدبلج - ${showKeys.length} مسلسل + ${movieKeys.length + cartoonFilmKeys.length} فلم كرتون + ${foreignFilmKeys.length} فلم أجنبي + ${arabicFilmKeys.length} فلم عربي`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
@@ -1303,7 +1303,7 @@ app.get('/health', (req, res) => {
   const arabicFilmKeys = Object.keys(ARABIC_FILMS);
   res.json({
     status: 'ok',
-    version: '12.4.1',
+    version: '12.4.2',
     shows: showKeys.length,
     movieSeries: movieKeys.length,
     cartoonFilms: cartoonFilmKeys.length,
@@ -1333,24 +1333,25 @@ app.get('/discover', async (req, res) => {
 async function startServer() {
   console.log('🚀 Starting server...');
   
-  // Start Express server FIRST (so Render sees the port)
+  // Build addon and mount router IMMEDIATELY so manifest.json is always available
+  buildAddon();
+  const addonRouter = getRouter(addon.getInterface());
+  app.use(addonRouter);
+  console.log('📡 Addon router mounted (manifest.json available)');
+  
+  // Start Express server (so Render sees the port)
   const PORT = process.env.PORT || 7000;
   app.listen(PORT, () => {
     console.log(`✅ Server listening on port ${PORT}`);
   });
-
-  // Then discover content in background
+  
+  // Discover content in background (populates SHOWS, MOVIES, etc.)
   try {
     await discoverShows();
-    buildAddon();
-    // Mount addon router
-    const addonRouter = getRouter(addon.getInterface());
-    app.use(addonRouter);
-    console.log(`🎬 Addon ready! ${Object.keys(SHOWS).length} shows + ${Object.keys(MOVIES).length} movie series + ${Object.keys(CARTOON_FILMS).length} cartoon films + ${Object.keys(FOREIGN_FILMS).length} foreign films + ${Object.keys(ARABIC_FILMS).length} Arabic films`);
+    console.log(`🎬 Discovery complete! ${Object.keys(SHOWS).length} shows + ${Object.keys(MOVIES).length} movie series + ${Object.keys(CARTOON_FILMS).length} cartoon films + ${Object.keys(FOREIGN_FILMS).length} foreign films + ${Object.keys(ARABIC_FILMS).length} Arabic films`);
   } catch (err) {
     console.error('❌ Discovery error:', err.message);
-    // Server still runs, just no content yet
+    // Server still runs with addon routes, just no content yet
   }
 }
-
 startServer();
