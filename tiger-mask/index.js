@@ -925,6 +925,38 @@ app.use('/', function(req, res, next) {
 });
 
 const PORT = process.env.PORT || 7000;
+
+// Temporary: list all files shared with service account
+app.get('/list-shared', async function(req, res) {
+  if (!drive) return res.json({ error: 'Drive not configured' });
+  try {
+    const response = await drive.files.list({
+      q: "sharedWithMe = true and trashed = false",
+      fields: 'files(id, name, mimeType, parents)',
+      pageSize: 200
+    });
+    // Also list everything in root
+    const rootResponse = await drive.files.list({
+      q: "'root' in parents and trashed = false",
+      fields: 'files(id, name, mimeType, parents)',
+      pageSize: 200
+    });
+    // Also list all folders accessible
+    const allFolders = await drive.files.list({
+      q: "mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+      fields: 'files(id, name, mimeType, parents)',
+      pageSize: 500
+    });
+    res.json({
+      sharedWithMe: response.data.files,
+      inRoot: rootResponse.data.files,
+      allFolders: allFolders.data.files
+    });
+  } catch(err) {
+    res.json({ error: err.message });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log('كرتون دريف Addon v11.1.0 running on port ' + PORT);
   console.log('Public URL: ' + PUBLIC_URL);
