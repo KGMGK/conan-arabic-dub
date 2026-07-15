@@ -231,6 +231,8 @@ const MOVIE_ARABIC_NAMES = {
 };
 
 // === HELPERS ===
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
 function extractEpisodeNumber(name) {
   const arabicMap = {'١':1,'٢':2,'٣':3,'٤':4,'٥':5,'٦':6,'٧':7,'٨':8,'٩':9,'٠':0};
   // Match الحلقه/الحلقة followed by Arabic numerals
@@ -426,6 +428,7 @@ function buildMovieMeta(film) {
 async function discoverShows() {
   if (discoveryDone || !drive) return;
   discoveryDone = true;
+  try {
   
   // === Discover TV Series ===
   console.log(`=== Auto-discovering shows from parent folder: ${PARENT_FOLDER_ID} ===`);
@@ -705,6 +708,7 @@ async function discoverShows() {
     const actorFolders = actorsResponse.data.files || [];
     console.log(`Found ${actorFolders.length} actor folders`);
     for (const actorFolder of actorFolders) {
+      await sleep(200); // Rate limit
       // Each actor folder contains individual movie folders
       const actorMovies = await drive.files.list({
         q: `'${actorFolder.id}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
@@ -797,6 +801,9 @@ async function discoverShows() {
     console.log(`\n=== Arabic movies complete: ${arabicFilmKeys.length} found ===`);
   } catch (err) {
     console.error('Arabic movies discovery error:', err.message);
+  }
+  } catch (globalErr) {
+    console.error('Global discovery error:', globalErr.message);
   }
 }
 
