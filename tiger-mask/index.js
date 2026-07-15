@@ -915,17 +915,6 @@ app.get('/discover', async function(req, res) {
   res.json(result);
 });
 
-app.use('/', function(req, res, next) {
-  if (addon) {
-    const router = getRouter(addon.getInterface());
-    router(req, res, next);
-  } else {
-    res.json({ error: 'Discovery in progress, please wait' });
-  }
-});
-
-const PORT = process.env.PORT || 7000;
-
 // Temporary: list all files shared with service account
 app.get('/list-shared', async function(req, res) {
   if (!drive) return res.json({ error: 'Drive not configured' });
@@ -956,6 +945,18 @@ app.get('/list-shared', async function(req, res) {
     res.json({ error: err.message });
   }
 });
+
+app.use('/', function(req, res, next) {
+  if (addon) {
+    const router = getRouter(addon.getInterface());
+    router(req, res, next);
+  } else {
+    res.json({ error: 'Discovery in progress, please wait' });
+  }
+});
+
+const PORT = process.env.PORT || 7000;
+
 
 app.listen(PORT, async () => {
   console.log('كرتون دريف Addon v11.1.0 running on port ' + PORT);
