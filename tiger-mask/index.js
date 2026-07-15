@@ -269,6 +269,25 @@ const MOVIE_POSTER_MAP = {
   'مطب صناعي': 'https://m.media-amazon.com/images/M/MV5BOTM2MDI2NDg0OF5BMl5BanBnXkFtZTcwNDg2ODMzMQ@@._V1_SX300.jpg',
   'همام في استردام': 'https://m.media-amazon.com/images/M/MV5BMjk3MDgyNDgxOF5BMl5BanBnXkFtZTcwNjI5Mzg5MQ@@._V1_SX300.jpg',
   'واحد من الناس': 'https://m.media-amazon.com/images/M/MV5BMjE5NTI0NDIyMl5BMl5BanBnXkFtZTcwMTI3MDQzMQ@@._V1_SX300.jpg',
+  'Lord of the Rings': 'https://m.media-amazon.com/images/M/MV5BNzIxMDQ2YTctNDY4MC00ZTRhLTk4ODQtMTVlOWY4NTdiYmMwXkEyXkFqcGc@._V1_QL75_UX380_CR0,1,380,562_.jpg',
+  'Maleficent': 'https://m.media-amazon.com/images/M/MV5BMjAwMzAzMzExOF5BMl5BanBnXkFtZTgwOTcwMDA5MTE@._V1_SX300.jpg',
+  'Miss Congeniality': 'https://m.media-amazon.com/images/M/MV5BZjMzOWU2MGQtM2Y2Mi00YzgwLTllOGYtNzJlNmU2OTM1MmJjXkEyXkFqcGc@._V1_SX300.jpg',
+  'Mission Impossible': 'https://m.media-amazon.com/images/M/MV5BOGZjNDlkMTYtMTJkZi00OTkzLWI4NDEtYTA2ODQyMjcwYTdlXkEyXkFqcGc@._V1_QL75_UX380_CR0,1,380,562_.jpg',
+  'Narnia': 'https://m.media-amazon.com/images/M/MV5BMTc0NTUwMTU5OV5BMl5BanBnXkFtZTcwNjAwNzQzMw@@._V1_SX300.jpg',
+  'Night At The Museum': 'https://m.media-amazon.com/images/M/MV5BM2E4ZGViZWEtYTNjOS00YmIwLWJmMWQtZGRhMWQwYTU0NWUyXkEyXkFqcGc@._V1_SX300.jpg',
+  'Now you see me': 'https://m.media-amazon.com/images/M/MV5BMTY0NDY3MDMxN15BMl5BanBnXkFtZTcwOTM5NzMzOQ@@._V1_SX300.jpg',
+  "Ocean's": 'https://m.media-amazon.com/images/M/MV5BYTkxYjE1NzAtNDJiZC00YWRmLWEwMjEtNWQzZWUyNjFiYzI2XkEyXkFqcGc@._V1_SX300.jpg',
+  'Pink Panther': 'https://m.media-amazon.com/images/M/MV5BZTE2ODdmMTktNmEwMy00ZDZmLWJmNDAtYTEyN2FjYjcwM2M1XkEyXkFqcGc@._V1_SX300.jpg',
+  'Pirates of the Caribbean': 'https://m.media-amazon.com/images/M/MV5BNDhlMzEyNzItMTA5Mi00YWRhLThlNTktYTQyMTA0MDIyNDEyXkEyXkFqcGc@._V1_QL75_UX380_CR0,2,380,562_.jpg',
+  'Ride Along': 'https://m.media-amazon.com/images/M/MV5BNjU4NzYzOTY1MF5BMl5BanBnXkFtZTgwMTAyNTc1MDE@._V1_SX300.jpg',
+  'Rush Hour': 'https://m.media-amazon.com/images/M/MV5BMGZiMzViNmEtNTNlZi00MzFmLTk5NTEtNDE2OTUzNmNlMTY4XkEyXkFqcGc@._V1_SX300.jpg',
+  'Shanghai': 'https://m.media-amazon.com/images/M/MV5BM2YxZTNkMzctMzg5Mi00MzZmLWIyYzMtMjlmM2E3NmE0OGEwXkEyXkFqcGc@._V1_SX300.jpg',
+  'Sherlock Holmes': 'https://m.media-amazon.com/images/M/MV5BMTg0NjEwNjUxM15BMl5BanBnXkFtZTcwMzk0MjQ5Mg@@._V1_SX300.jpg',
+  'The Apes': 'https://m.media-amazon.com/images/M/MV5BMjllODU1NDItODU1Ni00N2Y2LTg4Y2ItOTJjMTczZDliN2FhXkEyXkFqcGc@._V1_SX300.jpg',
+  "The Hitman's": 'https://m.media-amazon.com/images/M/MV5BNmY2ZjExZDMtNjU5Ni00MWFkLWI3M2QtMDAwOGNjMjgyMDY2XkEyXkFqcGdeQXVyMTY2MDU4ODIy._V1_SX300.jpg',
+  'The Mechanic': 'https://m.media-amazon.com/images/M/MV5BYzAxZDZjMjktOTExMS00ODc4LTk5ZmEtNzY5NzQ4MTgzMzRhXkEyXkFqcGc@._V1_SX300.jpg',
+  'The MEG': 'https://image.tmdb.org/t/p/w500/eyWICPcxOuTcDDDbTMOZawoOn8d.jpg',
+  'Thor': 'https://m.media-amazon.com/images/M/MV5BNjRhNGZjZjEtYTQzYS00OWUxLThjNGEtMTIwMTE2ZDFlZTZkXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg',
 };
 
 const DEFAULT_POSTER = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/GnURlTivfXkzZHtg.jpg';
@@ -977,7 +996,7 @@ function buildAddon() {
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - Arabic Cartoons & Movies',
-    version: '12.3.0',
+    version: '12.4.0',
     description: `كرتون عربي مدبلج - ${showKeys.length} مسلسل + ${movieKeys.length + cartoonFilmKeys.length} فلم كرتون + ${foreignFilmKeys.length} فلم أجنبي + ${arabicFilmKeys.length} فلم عربي`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
@@ -1283,7 +1302,7 @@ app.get('/health', (req, res) => {
   const arabicFilmKeys = Object.keys(ARABIC_FILMS);
   res.json({
     status: 'ok',
-    version: '12.3.0',
+    version: '12.4.0',
     shows: showKeys.length,
     movieSeries: movieKeys.length,
     cartoonFilms: cartoonFilmKeys.length,
