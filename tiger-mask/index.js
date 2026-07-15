@@ -873,6 +873,35 @@ function handleStreamResponse(proxyRes, req, res) {
   proxyRes.pipe(res);
 }
 
+
+app.get('/debug-folder/:folderId', async function(req, res) {
+  if (!drive) return res.status(500).send('Drive not configured');
+  const folderId = req.params.folderId;
+  try {
+    // Get ALL files in folder (any type)
+    const allFiles = await drive.files.list({
+      q: `'${folderId}' in parents and trashed = false`,
+      fields: 'files(id, name, mimeType, shortcutDetails, size)',
+      supportsAllDrives: true,
+      pageSize: 100
+    });
+    // Also check subfolders
+    const subfolders = await drive.files.list({
+      q: `'${folderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+      fields: 'files(id, name)',
+      supportsAllDrives: true
+    });
+    res.json({
+      folderId,
+      totalFiles: allFiles.data.files.length,
+      files: allFiles.data.files,
+      subfolders: subfolders.data.files
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/health', function(req, res) {
   const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, moviesFolderId: MOVIES_FOLDER_ID, version: '11.1.0', cache: { streamEntries: streamCache.size, catalogEntries: catalogCache.size, metaEntries: metaCache.size }, shows: {}, movies: {} };
   for (const key of showKeys) {
