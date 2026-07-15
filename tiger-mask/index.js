@@ -72,7 +72,8 @@ const POSTER_MAP = {
   'قصص بطوطية': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/UYUdWpKrUyLVlZij.png',
   'ليلو وستيتش': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/ViHccoocGpHJSasV.jpg',
   'ماروكو': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/pBkyctjkdTschpzj.jpg',
-  'ماوكلي': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/vEcWBOqkTDaLKyfZ.jpg'
+  'ماوكلي': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/vEcWBOqkTDaLKyfZ.jpg',
+  'هايدي': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663826037843/LsuDmIaieeZCDhRi.jpg'
 };
 
 // Movie poster mapping (by key -> poster URL)
@@ -126,7 +127,9 @@ const SHOW_META = {
   'ليلو وستيتش': { description: 'ليلو وستيتش هو مسلسل ديزني عن فتاة هاوايية وصديقها ستيتش.', genres: ['Animation', 'Comedy', 'Family'] },
   'ماروكو': { description: 'تشيبى ماروكو-تشان هو أنمي ياباني كوميدي عن حياة الطفلة ماروكو.', genres: ['Animation', 'Comedy'] },
   'ماوكلي': { description: 'ماوكلي هو أنمي مستوحى من كتاب الأدغال عن فتى نشأ بين الحيوانات.', genres: ['Animation', 'Adventure', 'Family'] },
-  'فلونه': { description: 'فلونة هو مسلسل أنمي ياباني يحكي قصة عائلة روبنسون السويسرية في جزيرة نائية.', genres: ['Animation', 'Adventure', 'Family'] }
+  'فلونه': { description: 'فلونة هو مسلسل أنمي ياباني يحكي قصة عائلة روبنسون السويسرية في جزيرة نائية.', genres: ['Animation', 'Adventure', 'Family'] },
+  'هايدي': { description: 'هايدي هو مسلسل أنمي ياباني كلاسيكي يحكي قصة الطفلة هايدي في جبال الألب السويسرية.', genres: ['Animation', 'Drama', 'Family'] },
+  'مستر بين': { description: 'مستر بين هو مسلسل كرتوني كوميدي مستوحى من المسلسل البريطاني الشهير.', genres: ['Animation', 'Comedy'] }
 };
 
 // Movie meta info
@@ -262,7 +265,9 @@ const ARABIC_TO_ASCII = {
   'ليلو وستيتش': 'lilo-stitch',
   'ماروكو': 'maruko',
   'ماوكلي': 'mowgli',
-  'فلونه': 'flona'
+  'فلونه': 'flona',
+  'هايدي': 'haydy',
+  'مستر بين': 'mr-bean'
 };
 
 function createShowKey(name) {
@@ -310,8 +315,8 @@ async function getFilesRecursive(folderId) {
     });
     const shortcuts = shortcutResponse.data.files || [];
     for (const sc of shortcuts) {
-      if (sc.shortcutDetails && sc.shortcutDetails.targetMimeType === 'video/mp4') {
-        files.push({ id: sc.shortcutDetails.targetId, name: sc.name, mimeType: 'video/mp4' });
+      if (sc.shortcutDetails && sc.shortcutDetails.targetMimeType && sc.shortcutDetails.targetMimeType.startsWith('video/')) {
+        files.push({ id: sc.shortcutDetails.targetId, name: sc.name, mimeType: sc.shortcutDetails.targetMimeType });
       }
     }
   } catch (err) {
@@ -348,10 +353,11 @@ function buildMeta(show, isMovie) {
     year: 2024,
     videos: show.allEpisodes.map(epNum => ({
       id: 'cartoon-ar:' + show.prefix + ':' + epNum,
-      title: show.name + ' - ' + label + ' ' + epNum,
+      title: label + ' ' + epNum,
       episode: epNum,
       season: 1,
-      released: new Date(2024, 0, 1).toISOString()
+      released: new Date(2024, 0, epNum).toISOString(),
+      overview: show.name + ' - ' + label + ' ' + epNum
     }))
   };
 }
@@ -497,7 +503,7 @@ function buildAddon() {
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - Arabic Cartoons',
-    version: '11.0.5',
+    version: '11.1.0',
     description: `كرتون عربي مدبلج - ${showKeys.length} مسلسل + ${movieKeys.length} سلسلة أفلام`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
@@ -750,7 +756,7 @@ function buildLandingPage() {
     <div class="shows-grid">${showCards}</div>
     <h2 class="section-title">🎬 أفلام كرتون (${movieKeys.length})</h2>
     <div class="shows-grid">${movieCards}</div>
-    <div class="stats">الإصدار: v11.0.5 | المسلسلات: ${showKeys.length} | الأفلام: ${movieKeys.length}</div>
+    <div class="stats">الإصدار: v11.1.0 | المسلسلات: ${showKeys.length} | الأفلام: ${movieKeys.length}</div>
   </div>
 </body>
 </html>`;
@@ -868,7 +874,7 @@ function handleStreamResponse(proxyRes, req, res) {
 }
 
 app.get('/health', function(req, res) {
-  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, moviesFolderId: MOVIES_FOLDER_ID, version: '11.0.5', cache: { streamEntries: streamCache.size, catalogEntries: catalogCache.size, metaEntries: metaCache.size }, shows: {}, movies: {} };
+  const healthData = { status: 'ok', driveConfigured: !!drive, parentFolderId: PARENT_FOLDER_ID, moviesFolderId: MOVIES_FOLDER_ID, version: '11.1.0', cache: { streamEntries: streamCache.size, catalogEntries: catalogCache.size, metaEntries: metaCache.size }, shows: {}, movies: {} };
   for (const key of showKeys) {
     const show = SHOWS[key];
     healthData.shows[key] = { name: show.name, folderId: show.folderId, episodesLoaded: show.totalEpisodes };
@@ -905,7 +911,7 @@ app.use('/', function(req, res, next) {
 
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, async () => {
-  console.log('كرتون دريف Addon v11.0.5 running on port ' + PORT);
+  console.log('كرتون دريف Addon v11.1.0 running on port ' + PORT);
   console.log('Public URL: ' + PUBLIC_URL);
   console.log('Shows Folder: ' + PARENT_FOLDER_ID);
   console.log('Movies Folder: ' + MOVIES_FOLDER_ID);
