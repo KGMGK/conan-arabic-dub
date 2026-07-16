@@ -1054,7 +1054,7 @@ function buildAddon() {
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - Arabic Cartoons & Movies',
-    version: '12.5.0',
+    version: '12.5.1',
     description: `كرتون عربي مدبلج - ${showKeys.length} مسلسل + ${movieKeys.length + cartoonFilmKeys.length} فلم كرتون + ${foreignFilmKeys.length} فلم أجنبي + ${arabicFilmKeys.length} فلم عربي`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
@@ -1111,38 +1111,38 @@ function catalogHandler(args) {
   if (args.id === 'cartoons_all') {
     const metas = showKeys.map(key => buildMeta(SHOWS[key], false));
     const result = { metas: metas.slice(skip, skip + 100) };
-    catalogCache.set(cacheKey, result, CATALOG_TTL);
+    if (result.metas.length > 0) catalogCache.set(cacheKey, result, CATALOG_TTL);
     return Promise.resolve(result);
   }
   if (args.id === 'cartoons_movies') {
     const metas = movieKeys.map(key => buildMeta(MOVIES[key], true));
     const result = { metas: metas.slice(skip, skip + 100) };
-    catalogCache.set(cacheKey, result, CATALOG_TTL);
+    if (result.metas.length > 0) catalogCache.set(cacheKey, result, CATALOG_TTL);
     return Promise.resolve(result);
   }
   if (args.id === 'cartoon_films') {
     const metas = cartoonFilmKeys.map(key => buildMovieMeta(CARTOON_FILMS[key]));
     const result = { metas: metas.slice(skip, skip + 100) };
-    catalogCache.set(cacheKey, result, CATALOG_TTL);
+    if (result.metas.length > 0) catalogCache.set(cacheKey, result, CATALOG_TTL);
     return Promise.resolve(result);
   }
   if (args.id === 'foreign_films') {
     const metas = foreignFilmKeys.map(key => buildMovieMeta(FOREIGN_FILMS[key]));
     const result = { metas: metas.slice(skip, skip + 100) };
-    catalogCache.set(cacheKey, result, CATALOG_TTL);
+    if (result.metas.length > 0) catalogCache.set(cacheKey, result, CATALOG_TTL);
     return Promise.resolve(result);
   }
   if (args.id === 'arabic_films') {
     const metas = arabicFilmKeys.map(key => buildMovieMeta(ARABIC_FILMS[key]));
     const result = { metas: metas.slice(skip, skip + 100) };
-    catalogCache.set(cacheKey, result, CATALOG_TTL);
+    if (result.metas.length > 0) catalogCache.set(cacheKey, result, CATALOG_TTL);
     return Promise.resolve(result);
   }
   // Legacy single catalog
   if (args.id === 'cartoons') {
     const metas = showKeys.map(key => buildMeta(SHOWS[key], false));
     const result = { metas: metas.slice(skip, skip + 100) };
-    catalogCache.set(cacheKey, result, CATALOG_TTL);
+    if (result.metas.length > 0) catalogCache.set(cacheKey, result, CATALOG_TTL);
     return Promise.resolve(result);
   }
   return Promise.resolve({ metas: [] });
@@ -1425,7 +1425,7 @@ app.get('/health', (req, res) => {
   const arabicFilmKeys = Object.keys(ARABIC_FILMS);
   res.json({
     status: 'ok',
-    version: '12.5.0',
+    version: '12.5.1',
     shows: showKeys.length,
     movieSeries: movieKeys.length,
     cartoonFilms: cartoonFilmKeys.length,
@@ -1446,7 +1446,7 @@ app.get('/debug', (req, res) => {
   const foreignFilmKeys2 = Object.keys(FOREIGN_FILMS);
   const arabicFilmKeys2 = Object.keys(ARABIC_FILMS);
   res.json({
-    version: '12.5.0',
+    version: '12.5.1',
     discoveryDone,
     counts: {
       shows: showKeys.length,
@@ -1466,6 +1466,8 @@ app.get('/discover', async (req, res) => {
   try {
     await discoverShows();
     buildAddon();
+    catalogCache.clear();
+    metaCache.clear();
     res.json({ status: 'ok', shows: Object.keys(SHOWS).length, movies: Object.keys(MOVIES).length });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1492,6 +1494,8 @@ async function startServer() {
   try {
     await discoverShows();
     console.log(`🎬 Discovery complete! ${Object.keys(SHOWS).length} shows + ${Object.keys(MOVIES).length} movie series + ${Object.keys(CARTOON_FILMS).length} cartoon films + ${Object.keys(FOREIGN_FILMS).length} foreign films + ${Object.keys(ARABIC_FILMS).length} Arabic films`);
+    catalogCache.clear();
+    metaCache.clear();
   } catch (err) {
     console.error('❌ Discovery error:', err.message);
     // Server still runs with addon routes, just no content yet
