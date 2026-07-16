@@ -1054,7 +1054,7 @@ function buildAddon() {
   addon = new addonBuilder({
     id: 'local.network.arabic.cartoons',
     name: 'كرتون دريف - Arabic Cartoons & Movies',
-    version: '12.4.5',
+    version: '12.5.0',
     description: `كرتون عربي مدبلج - ${showKeys.length} مسلسل + ${movieKeys.length + cartoonFilmKeys.length} فلم كرتون + ${foreignFilmKeys.length} فلم أجنبي + ${arabicFilmKeys.length} فلم عربي`,
     logo: POSTER_MAP['النمر المقنع'] || DEFAULT_POSTER,
     resources: ['catalog', 'meta', 'stream'],
@@ -1308,46 +1308,76 @@ function streamHandler(args) {
 const app = express();
 
 // Stream proxy endpoint
+// === Stream proxy endpoint - uses fetch for better Render compatibility ===
 app.get('/stream/:fileId/play.mp4', async (req, res) => {
   try {
     const fileId = req.params.fileId;
     
     // Check token cache first
     let accessToken = streamCache.get('access_token');
-    if (!accessToken) {
-      const authClient = new google.auth.GoogleAuth({
-        credentials: JSON.parse(process.env.GDRIVE_CREDENTIALS),
-        scopes: ['https://www.googleapis.com/auth/drive.readonly']
-      });
-      const client = await authClient.getClient();
-      const tokenRes = await client.getAccessToken();
-      accessToken = tokenRes.token;
-      streamCache.set('access_token', accessToken, 50 * 60 * 1000); // 50 min
+    if (!accessToken && driveAuth) {
+      try {
+        const client = await driveAuth.getClient();
+        const tokenRes = await client.getAccessToken();
+        accessToken = tokenRes.token;
+        streamCache.set('access_token', accessToken, 50 * 60 * 1000);
+      } catch (authErr) {
+        console.error('Auth token error:', authErr.message);
+        if (!res.headersSent) res.status(500).send('Auth error: ' + authErr.message);
+        return;
+      }
     }
-
+    
+    if (!accessToken) {
+      if (!res.headersSent) res.status(500).send('No access token available');
+      return;
+    }
+    
     const driveUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
     const range = req.headers.range;
     const headers = { 'Authorization': `Bearer ${accessToken}` };
     if (range) headers['Range'] = range;
-
-    const proxyReq = https.request(driveUrl, { headers }, (proxyRes) => {
-      res.writeHead(proxyRes.statusCode, {
-        'Content-Type': proxyRes.headers['content-type'] || 'video/mp4',
-        'Content-Length': proxyRes.headers['content-length'],
-        'Content-Range': proxyRes.headers['content-range'],
-        'Accept-Ranges': 'bytes',
-        'Access-Control-Allow-Origin': '*'
-      });
-      proxyRes.pipe(res);
-    });
-    proxyReq.on('error', (err) => {
-      console.error('Stream proxy error:', err.message);
-      if (!res.headersSent) res.status(502).send('Stream error');
-    });
-    proxyReq.end();
+    
+    const proxyRes = await fetch(driveUrl, { headers });
+    
+    if (!proxyRes.ok) {
+      const errText = await proxyRes.text().catch(() => 'Unknown error');
+      console.error(`Stream error: ${proxyRes.status} - ${errText.slice(0, 200)}`);
+      if (!res.headersSent) res.status(proxyRes.status).send('Stream error: ' + errText.slice(0, 200));
+      return;
+    }
+    
+    // Forward response headers
+    const contentType = proxyRes.headers.get('content-type') || 'video/mp4';
+    const contentLength = proxyRes.headers.get('content-length');
+    const contentRange = proxyRes.headers.get('content-range');
+    
+    const responseHeaders = {
+      'Content-Type': contentType,
+      'Accept-Ranges': 'bytes',
+      'Access-Control-Allow-Origin': '*'
+    };
+    if (contentLength) responseHeaders['Content-Length'] = contentLength;
+    if (contentRange) responseHeaders['Content-Range'] = contentRange;
+    
+    res.writeHead(proxyRes.status, responseHeaders);
+    
+    // Stream the body
+    const reader = proxyRes.body.getReader();
+    
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!res.write(value)) {
+        // Backpressure - wait for drain
+        await new Promise(resolve => res.once('drain', resolve));
+      }
+    }
+    res.end();
+    
   } catch (err) {
     console.error('Stream error:', err.message);
-    if (!res.headersSent) res.status(500).send('Internal error');
+    if (!res.headersSent) res.status(500).send('Internal error: ' + err.message);
   }
 });
 
@@ -1395,7 +1425,7 @@ app.get('/health', (req, res) => {
   const arabicFilmKeys = Object.keys(ARABIC_FILMS);
   res.json({
     status: 'ok',
-    version: '12.4.5',
+    version: '12.5.0',
     shows: showKeys.length,
     movieSeries: movieKeys.length,
     cartoonFilms: cartoonFilmKeys.length,
@@ -1416,7 +1446,7 @@ app.get('/debug', (req, res) => {
   const foreignFilmKeys2 = Object.keys(FOREIGN_FILMS);
   const arabicFilmKeys2 = Object.keys(ARABIC_FILMS);
   res.json({
-    version: '12.4.5',
+    version: '12.5.0',
     discoveryDone,
     counts: {
       shows: showKeys.length,
