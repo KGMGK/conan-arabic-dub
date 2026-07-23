@@ -8,9 +8,9 @@ const express = require('express');
 const app = express();
 
 // Google Drive API credentials
-const CLIENT_ID = process.env.GDRIVE_CLIENT_ID;
-const CLIENT_SECRET = process.env.GDRIVE_CLIENT_SECRET;
-const REFRESH_TOKEN = process.env.GDRIVE_REFRESH_TOKEN;
+const CLIENT_ID = process.env.GDRIVE_CLIENT_ID || '138754935320-25jni7qoj5p90oorqcdjmqhfs38c898a.apps.googleusercontent.com';
+const CLIENT_SECRET = process.env.GDRIVE_CLIENT_SECRET || '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';
+const REFRESH_TOKEN = process.env.GDRIVE_REFRESH_TOKEN || '1//0gq8LSIWKBNDjCgYIARAAGBASNwF-L9IrHwGZG9ySHE7nHmiMBHEqvGw6iD1g91MgkdvLmCBbHsNipPmxO5krOjvvfUSammvn9G0';
 
 const DRIVE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const DRIVE_FILES_URL = 'https://content.googleapis.com/drive/v3/files';
