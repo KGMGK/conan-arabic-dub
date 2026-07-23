@@ -1,13 +1,16 @@
 {
-  "name": "tiger-mask-arabic",
-  "version": "1.0.0",
+  "name": "cartoon-drive-addon",
+  "version": "13.0.0",
+  "description": "Stremio addon for Arabic cartoons and movies from Google Drive",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
-    "stremio-addon-sdk": "^1.6.10",
-    "googleapis": "^134.0.0"
-  },
-  "license": "MIT"
+    "express": "^4.18.2"
+  }
 }
